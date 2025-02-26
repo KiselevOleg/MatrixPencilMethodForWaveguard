@@ -137,6 +137,8 @@
 		<File RelativePath=".\code\resourse\math.f90"/>
 		<File RelativePath=".\code\resourse\system.f90"/></Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<Filter Name="load_experimental_measurements">
+		<File RelativePath=".\code\load_experimental_measurements\load_experimental_measurements.f90"/></Filter>
 		<Filter Name="vaweguard_solution">
 		<File RelativePath=".\code\waveguard_solution\count_K.f90"/>
 		<File RelativePath=".\code\waveguard_solution\integral_solution.f90"/>

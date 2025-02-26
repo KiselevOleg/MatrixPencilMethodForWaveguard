@@ -13,6 +13,7 @@ implicit none
     use count_K,only:init_count_K
     use integral_solution,only:init_integral_solution
     use integral_solution_isotropic,only:init_integral_solution_isotropic
+    use load_experimental_measurements,only:init_load_experimental_measurements
     implicit none
         call init_main_parameters
         
@@ -20,12 +21,14 @@ implicit none
         call init_count_K
         call init_integral_solution
         call init_integral_solution_isotropic
+        call init_load_experimental_measurements
     endsubroutine init
     subroutine destructor
     use sigma_and_eigenvectors,only:destructor_sigma_and_eigenvectors
     use count_K,only:destructor_count_K
     use integral_solution,only:destructor_integral_solution
     use integral_solution_isotropic,only:destructor_integral_solution_isotropic
+    use load_experimental_measurements,only:destructor_load_experimental_measurements
     implicit none
         call destructor_main_parameters
         
@@ -33,6 +36,7 @@ implicit none
         call destructor_count_K
         call destructor_integral_solution
         call destructor_integral_solution_isotropic
+        call destructor_load_experimental_measurements
     endsubroutine destructor
     
     subroutine init_main_parameters()
