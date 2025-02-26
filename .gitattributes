@@ -1,0 +1,53 @@
+# Handle line endings automatically for files detected as text
+# and leave all files detected as binary untouched.
+*     text=auto
+
+# Fortran files
+*.f   text diff=fortran
+*.for text diff=fortran
+*.f90 text diff=fortran
+*.f95 text diff=fortran
+*.f03 text diff=fortran
+# Basic .gitattributes for a MATLAB repo.
+# This template includes Simulink and MuPAD extensions, in addition
+# to the MATLAB extensions.
+
+# Source files
+# ============
+*.m             text diff=matlab
+*.mu            text diff=matlab
+
+# Caution: *.m also matches Mathematica packages.
+
+# Binary files
+# ============
+*.p             binary
+*.mex*          binary
+*.fig           binary
+*.mat           binary
+*.mdl           binary
+*.slx           binary
+*.mdlp          binary
+*.slxp          binary
+*.sldd          binary
+*.mltbx         binary
+*.mlappinstall  binary
+*.mlpkginstall  binary
+*.mn            binary
+*.data          binary
+*.jpg           binary
+*.png           binary
+*.ai            binary
+*.eps           binary
+*.gif           binary
+*.jped          binary
+# Basic .gitattributes for a Vim repo.
+# Vim on Linux works with LF only, Vim on Windows works with both LF and CRLF
+
+# Source files
+# ============
+*.vim text eol=lf
+.vimrc text eol=lf
+.gvimrc text eol=lf
+# Fix syntax highlighting on GitHub to allow comments
+.vscode/*.json linguist-language=JSON-with-Comments

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject ProjectCreator="Intel Fortran" Keyword="Console Application" Version="11.0" ProjectIdGuid="{E4333821-0519-477C-97D4-4F7C0604176F}">
+	<Platforms>
+		<Platform Name="Win32"/>
+		<Platform Name="x64"/>
+	</Platforms>
+	<Configurations>
+		<Configuration Name="Debug|Win32">
+			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" WarnInterfaces="true" Traceback="true" BoundsCheck="true" StackFrameCheck="true" RuntimeLibrary="rtMultiThreadedDebugDLL"/>
+			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" GenerateDebugInformation="true" SubSystem="subSystemConsole"/>
+			<Tool Name="VFResourceCompilerTool"/>
+			<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+			<Tool Name="VFCustomBuildTool"/>
+			<Tool Name="VFPreLinkEventTool"/>
+			<Tool Name="VFPreBuildEventTool"/>
+			<Tool Name="VFPostBuildEventTool"/>
+			<Tool Name="VFManifestTool" SuppressStartupBanner="true"/>
+		</Configuration>
+		<Configuration Name="Debug|x64">
+			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" WarnInterfaces="true" Traceback="true" BoundsCheck="true" StackFrameCheck="true" RuntimeLibrary="rtMultiThreadedDebugDLL"/>
+			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" GenerateDebugInformation="true" SubSystem="subSystemConsole"/>
+			<Tool Name="VFResourceCompilerTool"/>
+			<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
+			<Tool Name="VFCustomBuildTool"/>
+			<Tool Name="VFPreLinkEventTool"/>
+			<Tool Name="VFPreBuildEventTool"/>
+			<Tool Name="VFPostBuildEventTool"/>
+			<Tool Name="VFManifestTool" SuppressStartupBanner="true"/>
+		</Configuration>
+		<Configuration Name="Release|Win32">
+			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" RuntimeLibrary="rtMultiThreadedDLL"/>
+			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole"/>
+			<Tool Name="VFResourceCompilerTool"/>
+			<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+			<Tool Name="VFCustomBuildTool"/>
+			<Tool Name="VFPreLinkEventTool"/>
+			<Tool Name="VFPreBuildEventTool"/>
+			<Tool Name="VFPostBuildEventTool"/>
+			<Tool Name="VFManifestTool" SuppressStartupBanner="true"/>
+		</Configuration>
+		<Configuration Name="Release|x64">
+			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" RuntimeLibrary="rtMultiThreadedDLL"/>
+			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole"/>
+			<Tool Name="VFResourceCompilerTool"/>
+			<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
+			<Tool Name="VFCustomBuildTool"/>
+			<Tool Name="VFPreLinkEventTool"/>
+			<Tool Name="VFPreBuildEventTool"/>
+			<Tool Name="VFPostBuildEventTool"/>
+			<Tool Name="VFManifestTool" SuppressStartupBanner="true"/>
+		</Configuration>
+	</Configurations>
+	<Files>
+		<Filter Name="Header Files" Filter="fi;fd;h;inc"/>
+		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+		<Filter Name="lapack">
+		<Filter Name="support">
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\dcabs1.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\dlabad.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\dladiv.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\dlamch.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\dlapy2.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\dlapy3.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\dscal.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\dzasum.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\dznrm2.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\idamax.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\ieeeck.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\ilaenv.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\iparmq.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\izamax.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\lsame.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\xerbla.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zaxpy.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zcopy.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zdotc.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zdotu.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zdscal.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zgehd2.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zgemm.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zgemv.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zgerc.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zgeru.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zgetf2.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlacgv.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlacpy.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zladiv.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlahqr.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlahr2.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlaqr0.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlaqr1.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlaqr2.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlaqr3.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlaqr4.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlaqr5.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlarf.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlarfb.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlarfg.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlarft.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlartg.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlaset.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlaswp.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zlatrs.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zrot.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zscal.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zswap.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\ztrexc.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\ztrmm.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\ztrmv.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\ztrsm.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\ztrsv.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\ztrti2.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\ztrtri.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zung2r.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zungqr.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Support\zungr2.f"/></Filter>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\Ev_evaluate.f90"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\zgebak.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\zgebal.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\zgehrd.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\zgetrf.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\zgetri.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\zhseqr.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\ztrevc.f"/>
+		<File RelativePath=".\code\resourse\LAPACK eigenvectors\zunghr.f"/></Filter>
+		<File RelativePath=".\code\resourse\GK_integration.f90"/>
+		<File RelativePath=".\code\resourse\GK_integration1.f90"/>
+		<File RelativePath=".\code\resourse\GK_integration2.f90"/>
+		<File RelativePath=".\code\resourse\GK_integration3.f90"/>
+		<File RelativePath=".\code\resourse\GK_integration4.f90"/>
+		<File RelativePath=".\code\resourse\GK_integration5.f90"/>
+		<File RelativePath=".\code\resourse\GK_integration6.f90"/>
+		<File RelativePath=".\code\resourse\GK_integration7.f90"/>
+		<File RelativePath=".\code\resourse\Halfc.f90"/>
+		<File RelativePath=".\code\resourse\Jn.f90"/>
+		<File RelativePath=".\code\resourse\linear_system.f90"/>
+		<File RelativePath=".\code\resourse\math.f90"/>
+		<File RelativePath=".\code\resourse\system.f90"/></Filter>
+		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<Filter Name="vaweguard_solution">
+		<File RelativePath=".\code\waveguard_solution\count_K.f90"/>
+		<File RelativePath=".\code\waveguard_solution\integral_solution.f90"/>
+		<File RelativePath=".\code\waveguard_solution\integral_solution_isotropic.f90"/>
+		<File RelativePath=".\code\waveguard_solution\sigma_and_eigenvectors.f90"/></Filter>
+		<File RelativePath=".\code\main.f90"/>
+		<File RelativePath=".\code\main_parameters.f90"/>
+		<File RelativePath=".\code\pre_and_post_runtime_actions.f90"/>
+		<File RelativePath=".\code\runtime_application_actions.f90"/></Filter>
+	</Files>
+	<Globals/>
+</VisualStudioProject>
