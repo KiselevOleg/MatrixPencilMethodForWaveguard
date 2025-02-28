@@ -6,9 +6,9 @@ implicit none
     
     subroutine count_matrix_pencil_method_distersion_curve_graphics()
     use matrix_pencil_method,only:count_dispersion_numbers
-    use math,only:c0
+    use math,only:c0,pi
     implicit none
-        integer(4) L
+        integer(4) L,res_size
         complex(8),allocatable::res(:)
         
         real(8) omega,omega_start,domega,omega_end
@@ -23,13 +23,13 @@ implicit none
         
         open(newunit=file,file="graphics/matrix_pencil_method/dispersion_curve.data")
         do omega=omega_start,omega_end,domega
-            call count_dispersion_numbers(omega+c0,L,res)
+            call count_dispersion_numbers(omega+c0,L,res,res_size)
             
-            do i=1,L
-                write(file,*),omega,real(res(i)),aimag(res(i))
+            do i=1,res_size
+                write(file,*),omega*0.5d0/pi,real(res(i)),aimag(res(i))
             enddo
             
-            print*,omega
+            print*,omega,res_size
         enddo
         close(file)
         
