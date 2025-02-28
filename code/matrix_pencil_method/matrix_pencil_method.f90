@@ -1,6 +1,8 @@
 module matrix_pencil_method
 implicit none
     public::init_matrix_pencil_method,destructor_matrix_pencil_method
+    
+    public::count_dispersion_numbers
 
     complex(8),allocatable::H0(:,:),H1(:,:)
     complex(8),allocatable::H0_H0(:,:),H0Plus(:,:)
@@ -147,6 +149,7 @@ implicit none
         allocate(H0_H0(1,1))
         allocate(H0Plus(1,1))
         allocate(H0Plus_H1(1,1))
+        allocate(res(1))
         allocate(res_eigenvectors(1,1))
     endsubroutine init_matrix_pencil_method
     subroutine destructor_matrix_pencil_method
