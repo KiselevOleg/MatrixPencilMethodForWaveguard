@@ -11,13 +11,13 @@ implicit none
     integer(4)::Nx
     complex(8)::omega
     integer(4) res_size
-    complex(8),allocatable::res(:),res_eigenvectors(:,:),mu(:)
+    complex(8),allocatable::res(:),mu(:),lambda(:),lambda_eigenvectors(:,:)
     
     private::count_dispersion_numbers_,generate_matrixes,count_H,count_H0plus,count_H0Plus_H1,count_dispersion_numbers_for_counted_matrixes
-    private::count_H_for_mu,count_dispersion_numbers_for_counted_matrixes_for_mu
+    private::count_H_for_mu,lambda,count_dispersion_numbers_for_counted_matrixes_for_mu,lambda_eigenvectors
     
     private::H0,H1,H0_H0,H0Plus,H0Plus_H1
-    private::L,Nx,omega,res,res_size,res_eigenvectors
+    private::L,Nx,omega,res,res_size
     contains
     
     subroutine count_dispersion_numbers(omega,L,res,res_size)
@@ -89,8 +89,9 @@ implicit none
         deallocate(H0_H0)
         deallocate(H0Plus)
         deallocate(H0Plus_H1)
+        deallocate(lambda)
         deallocate(res)
-        deallocate(res_eigenvectors)
+        deallocate(lambda_eigenvectors)
         deallocate(mu)
         
         allocate(H0(Nx-L,L))
@@ -98,8 +99,9 @@ implicit none
         allocate(H0_H0(L,L))
         allocate(H0Plus(L,Nx-L))
         allocate(H0Plus_H1(L,L))
+        allocate(lambda(L))
         allocate(res(L))
-        allocate(res_eigenvectors(L,L))
+        allocate(lambda_eigenvectors(L,L))
         allocate(mu(L))
     endsubroutine generate_matrixes
     
@@ -147,32 +149,37 @@ implicit none
         call multiply(L,Nx-L,L,H0Plus,H1,H0Plus_H1)
     endsubroutine count_H0Plus_H1
     subroutine count_dispersion_numbers_for_counted_matrixes()
-    use math,only:epsilon
+    use load_experimental_measurements,only:get_dx
+    use math,only:ci,epsilon
     implicit none
         integer(4) i,j
         logical(1) filter_check
         complex(8) t
         
-        call Ev_evaluate(H0Plus_H1,L,res,res_eigenvectors)
+        call Ev_evaluate(H0Plus_H1,L,lambda,lambda_eigenvectors)
         
         res_size=0
         do i=1,L
-            filter_check=real(res(i))>0.1d0
+            filter_check=abs(lambda(i))>epsilon
             if(.not.filter_check) cycle
             
             filter_check=.false.
             do j=1,L
-                if(abs((res(i)-mu(i))/res(i))<1d0) then
+                if(abs((lambda(i)-mu(i))/lambda(i))<1d0) then
                     filter_check=.true.
                     exit
                 endif
             enddo
             if(.not.filter_check) cycle
             
+            lambda(i)=log(lambda(i))*(-ci)/get_dx()
+            
+            filter_check=.false.
+            filter_check=real(lambda(i))>epsilon
+            if(.not.filter_check) cycle
+            
             res_size=res_size+1
-            t=res(i)
-            res(i)=res(res_size)
-            res(res_size)=t
+            res(res_size)=lambda(i)
         enddo
     endsubroutine count_dispersion_numbers_for_counted_matrixes
     
@@ -193,7 +200,7 @@ implicit none
     implicit none
         integer(4) i    
         
-        call Ev_evaluate(H0Plus_H1,L,mu,res_eigenvectors)
+        call Ev_evaluate(H0Plus_H1,L,mu,lambda_eigenvectors)
         
         do i=1,L
             if(abs(mu(i))<epsilon) then
@@ -216,8 +223,9 @@ implicit none
         allocate(H0_H0(1,1))
         allocate(H0Plus(1,1))
         allocate(H0Plus_H1(1,1))
+        allocate(lambda(1))
         allocate(res(1))
-        allocate(res_eigenvectors(1,1))
+        allocate(lambda_eigenvectors(1,1))
         allocate(mu(1))
     endsubroutine init_matrix_pencil_method
     subroutine destructor_matrix_pencil_method
@@ -227,7 +235,9 @@ implicit none
         deallocate(H0_H0)
         deallocate(H0Plus)
         deallocate(H0Plus_H1)
-        deallocate(res_eigenvectors)
+        deallocate(lambda)
+        deallocate(res)
+        deallocate(lambda_eigenvectors)
         deallocate(mu)
     endsubroutine destructor_matrix_pencil_method
 endmodule matrix_pencil_method
