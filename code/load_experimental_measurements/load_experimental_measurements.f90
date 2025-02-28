@@ -3,6 +3,7 @@ implicit none
     public::init_load_experimental_measurements,destructor_load_experimental_measurements
     
     public::get_Nx,get_Nt,get_xi,get_tj,get_uij
+    public::if_dx_const,get_dx,get_x0,if_dt_const,get_dt,get_t0
     public::get_sceptum_in_xi
     
     integer(4) Nx,Nt
@@ -22,10 +23,6 @@ implicit none
         integer(4) file
         
         integer(4) i,j
-        
-        
-    real(8)::dt_max_difference_for_be_const=1d-7
-    real(8)::dx_max_difference_for_be_const=1d-7
         
         open(newunit=file,file="input/steel/_x.data")
         read(file,*),Nx
@@ -167,4 +164,41 @@ implicit none
         enddo
         f=f/sqrt(pi+pi)
     endfunction get_sceptum_in_xi_dt_const
+    
+    logical(1) function if_dt_const() result(f)
+    implicit none
+        f=is_dt_const
+    endfunction if_dt_const
+    real(8) function get_dt() result(f)
+    use system,only:print_error
+    implicit none
+        if(.not.is_dt_const) call print_error("load_experimental_measurements.get_dt",".not.is_dt_const")
+        
+        f=dt
+    endfunction get_dt
+    real(8) function get_t0() result(f)
+    use system,only:print_error
+    implicit none
+        if(.not.is_dt_const) call print_error("load_experimental_measurements.get_t0",".not.is_dt_const")
+        
+        f=t(1)
+    endfunction get_t0
+    logical(1) function if_dx_const() result(f)
+    implicit none
+        f=is_dx_const
+    endfunction if_dx_const
+    real(8) function get_dx() result(f)
+    use system,only:print_error
+    implicit none
+        if(.not.is_dx_const) call print_error("load_experimental_measurements.get_dx",".not.is_dx_const")
+        
+        f=dx
+    endfunction get_dx
+    real(8) function get_x0() result(f)
+    use system,only:print_error
+    implicit none
+        if(.not.is_dx_const) call print_error("load_experimental_measurements.get_x0",".not.is_dx_const")
+        
+        f=x(1)
+    endfunction get_x0
 endmodule load_experimental_measurements
