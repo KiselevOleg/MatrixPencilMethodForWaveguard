@@ -5,8 +5,8 @@ program main
 implicit none
     call init()
     
-    call count_matrix_pencil_method_distersion_curve_graphics()
-    !call load_experimental_measurements_view()
+    !call count_matrix_pencil_method_distersion_curve_graphics()
+    call load_experimental_measurements_view()
     !call test_K()
     
     call destructor()
