@@ -14,6 +14,7 @@ implicit none
     use integral_solution,only:init_integral_solution
     use integral_solution_isotropic,only:init_integral_solution_isotropic
     use load_experimental_measurements,only:init_load_experimental_measurements
+    use matrix_pencil_method,only:init_matrix_pencil_method
     implicit none
         call init_main_parameters
         
@@ -22,6 +23,7 @@ implicit none
         call init_integral_solution
         call init_integral_solution_isotropic
         call init_load_experimental_measurements
+        call init_matrix_pencil_method
     endsubroutine init
     subroutine destructor
     use sigma_and_eigenvectors,only:destructor_sigma_and_eigenvectors
@@ -29,6 +31,7 @@ implicit none
     use integral_solution,only:destructor_integral_solution
     use integral_solution_isotropic,only:destructor_integral_solution_isotropic
     use load_experimental_measurements,only:destructor_load_experimental_measurements
+    use matrix_pencil_method,only:destructor_matrix_pencil_method
     implicit none
         call destructor_main_parameters
         
@@ -37,6 +40,7 @@ implicit none
         call destructor_integral_solution
         call destructor_integral_solution_isotropic
         call destructor_load_experimental_measurements
+        call destructor_matrix_pencil_method
     endsubroutine destructor
     
     subroutine init_main_parameters()

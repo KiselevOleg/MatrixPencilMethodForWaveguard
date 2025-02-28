@@ -1,8 +1,40 @@
 module runtime_application_actions
 implicit none
-
-    public::test_K,load_experimental_measurements_view
+    public::test_K,load_experimental_measurements_view,count_matrix_pencil_method_distersion_curve_graphics
+    
     contains
+    
+    subroutine count_matrix_pencil_method_distersion_curve_graphics()
+    use matrix_pencil_method,only:count_dispersion_numbers
+    use math,only:c0,pi
+    implicit none
+        integer(4) L,res_size
+        complex(8),allocatable::res(:)
+        
+        real(8) omega,omega_start,domega,omega_end
+        
+        integer(4) i
+        integer(4) file
+        
+        L=5
+        allocate(res(L))
+        
+        omega_start=0.01; domega=0.01d0; omega_end=6.25d0*2
+        
+        open(newunit=file,file="graphics/matrix_pencil_method/dispersion_curve.data")
+        do omega=omega_start,omega_end,domega
+            call count_dispersion_numbers(omega+c0,L,res,res_size)
+            
+            do i=1,res_size
+                write(file,*),omega*0.5d0/pi,real(res(i)),aimag(res(i))
+            enddo
+            
+            print*,omega,res_size
+        enddo
+        close(file)
+        
+        deallocate(res)
+    endsubroutine count_matrix_pencil_method_distersion_curve_graphics
     
     subroutine load_experimental_measurements_view
     use load_experimental_measurements,only:get_Nx,get_Nt,get_xi,get_tj,get_uij,get_sceptum_in_xi
