@@ -63,7 +63,7 @@ implicit none
         
         omega=3d0
         
-        h(1)=0.28816d0
+        h(1)=2.8816d0
         rho(1)=7.743d0
         
         do k=1,number_of_layers
@@ -143,7 +143,7 @@ implicit none
         !Cp(3)=2.314550249431379d0
         !Cs(3)=0.944911182523068d0
         
-        E(1)=206d0
+        E(1)=2.06d0
         nu(1)=0.31d0
         
         do k=1,number_of_layers
