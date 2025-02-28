@@ -1,8 +1,53 @@
 module runtime_application_actions
 implicit none
 
-    public::test_K
+    public::test_K,load_experimental_measurements_view
     contains
+    
+    subroutine load_experimental_measurements_view
+    use load_experimental_measurements,only:get_Nx,get_Nt,get_xi,get_tj,get_uij,get_sceptum_in_xi
+    use math,only:pi,c0
+    implicit none
+        integer(4) file
+        
+        integer(4) xi,tj
+        
+        real(8) omega,omega_start,domega,omega_end
+        
+        open(newunit=file,file="graphics\load_experimental_measurements\xi=1_signal.data")
+        do tj=1,get_Nt()
+            write(file,*),get_tj(tj),get_uij(1,tj)
+        enddo
+        close(file)
+        open(newunit=file,file="graphics\load_experimental_measurements\xi=Nx_div_2_signal.data")
+        do tj=1,get_Nt()
+            write(file,*),get_tj(tj),get_uij(get_Nx()/2,tj)
+        enddo
+        close(file)
+        open(newunit=file,file="graphics\load_experimental_measurements\xi=Nx_signal.data")
+        do tj=1,get_Nt()
+            write(file,*),get_tj(tj),get_uij(get_Nx(),tj)
+        enddo
+        close(file)
+        
+        omega_start=0.01d0; domega=0.0025d0; omega_end=6.25d0*4
+        
+        open(newunit=file,file="graphics\load_experimental_measurements\xi=1_spectrum.data")
+        do omega=omega_start,omega_end,domega
+            write(file,*),omega/pi*0.5d0,abs(get_sceptum_in_xi(1,omega+c0))
+        enddo
+        close(file)
+        open(newunit=file,file="graphics\load_experimental_measurements\xi=Nx_div_2_spectrum.data")
+        do omega=omega_start,omega_end,domega
+            write(file,*),omega/pi*0.5d0,abs(get_sceptum_in_xi(get_Nx()/2,omega+c0))
+        enddo
+        close(file)
+        open(newunit=file,file="graphics\load_experimental_measurements\xi=Nx_spectrum.data")
+        do omega=omega_start,omega_end,domega
+            write(file,*),omega/pi*0.5d0,abs(get_sceptum_in_xi(get_Nx(),omega+c0))
+        enddo
+        close(file)
+    endsubroutine load_experimental_measurements_view
     
     subroutine test_K()
     use count_K,only:K

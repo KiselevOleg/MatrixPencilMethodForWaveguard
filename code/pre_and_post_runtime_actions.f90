@@ -13,6 +13,7 @@ implicit none
     use count_K,only:init_count_K
     use integral_solution,only:init_integral_solution
     use integral_solution_isotropic,only:init_integral_solution_isotropic
+    use load_experimental_measurements,only:init_load_experimental_measurements
     implicit none
         call init_main_parameters
         
@@ -20,12 +21,14 @@ implicit none
         call init_count_K
         call init_integral_solution
         call init_integral_solution_isotropic
+        call init_load_experimental_measurements
     endsubroutine init
     subroutine destructor
     use sigma_and_eigenvectors,only:destructor_sigma_and_eigenvectors
     use count_K,only:destructor_count_K
     use integral_solution,only:destructor_integral_solution
     use integral_solution_isotropic,only:destructor_integral_solution_isotropic
+    use load_experimental_measurements,only:destructor_load_experimental_measurements
     implicit none
         call destructor_main_parameters
         
@@ -33,6 +36,7 @@ implicit none
         call destructor_count_K
         call destructor_integral_solution
         call destructor_integral_solution_isotropic
+        call destructor_load_experimental_measurements
     endsubroutine destructor
     
     subroutine init_main_parameters()
@@ -59,7 +63,7 @@ implicit none
         
         omega=3d0
         
-        h(1)=0.28816d0
+        h(1)=2.8816d0
         rho(1)=7.743d0
         
         do k=1,number_of_layers
@@ -139,7 +143,7 @@ implicit none
         !Cp(3)=2.314550249431379d0
         !Cs(3)=0.944911182523068d0
         
-        E(1)=206d0
+        E(1)=2.06d0
         nu(1)=0.31d0
         
         do k=1,number_of_layers
