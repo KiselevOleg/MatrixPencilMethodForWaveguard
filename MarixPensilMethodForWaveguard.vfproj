@@ -135,6 +135,7 @@
 		<File RelativePath=".\code\resourse\Jn.f90"/>
 		<File RelativePath=".\code\resourse\linear_system.f90"/>
 		<File RelativePath=".\code\resourse\math.f90"/>
+		<File RelativePath=".\code\resourse\matrix_complex8.f90"/>
 		<File RelativePath=".\code\resourse\system.f90"/></Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<Filter Name="load_experimental_measurements">
