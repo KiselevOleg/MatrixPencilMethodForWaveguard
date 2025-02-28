@@ -19,10 +19,14 @@ implicit none
     private::get_sceptum_in_xi_common,get_sceptum_in_xi_dt_const
     private::is_dt_const,is_dx_const,dt_max_difference_for_be_const,dx_max_difference_for_be_const
     contains
+    
     subroutine init_load_experimental_measurements
+    use smoothing_signal,only:arithmetic_mean_smoothing
+    implicit none
         integer(4) file
         
         integer(4) i,j
+        real(8),allocatable::signal(:)
         
         open(newunit=file,file="input/steel/_x.data")
         read(file,*),Nx
@@ -71,6 +75,18 @@ implicit none
                 exit
             endif
         enddo
+        
+        allocate(signal(Nt))
+        do i=1,Nx
+            do j=1,Nt
+                signal(j)=u(i,j)
+            enddo
+            call arithmetic_mean_smoothing(3,Nt,signal,.true.)
+            do j=1,Nt
+                u(i,j)=signal(j)
+            enddo
+        enddo
+        deallocate(signal)
     endsubroutine init_load_experimental_measurements
     
     subroutine destructor_load_experimental_measurements

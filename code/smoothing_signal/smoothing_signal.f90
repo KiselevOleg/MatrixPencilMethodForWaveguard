@@ -4,12 +4,13 @@ implicit none
     
     contains
     
-    subroutine arithmetic_mean_smoothing(strong, signal_size, signal)
+    subroutine arithmetic_mean_smoothing(strong, signal_size, signal, do_zeros_borders)
     use system,only:print_error,print_warning
     implicit none
         integer(4),intent(in)::strong
         integer(4),intent(in)::signal_size
         real(8),intent(inout)::signal(signal_size)
+        logical(1),intent(in)::do_zeros_borders
         
         real(8) tail_sum_signal(strong)
         integer(4) tail_sum_signal_start
@@ -37,7 +38,7 @@ implicit none
         do i=strong+1,signal_size-strong-1
             sum_arithmetic_mean=sum/sum_del
             
-            sum=sum-tail_sum_signal(tail_sum_signal_start)+signal(i)
+            sum=sum-tail_sum_signal(tail_sum_signal_start)+signal(i+strong+1)
             tail_sum_signal(tail_sum_signal_start)=signal(i)
             tail_sum_signal_start=tail_sum_signal_start+1
             if(tail_sum_signal_start==strong+1) tail_sum_signal_start=1
@@ -47,5 +48,14 @@ implicit none
         
         sum_arithmetic_mean=sum/sum_del
         signal(signal_size)=sum_arithmetic_mean
+        
+        if(do_zeros_borders) then
+            do i=1,strong
+                signal(i)=0d0
+            enddo
+            do i=signal_size-strong,signal_size
+                signal(i)=0d0
+            enddo
+        endif
     endsubroutine arithmetic_mean_smoothing
 endmodule smoothing_signal
