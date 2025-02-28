@@ -19,7 +19,7 @@ implicit none
         L=5
         allocate(res(L))
         
-        omega_start=0.01; domega=0.025d0; omega_end=6.25d0*4
+        omega_start=0.01; domega=0.01d0; omega_end=6.25d0*2
         
         open(newunit=file,file="graphics/matrix_pencil_method/dispersion_curve.data")
         do omega=omega_start,omega_end,domega
@@ -29,7 +29,7 @@ implicit none
                 write(file,*),omega*0.5d0/pi,real(res(i)),aimag(res(i))
             enddo
             
-            !print*,omega,res_size
+            print*,omega,res_size
         enddo
         close(file)
         
