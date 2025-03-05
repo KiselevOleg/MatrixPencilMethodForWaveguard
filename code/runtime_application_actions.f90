@@ -1,8 +1,44 @@
 module runtime_application_actions
 implicit none
-    public::test_K,load_experimental_measurements_view,count_matrix_pencil_method_distersion_curve_graphics
+    public::test_K,load_experimental_measurements_view,count_matrix_pencil_method_distersion_curve_graphics,&
+        count_distersion_curve_for_K_graphics
     
     contains
+    
+    subroutine count_distersion_curve_for_K_graphics()
+    use main_parameters,only:omega
+    use dispersion_curves_for_K,only:count_poles
+    use math,only:pi
+    implicit none
+        real(8) omega_start,domega,omega_end
+        
+        real(8) phi
+        
+        real(8) res(100)
+        integer(4) res_size_max
+        integer(4) res_size
+        
+        integer(4) i
+        
+        integer(4) file
+        
+        res_size_max=100;
+        omega_start=1d-1; domega=0.05d0; omega_end=12.499d0
+        
+        phi=0d0
+        
+        open(newunit=file,file="graphics/distersion_curve_for_K/dispersion_curves.data")
+        do omega=omega_start,omega_end,domega
+            call count_poles(phi,3,res_size_max,res,res_size)
+            
+            do i=1,res_size
+                write(file,*),omega/pi*0.5d0,res(i)
+            enddo
+            
+            print*,omega,res_size
+        enddo
+        close(file)
+    endsubroutine count_distersion_curve_for_K_graphics
     
     subroutine count_matrix_pencil_method_distersion_curve_graphics()
     use matrix_pencil_method,only:count_dispersion_numbers
