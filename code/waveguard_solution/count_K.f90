@@ -1,8 +1,9 @@
 module count_K
 implicit none
-    public::K
-    
     public::init_count_K,destructor_count_K
+    
+    public::K
+    public::get_det_A,get_det_AX,get_det_AY
     
     logical(1),save::already_counted(3)!number en for an elementary Q
     
@@ -26,6 +27,7 @@ implicit none
     
     private::already_counted,t,S,C,F,last_alpha,last_beta,count_t,count_K_element,generate_matrics,solve_matrics_system,&
         generate_matrics_isotropic,solve_matrics_system_isotropic
+    private::generate_summary_matrix_A,generate_summary_matrix_AY,generate_summary_matrix_AX
     
     !todo delete
     complex(8),save,allocatable::A(:,:),B(:,:),AY(:,:),BY(:,:),AX(:,:),BX(:,:)
@@ -375,30 +377,7 @@ implicit none
         enddo
         B(number_of_en,1)=1d0
         
-        do i=1,number_of_layers*6
-            do j=1,number_of_layers*6
-                    A(i,j)=0d0
-            enddo
-        enddo
-        
-        do i=1,3
-            do j=1,6
-                A(i,j)=S(i,j,1)
-            enddo
-        enddo
-        do layer=1,number_of_layers-1
-            do i=1,6
-                do j=1,6
-                    A(3+(layer-1)*6+i,6*(layer-1)+j)=C(i,j,1,layer)
-                    A(3+(layer-1)*6+i,6*layer+j)=C(i,j,2,layer)
-                enddo
-            enddo
-        enddo
-        do i=1,3
-            do j=1,6
-                A(number_of_layers*6-3+i,number_of_layers*6-6+j)=S(i,j,2)
-            enddo
-        enddo
+        call generate_summary_matrix_A()
         
         call star5_(A,B)
         
@@ -604,6 +583,36 @@ implicit none
         !    !pause " "
         !enddo
     endsubroutine solve_matrics_system
+    subroutine generate_summary_matrix_A()
+    use main_parameters,only:number_of_layers
+    implicit none
+        integer(4) i,j,layer
+        
+        do i=1,number_of_layers*6
+            do j=1,number_of_layers*6
+                    A(i,j)=0d0
+            enddo
+        enddo
+        
+        do i=1,3
+            do j=1,6
+                A(i,j)=S(i,j,1)
+            enddo
+        enddo
+        do layer=1,number_of_layers-1
+            do i=1,6
+                do j=1,6
+                    A(3+(layer-1)*6+i,6*(layer-1)+j)=C(i,j,1,layer)
+                    A(3+(layer-1)*6+i,6*layer+j)=C(i,j,2,layer)
+                enddo
+            enddo
+        enddo
+        do i=1,3
+            do j=1,6
+                A(number_of_layers*6-3+i,number_of_layers*6-6+j)=S(i,j,2)
+            enddo
+        enddo
+    endsubroutine generate_summary_matrix_A
     
     subroutine generate_matrics_isotropic(alpha,beta,number_of_en)
     use main_parameters,only:number_of_layers,lambda,mu,h,get_anisotropic,&
@@ -973,6 +982,39 @@ implicit none
             BY(i,1)=YF(i)
         enddo
         
+        call generate_summary_matrix_AY()
+        
+        call star5_(AY,BY)
+        
+        j=1
+        do layer=1,number_of_layers
+            do i=1,4
+                Yt(i,layer,number_of_en)=BY(j,1)
+                j=j+1
+            enddo
+        enddo
+        
+        do i=1,number_of_layers*2
+            BX(i,1)=XF(i)
+        enddo
+        
+        call generate_summary_matrix_AX()
+        
+        call star5_(AX,BX)
+        
+        j=1
+        do layer=1,number_of_layers
+            do i=1,2
+                Xt(i,layer,number_of_en)=BX(j,1)
+                j=j+1
+            enddo
+        enddo
+    endsubroutine solve_matrics_system_isotropic
+    subroutine generate_summary_matrix_AY()
+    use main_parameters,only:number_of_layers
+    implicit none
+        integer(4) i,j,layer
+        
         do i=1,number_of_layers*4
             do j=1,number_of_layers*4
                 AY(i,j)=0d0
@@ -997,20 +1039,11 @@ implicit none
                 AY(number_of_layers*4-2+i,number_of_layers*4-4+j)=YS(i,j,2)
             enddo
         enddo
-        
-        call star5_(AY,BY)
-        
-        j=1
-        do layer=1,number_of_layers
-            do i=1,4
-                Yt(i,layer,number_of_en)=BY(j,1)
-                j=j+1
-            enddo
-        enddo
-        
-        do i=1,number_of_layers*2
-            BX(i,1)=XF(i)
-        enddo
+    endsubroutine generate_summary_matrix_AY
+    subroutine generate_summary_matrix_AX()
+    use main_parameters,only:number_of_layers
+    implicit none
+        integer(4) i,j,layer
         
         do i=1,number_of_layers*2
             do j=1,number_of_layers*2
@@ -1036,17 +1069,63 @@ implicit none
                 AX(number_of_layers*2-1+i,number_of_layers*2-2+j)=XS(i,j,2)
             enddo
         enddo
+    endsubroutine generate_summary_matrix_AX
+    
+    
+    
+    complex(8) function get_det_A(alpha,beta,number_of_en) result(f)
+    use main_parameters,only:number_of_layers,get_anisotropic
+    use matrix_complex8,only:det
+    use system,only:print_error
+    implicit none
+        complex(8),intent(in)::alpha
+        complex(8),intent(in)::beta
+        integer(4),intent(in)::number_of_en
         
-        call star5_(AX,BX)
+        if(number_of_en<1.or.number_of_en>3) call print_error("count_K.get_det_A","number_of_en<1.or.number_of_en>3")
+        if(get_anisotropic()==0) call print_error("count_K.get_det_A","get_anisotropic()==0")
         
-        j=1
-        do layer=1,number_of_layers
-            do i=1,2
-                Xt(i,layer,number_of_en)=BX(j,1)
-                j=j+1
-            enddo
-        enddo
-    endsubroutine solve_matrics_system_isotropic
+        call generate_matrics(alpha,beta,number_of_en)
+        call generate_summary_matrix_A()
+        
+        f=det(A,6*number_of_layers)
+    endfunction get_det_A
+    complex(8) function get_det_AY(alpha,beta,number_of_en) result(f)
+    use main_parameters,only:number_of_layers,get_anisotropic
+    use matrix_complex8,only:det
+    use system,only:print_error
+    implicit none
+        complex(8),intent(in)::alpha
+        complex(8),intent(in)::beta
+        integer(4),intent(in)::number_of_en
+        
+        if(number_of_en<1.or.number_of_en>3) call print_error("count_K.get_det_AY","number_of_en<1.or.number_of_en>3")
+        if(get_anisotropic()==1) call print_error("count_K.get_det_AY","get_anisotropic()==1")
+        
+        call generate_matrics(alpha,beta,number_of_en)
+        call generate_summary_matrix_AY()
+        
+        f=det(AY,4*number_of_layers)
+    endfunction get_det_AY
+    complex(8) function get_det_AX(alpha,beta,number_of_en) result(f)
+    use main_parameters,only:number_of_layers,get_anisotropic
+    use matrix_complex8,only:det
+    use system,only:print_error
+    implicit none
+        complex(8),intent(in)::alpha
+        complex(8),intent(in)::beta
+        integer(4),intent(in)::number_of_en
+        
+        if(number_of_en<1.or.number_of_en>3) call print_error("count_K.get_det_AX","number_of_en<1.or.number_of_en>3")
+        if(get_anisotropic()==1) call print_error("count_K.get_det_AX","get_anisotropic()==1")
+        
+        call generate_matrics(alpha,beta,number_of_en)
+        call generate_summary_matrix_AX()
+        
+        f=det(AX,2*number_of_layers)
+    endfunction get_det_AX
+    
+    
     
     subroutine init_count_K()
     use main_parameters,only:number_of_layers,get_anisotropic
