@@ -3,8 +3,6 @@ clear all;
 A=load('dispersion_curve_2dx_2L_filter_L_100.data');
 plot(A(:,1),A(:,2),'xb');
 hold('on');
-A=load('dispersion_curve.data');
-plot(A(:,1),A(:,2),'ok');
 plot(A(:,1),A(:,3),'.r');
 
 A=load('../distersion_curve_for_K/dispersion_curves.data');
