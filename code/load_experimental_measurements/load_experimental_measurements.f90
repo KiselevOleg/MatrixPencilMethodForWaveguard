@@ -28,7 +28,7 @@ implicit none
         integer(4) i,j
         real(8),allocatable::signal(:)
         
-        open(newunit=file,file="input/steel/_x.data")
+        open(newunit=file,file="input/Al/_x.data")
         read(file,*),Nx
         allocate(x(Nx))
         do i=1,Nx
@@ -37,7 +37,7 @@ implicit none
         enddo
         close(file)
         
-        open(newunit=file,file="input/steel/_t.data")
+        open(newunit=file,file="input/Al/_t.data")
         read(file,*),Nt
         allocate(t(Nt))
         do j=1,Nt
@@ -46,7 +46,7 @@ implicit none
         enddo
         close(file)
         
-        open(newunit=file,file="input/steel/_u.data")
+        open(newunit=file,file="input/Al/_u.data")
         allocate(u(Nx,Nt))
         do i=1,Nx
             do j=1,Nt
@@ -81,7 +81,7 @@ implicit none
             do j=1,Nt
                 signal(j)=u(i,j)
             enddo
-            call arithmetic_mean_smoothing(3,Nt,signal,.true.)
+            call arithmetic_mean_smoothing(2,Nt,signal,.true.)
             do j=1,Nt
                 u(i,j)=signal(j)
             enddo

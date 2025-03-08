@@ -15,6 +15,7 @@ implicit none
     use integral_solution_isotropic,only:init_integral_solution_isotropic
     use load_experimental_measurements,only:init_load_experimental_measurements
     use matrix_pencil_method,only:init_matrix_pencil_method
+    use matrix_pencil_method_basis,only:init_matrix_pencil_method_basis
     implicit none
         call init_main_parameters
         
@@ -24,6 +25,7 @@ implicit none
         call init_integral_solution_isotropic
         call init_load_experimental_measurements
         call init_matrix_pencil_method
+        call init_matrix_pencil_method_basis
     endsubroutine init
     subroutine destructor
     use sigma_and_eigenvectors,only:destructor_sigma_and_eigenvectors
@@ -32,6 +34,7 @@ implicit none
     use integral_solution_isotropic,only:destructor_integral_solution_isotropic
     use load_experimental_measurements,only:destructor_load_experimental_measurements
     use matrix_pencil_method,only:destructor_matrix_pencil_method
+    use matrix_pencil_method_basis,only:destructor_matrix_pencil_method_basis
     implicit none
         call destructor_main_parameters
         
@@ -41,6 +44,7 @@ implicit none
         call destructor_integral_solution_isotropic
         call destructor_load_experimental_measurements
         call destructor_matrix_pencil_method
+        call destructor_matrix_pencil_method_basis
     endsubroutine destructor
     
     subroutine init_main_parameters()
@@ -67,8 +71,8 @@ implicit none
         
         omega=3d0
         
-        h(1)=2.8816d0
-        rho(1)=7.743d0
+        h(1)=0.3976d0*0.98
+        rho(1)=2.66d0
         
         do k=1,number_of_layers
             if(rho(k)<=epsilon) call print_error("pre_and_post_runtime_actions.init_main_parameters","it exists k that rho(k)<=epsilon")
@@ -147,8 +151,8 @@ implicit none
         !Cp(3)=2.314550249431379d0
         !Cs(3)=0.944911182523068d0
         
-        E(1)=2.06d0
-        nu(1)=0.31d0
+        E(1)=1.2d0-0.5
+        nu(1)=0.3d0+0.04
         
         do k=1,number_of_layers
             if(E(k)>epsilon) then
