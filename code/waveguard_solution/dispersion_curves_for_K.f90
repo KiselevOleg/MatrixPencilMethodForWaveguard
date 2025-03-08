@@ -5,7 +5,7 @@ implicit none
     real(8)::tmin=1d-2,tmax=35d0,ht=1d-3,eps=1d-7
     
     private::tmin,tmax,ht,eps
-    private::count_poles_for_A,count_poles_for_AY,count_poles_for_AX
+    private::count_poles_for_matrix
     
     contains
     
@@ -30,8 +30,8 @@ implicit none
         if(res_max_size<1) call print_error("dispersion_curves_for_K.dispersion_curves_for_K","res_max_size<1")
         
         if(get_anisotropic()==0) then
-            call count_poles_for_AY(phi,number_of_en,res_max_size,res,res_size)
-            call count_poles_for_AX(phi,number_of_en,res_max_size,res_AX,res_AX_size)
+            call count_poles_for_matrix(in_f_with_AY,phi,number_of_en,res_max_size,res,res_size)
+            call count_poles_for_matrix(in_f_with_AX,phi,number_of_en,res_max_size,res_AX,res_AX_size)
             if(res_AX_size==res_max_size) then
                 res_AX_size=0
             endif
@@ -41,53 +41,37 @@ implicit none
             enddo
             res_size=min(res_max_size,res_size+res_AX_size)
         else
-            call count_poles_for_A(phi,number_of_en,res_max_size,res,res_size)
+            call count_poles_for_matrix(in_f_with_A,phi,number_of_en,res_max_size,res,res_size)
         endif
-    endsubroutine count_poles
-    
-    subroutine count_poles_for_A(phi,number_of_en,res_max_size,res,res_size)
-    use Halfc_,only:halfc
-    implicit none
-        real(8),intent(in)::phi
-        integer(4),intent(in)::number_of_en
-        integer(4),intent(in)::res_max_size
-        real(8),intent(out)::res(res_max_size)
-        integer(4),intent(out)::res_size
         
-        call halfc(in_f,tmin,tmax,ht,eps,res_max_size,res,res_size)
     contains
-        complex(8) function in_f(alpha) result(f)
+        complex(8) function in_f_with_A(alpha) result(f)
         use count_K,only:get_det_A
         implicit none
             complex(8),intent(in)::alpha
             
             f=get_det_A(alpha*cos(phi),alpha*sin(phi),number_of_en)
-        endfunction in_f
-    endsubroutine count_poles_for_A
-    
-    subroutine count_poles_for_AY(phi,number_of_en,res_max_size,res,res_size)
-    use Halfc_,only:halfc
-    implicit none
-        real(8),intent(in)::phi
-        integer(4),intent(in)::number_of_en
-        integer(4),intent(in)::res_max_size
-        real(8),intent(out)::res(res_max_size)
-        integer(4),intent(out)::res_size
-        
-        call halfc(in_f,tmin,tmax,ht,eps,res_max_size,res,res_size)
-    contains
-        complex(8) function in_f(alpha) result(f)
+        endfunction in_f_with_A
+        complex(8) function in_f_with_AY(alpha) result(f)
         use count_K,only:get_det_AY
         implicit none
             complex(8),intent(in)::alpha
             
             f=get_det_AY(alpha*cos(phi),alpha*sin(phi),number_of_en)
-        endfunction in_f
-    endsubroutine count_poles_for_AY
+        endfunction in_f_with_AY
+        complex(8) function in_f_with_AX(alpha) result(f)
+        use count_K,only:get_det_AX
+        implicit none
+            complex(8),intent(in)::alpha
+            
+            f=get_det_AX(alpha*cos(phi),alpha*sin(phi),number_of_en)
+        endfunction in_f_with_AX
+    endsubroutine count_poles
     
-    subroutine count_poles_for_AX(phi,number_of_en,res_max_size,res,res_size)
+    subroutine count_poles_for_matrix(in_f,phi,number_of_en,res_max_size,res,res_size)
     use Halfc_,only:halfc
     implicit none
+        complex(8),external::in_f!complex(8) function in_f(complex(8) alpha)
         real(8),intent(in)::phi
         integer(4),intent(in)::number_of_en
         integer(4),intent(in)::res_max_size
@@ -95,13 +79,5 @@ implicit none
         integer(4),intent(out)::res_size
         
         call halfc(in_f,tmin,tmax,ht,eps,res_max_size,res,res_size)
-    contains
-        complex(8) function in_f(alpha) result(f)
-        use count_K,only:get_det_AX
-        implicit none
-            complex(8),intent(in)::alpha
-            
-            f=get_det_AX(alpha*cos(phi),alpha*sin(phi),number_of_en)
-        endfunction in_f
-    endsubroutine count_poles_for_AX
+    endsubroutine count_poles_for_matrix
 endmodule dispersion_curves_for_K
