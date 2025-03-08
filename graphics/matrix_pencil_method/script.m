@@ -1,6 +1,6 @@
 clear all;
 
-A=load('dispersion_curve_2dx_2L_filter_L_100.data');
+A=load('dispersion_curve_2dx_2L_filter_L_75.data');
 plot(A(:,1),A(:,2),'xb');
 hold('on');
 plot(A(:,1),A(:,3),'.r');
