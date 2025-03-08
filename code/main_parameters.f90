@@ -17,12 +17,12 @@ implicit none
     
     complex(8),save,allocatable::Calphabeta(:,:,:)!alpha,beta,number_of_layer
     
-    real(8),save,allocatable::E(:)!number_of_layer
+    complex(8),save,allocatable::E(:)!number_of_layer
     real(8),save,allocatable::nu(:)!number_of_layer
-    real(8),save,allocatable::lambda(:)!number_of_layer
-    real(8),save,allocatable::mu(:)!number_of_layer
-    real(8),save,allocatable::Cp(:)!number_of_layer
-    real(8),save,allocatable::Cs(:)!number_of_layer
+    complex(8),save,allocatable::lambda(:)!number_of_layer
+    complex(8),save,allocatable::mu(:)!number_of_layer
+    complex(8),save,allocatable::Cp(:)!number_of_layer
+    complex(8),save,allocatable::Cs(:)!number_of_layer
     
     real(8),save::omega
     

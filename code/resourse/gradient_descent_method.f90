@@ -10,7 +10,7 @@ implicit none
     real(8),private::res_min_diff_for_elements=1d-4
     
     real(8),private::derivative_delta=1d-4
-    real(8),private::dx_min_for_step=1d-6,dx_max_for_step=1d-2
+    real(8),private::dx_min_for_step=1d-6,dx_max_for_step=1d-1
     
     real(8),private::grad_epsilon=1d-6
     
