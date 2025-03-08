@@ -14,7 +14,7 @@ L50=load("dispersion_curve_2dx_2L_filter_L=          50 .data");
 L60=load("dispersion_curve_2dx_2L_filter_L=          60 .data");
 L70=load("dispersion_curve_2dx_2L_filter_L=          70 .data");
 L80=load("dispersion_curve_2dx_2L_filter_L=          80 .data");
-L90=load("dispersion_curve_2dx_2L_filter_L=          80 .data");
+L90=load("dispersion_curve_2dx_2L_filter_L=          90 .data");
 L100=load("dispersion_curve_2dx_2L_filter_L=         100 .data");
 L110=load("dispersion_curve_2dx_2L_filter_L=         110 .data");
 L120=load("dispersion_curve_2dx_2L_filter_L=         120 .data");

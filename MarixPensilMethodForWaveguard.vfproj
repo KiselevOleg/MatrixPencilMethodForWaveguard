@@ -131,6 +131,7 @@
 		<File RelativePath=".\code\resourse\GK_integration5.f90"/>
 		<File RelativePath=".\code\resourse\GK_integration6.f90"/>
 		<File RelativePath=".\code\resourse\GK_integration7.f90"/>
+		<File RelativePath=".\code\resourse\gradient descent method.f90"/>
 		<File RelativePath=".\code\resourse\Halfc.f90"/>
 		<File RelativePath=".\code\resourse\Jn.f90"/>
 		<File RelativePath=".\code\resourse\linear_system.f90"/>
