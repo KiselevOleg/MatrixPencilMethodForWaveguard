@@ -14,6 +14,8 @@ implicit none
     use integral_solution,only:init_integral_solution
     use integral_solution_isotropic,only:init_integral_solution_isotropic
     use load_experimental_measurements,only:init_load_experimental_measurements
+    use matrix_pencil_method,only:init_matrix_pencil_method
+    use matrix_pencil_method_basis,only:init_matrix_pencil_method_basis
     implicit none
         call init_main_parameters
         
@@ -22,6 +24,8 @@ implicit none
         call init_integral_solution
         call init_integral_solution_isotropic
         call init_load_experimental_measurements
+        call init_matrix_pencil_method
+        call init_matrix_pencil_method_basis
     endsubroutine init
     subroutine destructor
     use sigma_and_eigenvectors,only:destructor_sigma_and_eigenvectors
@@ -29,6 +33,8 @@ implicit none
     use integral_solution,only:destructor_integral_solution
     use integral_solution_isotropic,only:destructor_integral_solution_isotropic
     use load_experimental_measurements,only:destructor_load_experimental_measurements
+    use matrix_pencil_method,only:destructor_matrix_pencil_method
+    use matrix_pencil_method_basis,only:destructor_matrix_pencil_method_basis
     implicit none
         call destructor_main_parameters
         
@@ -37,6 +43,8 @@ implicit none
         call destructor_integral_solution
         call destructor_integral_solution_isotropic
         call destructor_load_experimental_measurements
+        call destructor_matrix_pencil_method
+        call destructor_matrix_pencil_method_basis
     endsubroutine destructor
     
     subroutine init_main_parameters()
@@ -61,10 +69,10 @@ implicit none
         allocate(h(number_of_layers))
         allocate(rho(number_of_layers))
         
-        omega=3d0
+        omega=1d0
         
-        h(1)=2.8816d0
-        rho(1)=7.743d0
+        h(1)=0.3976d0*0.98
+        rho(1)=2.66d0
         
         do k=1,number_of_layers
             if(rho(k)<=epsilon) call print_error("pre_and_post_runtime_actions.init_main_parameters","it exists k that rho(k)<=epsilon")
@@ -114,7 +122,7 @@ implicit none
     subroutine init_main_parameters_isotropic()
     use main_parameters,only:number_of_layers,rho,E,nu,lambda,mu,Cp,Cs
     use system,only:print_error,print_warning
-    use math,only:epsilon
+    use math,only:epsilon,ci
     implicit none
         integer(4) k
         
@@ -143,12 +151,12 @@ implicit none
         !Cp(3)=2.314550249431379d0
         !Cs(3)=0.944911182523068d0
         
-        E(1)=2.06d0
-        nu(1)=0.31d0
+        E(1)=1.2d0-0.5; E(1)=E(1)*exp(-ci*5d-3)
+        nu(1)=0.3d0+0.04
         
         do k=1,number_of_layers
-            if(E(k)>epsilon) then
-                if(lambda(k)>epsilon.or.Cp(k)>epsilon) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
+            if(abs(E(k))>epsilon) then
+                if(abs(lambda(k))>epsilon.or.abs(Cp(k))>epsilon) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
                     "a multi initializated layer")
                 
                 lambda(k)=nu(k)*E(k)/(1d0+nu(k))/(1d0-2d0*nu(k))
@@ -156,8 +164,8 @@ implicit none
                 
                 Cp(k)=sqrt(E(k)/rho(k))*sqrt((1d0-nu(k))/(1d0+nu(k))/(1d0-2d0*nu(k)))
                 Cs(k)=sqrt(E(k)/rho(k))*sqrt(0.5d0/(1d0+nu(k)))
-            else if(lambda(k)>epsilon) then
-                if(E(k)>epsilon.or.Cp(k)>epsilon) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
+            else if(abs(lambda(k))>epsilon) then
+                if(abs(E(k))>epsilon.or.abs(Cp(k))>epsilon) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
                     "a multi initializated layer")
                 
                 E(k)=mu(k)*(3d0*lambda(k)+2d0*mu(k))/(lambda(k)+mu(k))
@@ -165,8 +173,8 @@ implicit none
                 
                 Cp(k)=sqrt((lambda(k)+mu(k)+mu(k))/rho(k))
                 Cs(k)=sqrt(mu(k)/rho(k))
-            else if(Cp(k)>epsilon) then
-                if(lambda(k)>epsilon.or.E(k)>epsilon) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
+            else if(abs(Cp(k))>epsilon) then
+                if(abs(lambda(k))>epsilon.or.abs(E(k))>epsilon) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
                     "a multi initializated layer")
                 
                 lambda(k)=rho(k)*Cp(k)*Cp(k)-2d0*rho(k)*Cs(k)*Cs(k)
@@ -180,22 +188,22 @@ implicit none
         enddo
         
         do k=1,number_of_layers
-            if(lambda(k)<epsilon.or.lambda(k)>1d3) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
+            if(real(lambda(k))<epsilon.or.real(lambda(k))>1d3) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
                 "lambda(k)<epsilon.or.lambda(k)>1d3")
-            if(mu(k)<epsilon.or.mu(k)>1d3) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
+            if(real(mu(k))<epsilon.or.real(mu(k))>1d3) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
                 "mu(k)<epsilon.or.mu(k)>1d3")
             
-            if(E(k)<epsilon.or.E(k)>1d3) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
+            if(real(E(k))<epsilon.or.real(E(k))>1d3) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
                 "E(k)<epsilon.or.E(k)>1d3")
-            if(nu(k)<epsilon.or.nu(k)>0.5d0-epsilon) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
+            if(real(nu(k))<epsilon.or.nu(k)>0.5d0-epsilon) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
                 "nu(k)<epsilon.or.nu(k)>0.5d0-epsilon")
             
-            if(Cp(k)<epsilon.or.Cp(k)>1d3) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
+            if(real(Cp(k))<epsilon.or.real(Cp(k))>1d3) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
                 "Cp(k)<epsilon.or.Cp(k)>1d3")
-            if(Cs(k)<epsilon.or.Cs(k)>1d3) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
+            if(real(Cs(k))<epsilon.or.real(Cs(k))>1d3) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
                 "Cs(k)<epsilon.or.Cs(k)>1d3")
             
-            if(Cp(k)<Cs(k)) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic","Cp(k)<Cs(k)")
+            if(real(Cp(k))<real(Cs(k))) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic","Cp(k)<Cs(k)")
         enddo
     endsubroutine init_main_parameters_isotropic
     

@@ -18,7 +18,7 @@
 		</Configuration>
 		<Configuration Name="Debug|x64">
 			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" WarnInterfaces="true" Traceback="true" BoundsCheck="true" StackFrameCheck="true" RuntimeLibrary="rtMultiThreadedDebugDLL"/>
-			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" GenerateDebugInformation="true" SubSystem="subSystemConsole"/>
+			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" GenerateDebugInformation="true" SubSystem="subSystemConsole" StackReserveSize="1073741824"/>
 			<Tool Name="VFResourceCompilerTool"/>
 			<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
 			<Tool Name="VFCustomBuildTool"/>
@@ -40,7 +40,7 @@
 		</Configuration>
 		<Configuration Name="Release|x64">
 			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" RuntimeLibrary="rtMultiThreadedDLL"/>
-			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole"/>
+			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole" StackReserveSize="1073741824"/>
 			<Tool Name="VFResourceCompilerTool"/>
 			<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
 			<Tool Name="VFCustomBuildTool"/>
@@ -131,16 +131,24 @@
 		<File RelativePath=".\code\resourse\GK_integration5.f90"/>
 		<File RelativePath=".\code\resourse\GK_integration6.f90"/>
 		<File RelativePath=".\code\resourse\GK_integration7.f90"/>
+		<File RelativePath=".\code\resourse\gradient_descent_method.f90"/>
 		<File RelativePath=".\code\resourse\Halfc.f90"/>
 		<File RelativePath=".\code\resourse\Jn.f90"/>
 		<File RelativePath=".\code\resourse\linear_system.f90"/>
 		<File RelativePath=".\code\resourse\math.f90"/>
+		<File RelativePath=".\code\resourse\matrix_complex8.f90"/>
 		<File RelativePath=".\code\resourse\system.f90"/></Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<Filter Name="load_experimental_measurements">
 		<File RelativePath=".\code\load_experimental_measurements\load_experimental_measurements.f90"/></Filter>
+		<Filter Name="matrix_pencil_method">
+		<File RelativePath=".\code\matrix_pencil_method\matrix_pencil_method.f90"/>
+		<File RelativePath=".\code\matrix_pencil_method\matrix_pencil_method_basis.f90"/></Filter>
+		<Filter Name="smoothing_signal">
+		<File RelativePath=".\code\smoothing_signal\smoothing_signal.f90"/></Filter>
 		<Filter Name="vaweguard_solution">
 		<File RelativePath=".\code\waveguard_solution\count_K.f90"/>
+		<File RelativePath=".\code\waveguard_solution\dispersion_curves_for_K.f90"/>
 		<File RelativePath=".\code\waveguard_solution\integral_solution.f90"/>
 		<File RelativePath=".\code\waveguard_solution\integral_solution_isotropic.f90"/>
 		<File RelativePath=".\code\waveguard_solution\sigma_and_eigenvectors.f90"/></Filter>

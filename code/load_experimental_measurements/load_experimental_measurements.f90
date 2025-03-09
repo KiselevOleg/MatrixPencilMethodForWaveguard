@@ -3,6 +3,7 @@ implicit none
     public::init_load_experimental_measurements,destructor_load_experimental_measurements
     
     public::get_Nx,get_Nt,get_xi,get_tj,get_uij
+    public::if_dx_const,get_dx,get_x0,if_dt_const,get_dt,get_t0
     public::get_sceptum_in_xi
     
     integer(4) Nx,Nt
@@ -18,16 +19,16 @@ implicit none
     private::get_sceptum_in_xi_common,get_sceptum_in_xi_dt_const
     private::is_dt_const,is_dx_const,dt_max_difference_for_be_const,dx_max_difference_for_be_const
     contains
+    
     subroutine init_load_experimental_measurements
+    use smoothing_signal,only:arithmetic_mean_smoothing
+    implicit none
         integer(4) file
         
         integer(4) i,j
+        real(8),allocatable::signal(:)
         
-        
-    real(8)::dt_max_difference_for_be_const=1d-7
-    real(8)::dx_max_difference_for_be_const=1d-7
-        
-        open(newunit=file,file="input/steel/_x.data")
+        open(newunit=file,file="input/Al/_x.data")
         read(file,*),Nx
         allocate(x(Nx))
         do i=1,Nx
@@ -36,7 +37,7 @@ implicit none
         enddo
         close(file)
         
-        open(newunit=file,file="input/steel/_t.data")
+        open(newunit=file,file="input/Al/_t.data")
         read(file,*),Nt
         allocate(t(Nt))
         do j=1,Nt
@@ -45,7 +46,7 @@ implicit none
         enddo
         close(file)
         
-        open(newunit=file,file="input/steel/_u.data")
+        open(newunit=file,file="input/Al/_u.data")
         allocate(u(Nx,Nt))
         do i=1,Nx
             do j=1,Nt
@@ -74,6 +75,18 @@ implicit none
                 exit
             endif
         enddo
+        
+        allocate(signal(Nt))
+        do i=1,Nx
+            do j=1,Nt
+                signal(j)=u(i,j)
+            enddo
+            call arithmetic_mean_smoothing(2,Nt,signal,.true.)
+            do j=1,Nt
+                u(i,j)=signal(j)
+            enddo
+        enddo
+        deallocate(signal)
     endsubroutine init_load_experimental_measurements
     
     subroutine destructor_load_experimental_measurements
@@ -167,4 +180,41 @@ implicit none
         enddo
         f=f/sqrt(pi+pi)
     endfunction get_sceptum_in_xi_dt_const
+    
+    logical(1) function if_dt_const() result(f)
+    implicit none
+        f=is_dt_const
+    endfunction if_dt_const
+    real(8) function get_dt() result(f)
+    use system,only:print_error
+    implicit none
+        if(.not.is_dt_const) call print_error("load_experimental_measurements.get_dt",".not.is_dt_const")
+        
+        f=dt
+    endfunction get_dt
+    real(8) function get_t0() result(f)
+    use system,only:print_error
+    implicit none
+        if(.not.is_dt_const) call print_error("load_experimental_measurements.get_t0",".not.is_dt_const")
+        
+        f=t(1)
+    endfunction get_t0
+    logical(1) function if_dx_const() result(f)
+    implicit none
+        f=is_dx_const
+    endfunction if_dx_const
+    real(8) function get_dx() result(f)
+    use system,only:print_error
+    implicit none
+        if(.not.is_dx_const) call print_error("load_experimental_measurements.get_dx",".not.is_dx_const")
+        
+        f=dx
+    endfunction get_dx
+    real(8) function get_x0() result(f)
+    use system,only:print_error
+    implicit none
+        if(.not.is_dx_const) call print_error("load_experimental_measurements.get_x0",".not.is_dx_const")
+        
+        f=x(1)
+    endfunction get_x0
 endmodule load_experimental_measurements
