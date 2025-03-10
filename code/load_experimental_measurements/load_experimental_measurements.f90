@@ -148,37 +148,41 @@ implicit none
         endif
     endfunction get_sceptum_in_xi
     complex(8) function get_sceptum_in_xi_common(i,omega) result(f)
+    use static_integration,only:riemann_sum,simpson_sum
     use math,only:ci,c0,pi
     implicit none
         integer(4),intent(in)::i
         complex(8),intent(in)::omega
         
+        complex(8) u_(Nt)
         integer(4) tj
         
-        f=u(i,1)*exp(ci*omega*t(1))*t(1)
+        u_(1)=u(i,1)*exp(ci*omega*t(1))
         do tj=2,Nt
-            f=f+u(i,tj)*exp(ci*omega*t(tj))*(t(tj)-t(tj-1))
+            u_(tj)=u(i,tj)*exp(ci*omega*t(tj))
         enddo
-        f=f/sqrt(pi+pi)
+        f=simpson_sum(Nt,t,u_)/sqrt(pi+pi)
     endfunction get_sceptum_in_xi_common
     complex(8) function get_sceptum_in_xi_dt_const(i,omega) result(f)
+    use static_integration,only:riemann_sum,simpson_sum
     use math,only:ci,c0,pi
     implicit none
         integer(4),intent(in)::i
         complex(8),intent(in)::omega
         
         integer(4) tj
+        complex(8) u_(Nt)
         complex(8) exps,dexp
         
         exps=exp(ci*omega*t(1))
         dexp=exp(ci*omega*dt)
         
-        f=u(i,1)*exps*t(1)
+        u_(1)=u(i,1)*exps
         do tj=2,Nt
             exps=exps*dexp
-            f=f+u(i,tj)*exps*dt
+            u_(tj)=u(i,tj)*exps
         enddo
-        f=f/sqrt(pi+pi)
+        f=simpson_sum(Nt,dt,u_)/sqrt(pi+pi)
     endfunction get_sceptum_in_xi_dt_const
     
     logical(1) function if_dt_const() result(f)

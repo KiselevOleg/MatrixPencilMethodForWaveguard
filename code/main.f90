@@ -7,9 +7,9 @@ implicit none
     call init()
     
     !call count_complex_det_A_matrix_in_K_graphics()
-    call count_complex_distersion_curve_for_K_graphics()
+    !call count_complex_distersion_curve_for_K_graphics()
     !call count_distersion_curve_for_K_graphics()
-    !call count_matrix_pencil_method_distersion_curve_graphics()
+    call count_matrix_pencil_method_distersion_curve_graphics()
     !call load_experimental_measurements_view()
     !call test_K()
     
