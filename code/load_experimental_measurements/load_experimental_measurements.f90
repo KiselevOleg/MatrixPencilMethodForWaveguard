@@ -28,7 +28,8 @@ implicit none
         integer(4) i,j
         real(8),allocatable::signal(:)
         
-        open(newunit=file,file="input/Al/_x.data")
+        !open(newunit=file,file="input/Al/_x.data")
+        open(newunit=file,file="input/glass/x.data")
         read(file,*),Nx
         allocate(x(Nx))
         do i=1,Nx
@@ -37,7 +38,8 @@ implicit none
         enddo
         close(file)
         
-        open(newunit=file,file="input/Al/_t.data")
+        !open(newunit=file,file="input/Al/_t.data")
+        open(newunit=file,file="input/glass/t.data")
         read(file,*),Nt
         allocate(t(Nt))
         do j=1,Nt
@@ -46,7 +48,8 @@ implicit none
         enddo
         close(file)
         
-        open(newunit=file,file="input/Al/_u.data")
+        !open(newunit=file,file="input/Al/_u.data")
+        open(newunit=file,file="input/glass/u.data")
         allocate(u(Nx,Nt))
         do i=1,Nx
             do j=1,Nt
@@ -161,7 +164,7 @@ implicit none
         do tj=2,Nt
             u_(tj)=u(i,tj)*exp(ci*omega*t(tj))
         enddo
-        f=simpson_sum(Nt,t,u_)/sqrt(pi+pi)
+        f=riemann_sum(Nt,t,u_)/sqrt(pi+pi)
     endfunction get_sceptum_in_xi_common
     complex(8) function get_sceptum_in_xi_dt_const(i,omega) result(f)
     use static_integration,only:riemann_sum,simpson_sum
