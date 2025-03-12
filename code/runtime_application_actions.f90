@@ -260,7 +260,7 @@ implicit none
         integer(4) file
         
         res_size_max=100;
-        omega_start=1d-1; domega=0.05d0; omega_end=12.499d0
+        omega_start=1d-1; domega=0.05d0; omega_end=12.499d0*2
         
         phi=0d0
         
@@ -293,7 +293,8 @@ implicit none
         L=40
         allocate(res(L))
         
-        omega_start=0.01; domega=0.01d0; omega_end=6.25d0*2
+        omega_start=0.01; domega=0.01d0*10d0; omega_end=6.25d0*2
+        omega_start=0.01; domega=0.05d0; omega_end=6.25d0*3
         
         open(newunit=file,file="graphics/matrix_pencil_method/dispersion_curve.data")
         do omega=omega_start,omega_end,domega
