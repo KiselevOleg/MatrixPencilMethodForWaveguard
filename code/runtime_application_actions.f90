@@ -2,9 +2,137 @@ module runtime_application_actions
 implicit none
     public::test_K,load_experimental_measurements_view,count_matrix_pencil_method_distersion_curve_graphics,&
         count_distersion_curve_for_K_graphics,count_complex_distersion_curve_for_K_graphics,&
-        count_complex_det_A_matrix_in_K_graphics
+        count_complex_det_A_matrix_in_K_graphics,count_wavelet_transform_smoothing
     
     contains
+    
+    subroutine count_wavelet_transform_smoothing()
+    use smoothing_signal,only:wavelet_transform_smoothing
+    use load_experimental_measurements,only:get_Nx,get_Nt,get_xi,get_tj,get_uij
+    implicit none
+        real(8),allocatable::time(:),signal(:)
+        
+        real(8) a,a_min,da,a_max
+        real(8) b,b_min,db,b_max
+        
+        real(8) t
+        integer(4) xi,tj
+        
+        integer(4) xi_min,xi_max
+        character(1024) filename
+        integer(4) file
+        integer(4) i,j
+        
+        xi_min=1; xi_max=0
+        
+        !read(*,*),xi_min,xi_max
+        !xi_max=min(xi_max,get_Nx())
+        !write(filename,*),"u_smoothing",xi_min,xi_max,".data"
+        !open(newunit=file,file=filename)
+        !open(newunit=file,file="input/glass/u_smoothing.data")
+        open(newunit=file,file="graphics/load_experimental_measurements/u_smoothing.data")
+        do xi=1,get_Nx()
+            if(.not.(xi_min.le.xi.and.xi.le.xi_max)) cycle
+            !if(xi/=get_Nx()/2) cycle
+            print*,xi,get_Nx()
+            
+            allocate(time(get_Nt()))
+            allocate(signal(get_Nt()))
+            
+            do tj=1,get_Nt()
+                time(tj)=get_tj(tj)
+                signal(tj)=get_uij(xi,tj)
+            enddo
+            
+            a_min=1d-6; da=0.01d0; a_max=15.0001d0
+            b_min=1d-6+30d0; db=0.5d0; b_max=100.0001d0
+            
+            a_min=1d-6; da=0.05d0; a_max=20.0001d0
+            b_min=0d0; db=0.5d0; b_max=500.0001d0
+            
+            a_min=0.025d0; da=0.025d0; a_max=20.0001d0
+            b_min=0d0; db=0.25d0; b_max=300.0001d0
+            
+            call wavelet_transform_smoothing(get_Nt(),time,signal,a_min,da,a_max,b_min,db,b_max)
+            
+            print*,"printing"
+            do j=1,get_Nt()
+                if(mod(j,2)==1) cycle
+                t=get_tj(j)
+                write(file,*),signal(j)
+                !print*,t,j,get_Nt()
+            enddo
+            
+            deallocate(time)
+            deallocate(signal)
+        enddo
+        close(file)
+        
+        if(.not.xi_min==1) return
+        
+        open(newunit=file,file="graphics/load_experimental_measurements/t_smoothing.data")
+        !open(newunit=file,file="t_smoothing.data")
+        i=0
+        do j=1,get_Nt()
+            if(mod(j,2)==1) cycle
+            i=i+1
+        enddo
+        write(file,*),i
+        do j=1,get_Nt()
+            if(mod(j,2)==1) cycle
+            t=get_tj(j)
+            write(file,*),t*1d-6
+        enddo
+        close(file)
+    endsubroutine count_wavelet_transform_smoothing
+    
+    subroutine count_wavelet_transform_graphics()
+    use smoothing_signal,only:wavelet_transform,mexican_hat,morlet_wavelet,meyer_wavelet
+    use load_experimental_measurements,only:get_Nx,get_Nt,get_xi,get_tj,get_uij
+    implicit none
+        integer(4) xi,tj
+        real(8),allocatable::time(:),signal(:)
+        
+        real(8) a,a_min,da,a_max
+        real(8) b,b_min,db,b_max
+        
+        integer(4) file1,file2
+        
+        xi=get_Nx()/2
+        allocate(time(get_Nt()))
+        allocate(signal(get_Nt()))
+        
+        do tj=1,get_Nt()
+            time(tj)=get_tj(tj)
+            signal(tj)=get_uij(xi,tj)
+        enddo
+        
+        open(newunit=file1,file="graphics/wavelet_transform/wavelet_transform_sizes.data")
+        open(newunit=file2,file="graphics/wavelet_transform/wavelet_transform.data")
+        
+        a_min=1d-6; da=2d-1; a_max=40.0001d0
+        b_min=1d-6; db=4d-1; b_max=300.0001d0
+        
+        !a_min=1d-6; da=0.0625d-1; a_max=0.25001d0
+        !b_min=60d0; db=0.5d-1; b_max=100.0001d0
+        
+        write(file1,*),(a_max-a_min)/da+1
+        write(file1,*),(b_max-b_min)/db+1
+        
+        do a=a_min,a_max,da
+            do b=b_min,b_max,db
+                write(file2,*),a,b,wavelet_transform(morlet_wavelet,a,b,get_Nt(),time,signal)
+            enddo
+            
+            print*,a
+        enddo
+        
+        close(file2)
+        close(file1)
+        
+        deallocate(time)
+        deallocate(signal)
+    endsubroutine count_wavelet_transform_graphics
     
     subroutine count_complex_det_A_matrix_in_K_graphics()
     use math,only:ci

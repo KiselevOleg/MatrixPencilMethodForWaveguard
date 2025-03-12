@@ -26,6 +26,7 @@ implicit none
         integer(4) file
         
         integer(4) i,j
+        real(8) v
         real(8),allocatable::signal(:)
         
         !open(newunit=file,file="input/Al/_x.data")
@@ -39,7 +40,8 @@ implicit none
         close(file)
         
         !open(newunit=file,file="input/Al/_t.data")
-        open(newunit=file,file="input/glass/t.data")
+        !open(newunit=file,file="input/glass/t.data")
+        open(newunit=file,file="input/glass/t_smoothing.data")
         read(file,*),Nt
         allocate(t(Nt))
         do j=1,Nt
@@ -49,12 +51,14 @@ implicit none
         close(file)
         
         !open(newunit=file,file="input/Al/_u.data")
-        open(newunit=file,file="input/glass/u.data")
+        !open(newunit=file,file="input/glass/u.data")
+        open(newunit=file,file="input/glass/u_smoothing.data")
         allocate(u(Nx,Nt))
         do i=1,Nx
             do j=1,Nt
                 read(file,*),u(i,j)
-                u(i,j)=u(i,j)*1d2
+                u(i,j)=u(i,j)*1d-2
+                !u(i,j)=sin(t(j)*3.5d0)+cos(t(j)*30d0)*0.1d0
             enddo
         enddo
         close(file)
@@ -79,17 +83,21 @@ implicit none
             endif
         enddo
         
-        allocate(signal(Nt))
-        do i=1,Nx
-            do j=1,Nt
-                signal(j)=u(i,j)
-            enddo
-            call arithmetic_mean_smoothing(2,Nt,signal,.true.)
-            do j=1,Nt
-                u(i,j)=signal(j)
-            enddo
-        enddo
-        deallocate(signal)
+        !allocate(signal(Nt))
+        !do i=1,Nx
+        !    v=0d0
+        !    do j=1,Nt
+        !        signal(j)=u(i,j)
+        !        v=v+signal(j)
+        !    enddo
+        !    !call arithmetic_mean_smoothing(2,Nt,signal,.true.)
+        !    !call remove_cost_difference_with_0(Nt,signal)
+        !    v=v/Nt
+        !    do j=1,Nt
+        !        u(i,j)=signal(j)-v
+        !    enddo
+        !enddo
+        !deallocate(signal)
     endsubroutine init_load_experimental_measurements
     
     subroutine destructor_load_experimental_measurements
