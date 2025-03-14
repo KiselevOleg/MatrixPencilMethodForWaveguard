@@ -2,6 +2,9 @@ module main_parameters
 implicit none
     public::number_of_layers,h,get_full_h,Calphabeta,rho,omega,Q,Qomega,get_number_of_layer,Cijkl
     public::E,nu,lambda,mu,Cp,Cs
+    public::count_isotropic_material_parameters_form_lambda_mu,&
+        count_isotropic_material_parameters_form_E_nu,&
+        count_isotropic_material_parameters_form_Cp_Cs
     
     public::get_anisotropic,set_anisotropic
     public::set_down_border_condition_type,get_down_border_condition_type,&
@@ -162,6 +165,84 @@ implicit none
         
         f=Calphabeta(alpha,beta,number_of_layer)
     endfunction Cijkl
+    
+    subroutine count_isotropic_material_parameters_form_lambda_mu(lambda,mu,E,nu,Cp,Cs,rho)
+    use math,only:epsilon
+    use system,only:print_error
+    implicit none
+        complex(8),intent(in)::lambda
+        complex(8),intent(in)::mu
+        complex(8),intent(out)::E
+        complex(8),intent(out)::nu
+        complex(8),intent(out)::Cp
+        complex(8),intent(out)::Cs
+        real(8),intent(in)::rho
+        
+        if(real(lambda)<epsilon) &
+            call print_error("main_parameters.count_isotropic_material_parameters_form_lambda_mu","real(lambda)<epsilon")
+        if(real(mu)<epsilon) &
+            call print_error("main_parameters.count_isotropic_material_parameters_form_lambda_mu","real(mu)<epsilon")
+        if(rho<epsilon) &
+            call print_error("main_parameters.count_isotropic_material_parameters_form_lambda_mu","rho<epsilon")
+        
+        E=mu*(3d0*lambda+2d0*mu)/(lambda+mu)
+        nu=lambda*0.5d0/(lambda+mu)
+        
+        Cp=sqrt((lambda+mu+mu)/rho)
+        Cs=sqrt(mu/rho)
+    endsubroutine count_isotropic_material_parameters_form_lambda_mu
+    subroutine count_isotropic_material_parameters_form_E_nu(lambda,mu,E,nu,Cp,Cs,rho)
+    use math,only:epsilon
+    use system,only:print_error
+    implicit none
+        complex(8),intent(out)::lambda
+        complex(8),intent(out)::mu
+        complex(8),intent(in)::E
+        complex(8),intent(in)::nu
+        complex(8),intent(out)::Cp
+        complex(8),intent(out)::Cs
+        real(8),intent(in)::rho
+        
+        if(real(E)<epsilon) &
+            call print_error("main_parameters.count_isotropic_material_parameters_form_E_nu","real(E)<epsilon")
+        if(.not.(0d0<=real(nu).and.real(nu)<=0.5d0)) &
+            call print_error("main_parameters.count_isotropic_material_parameters_form_E_nu",".not.(0d0<=real(nu).and.real(nu)<=0.5d0)")
+        if(rho<epsilon) &
+            call print_error("main_parameters.count_isotropic_material_parameters_form_E_nu","rho<epsilon")
+        
+        lambda=nu*E/(1d0+nu)/(1d0-2d0*nu)
+        mu=E*0.5d0/(1d0+nu)
+        
+        Cp=sqrt(E/rho)*sqrt((1d0-nu)/(1d0+nu)/(1d0-2d0*nu))
+        Cs=sqrt(E/rho)*sqrt(0.5d0/(1d0+nu))
+    endsubroutine count_isotropic_material_parameters_form_E_nu
+    subroutine count_isotropic_material_parameters_form_Cp_Cs(lambda,mu,E,nu,Cp,Cs,rho)
+    use math,only:epsilon
+    use system,only:print_error
+    implicit none
+        complex(8),intent(out)::lambda
+        complex(8),intent(out)::mu
+        complex(8),intent(out)::E
+        complex(8),intent(out)::nu
+        complex(8),intent(in)::Cp
+        complex(8),intent(in)::Cs
+        real(8),intent(in)::rho
+        
+        if(real(Cp)<epsilon) &
+            call print_error("main_parameters.count_isotropic_material_parameters_form_Cp_Cs","real(Cp)<epsilon")
+        if(real(Cs)<epsilon) &
+            call print_error("main_parameters.count_isotropic_material_parameters_form_Cp_Cs","real(Cs)<epsilon")
+        if(real(Cp)<real(Cs)) &
+            call print_error("main_parameters.count_isotropic_material_parameters_form_Cp_Cs","real(Cp)<real(Cs)")
+        if(rho<epsilon) &
+            call print_error("main_parameters.count_isotropic_material_parameters_form_Cp_Cs","rho<epsilon")
+        
+        lambda=rho*Cp*Cp-2d0*rho*Cs*Cs
+        mu=rho*Cs*Cs
+        
+        E=Cs*Cs*rho*2d0*(1d0+(2d0*Cs*Cs-Cp*Cp)/(2d0*Cs*Cs-2d0*Cp*Cp))
+        nu=(2d0*Cs*Cs-Cp*Cp)/(2d0*Cs*Cs-2d0*Cp*Cp)
+    endsubroutine count_isotropic_material_parameters_form_Cp_Cs
     
     integer(4) function get_anisotropic() result(f)
     use system,only:print_error,print_warning
