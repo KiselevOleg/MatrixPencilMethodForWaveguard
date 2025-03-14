@@ -2,9 +2,79 @@ module runtime_application_actions
 implicit none
     public::test_K,load_experimental_measurements_view,count_matrix_pencil_method_distersion_curve_graphics,&
         count_distersion_curve_for_K_graphics,count_complex_distersion_curve_for_K_graphics,&
-        count_complex_det_A_matrix_in_K_graphics,count_wavelet_transform_smoothing
+        count_complex_det_A_matrix_in_K_graphics,count_wavelet_transform_smoothing,&
+        find_material_properties_from_experimental_measurements
     
     contains
+    
+    subroutine find_material_properties_from_experimental_measurements()
+    use material_properties_by_dispersion_curves,only:find_material_properties
+    use math,only:pi
+    implicit none
+        integer(4) dispersion_curves_size
+        real(8),allocatable::dispersion_curves(:,:)
+        integer(4) parameters_for_detect_size
+        integer(4),allocatable::parameters_layer(:)
+        character(len=3),allocatable::parameters_type(:)
+        real(8),allocatable::parameters_min(:),parameters_max(:),dparameters(:)
+        integer(4) res_size,res_max_size
+        real(8),allocatable::res(:,:)
+        real(8),allocatable::res_value_of_right(:)
+        
+        integer(4) file
+        integer(4) i,j
+        
+        open(newunit=file,file="input/glass_experimental_dispersion_curves/_dispersion_curve_experimental.data")
+        read(file,*),dispersion_curves_size
+        allocate(dispersion_curves(dispersion_curves_size,2))
+        do i=1,dispersion_curves_size
+            read(file,*),dispersion_curves(i,1),dispersion_curves(i,2)
+            dispersion_curves(i,1)=dispersion_curves(i,1)*2d0*pi
+        enddo
+        close(file)
+        
+        parameters_for_detect_size=4
+        allocate(parameters_layer(parameters_for_detect_size))
+        allocate(parameters_type(parameters_for_detect_size))
+        allocate(parameters_min(parameters_for_detect_size))
+        allocate(parameters_max(parameters_for_detect_size))
+        allocate(dparameters(parameters_for_detect_size))
+        
+        parameters_layer(1)=1;  parameters_type(1)="E";   parameters_min(1)=0.5d0;    parameters_max(1)=1.50001d0;    dparameters(1)=0.25000d0
+        parameters_layer(2)=1;  parameters_type(2)="nu";  parameters_min(2)=0.1d0;    parameters_max(2)=0.49999d0;    dparameters(2)=0.09999d0/2
+        parameters_layer(3)=1;  parameters_type(3)="h";   parameters_min(3)=0.25d0;   parameters_max(3)=0.35001d0;    dparameters(3)=0.05000d0/2
+        parameters_layer(4)=1;  parameters_type(4)="rho"; parameters_min(4)=2.30d0;   parameters_max(4)=2.70001d0;    dparameters(4)=0.10000d0/4
+        !parameters_layer(3)=1;  parameters_type(3)="rho"; parameters_min(3)=2.30d0;   parameters_max(3)=2.50001d0;    dparameters(3)=0.05000d0
+        
+        res_max_size=1000
+        allocate(res(res_max_size,parameters_for_detect_size))
+        allocate(res_value_of_right(res_max_size))
+        
+        call find_material_properties(dispersion_curves_size,dispersion_curves,.true.,&
+            parameters_for_detect_size,parameters_layer,parameters_type,parameters_min,parameters_max,dparameters,&
+            res_max_size,res,res_value_of_right,res_size)
+        
+        print*,"res_size",res_size
+        do i=1,min(20,res_size)
+            print*
+            print*,"res",i
+            do j=1,parameters_for_detect_size
+                print*,"layer",parameters_layer(j)
+                print*,"type            ",parameters_type(j)
+                print*,"value",res(i,j)
+            enddo
+            print*,"right",res_value_of_right(i)
+            print*
+        enddo
+        
+        deallocate(res_value_of_right)
+        deallocate(res)
+        deallocate(dparameters)
+        deallocate(parameters_max)
+        deallocate(parameters_min)
+        deallocate(parameters_type)
+        deallocate(parameters_layer)
+    endsubroutine find_material_properties_from_experimental_measurements
     
     subroutine count_wavelet_transform_smoothing()
     use smoothing_signal,only:wavelet_transform_smoothing
