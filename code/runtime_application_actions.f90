@@ -24,7 +24,10 @@ implicit none
         integer(4) file
         integer(4) i,j
         
-        open(newunit=file,file="input/glass_experimental_dispersion_curves/_dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/glass_experimental_dispersion_curves/_dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental_extended.data")
+        open(newunit=file,file="input/glass_experimental_dispersion_curves/55000/with_first_points/accurate/_dispersion_curve_experimental.data")
         read(file,*),dispersion_curves_size
         allocate(dispersion_curves(dispersion_curves_size,2))
         do i=1,dispersion_curves_size
@@ -33,18 +36,18 @@ implicit none
         enddo
         close(file)
         
-        parameters_for_detect_size=4
+        parameters_for_detect_size=2
         allocate(parameters_layer(parameters_for_detect_size))
         allocate(parameters_type(parameters_for_detect_size))
         allocate(parameters_min(parameters_for_detect_size))
         allocate(parameters_max(parameters_for_detect_size))
         allocate(dparameters(parameters_for_detect_size))
         
-        parameters_layer(1)=1;  parameters_type(1)="E";   parameters_min(1)=0.5d0;    parameters_max(1)=1.50001d0;    dparameters(1)=0.25000d0
-        parameters_layer(2)=1;  parameters_type(2)="nu";  parameters_min(2)=0.1d0;    parameters_max(2)=0.49999d0;    dparameters(2)=0.09999d0/2
-        parameters_layer(3)=1;  parameters_type(3)="h";   parameters_min(3)=0.25d0;   parameters_max(3)=0.35001d0;    dparameters(3)=0.05000d0/2
-        parameters_layer(4)=1;  parameters_type(4)="rho"; parameters_min(4)=2.30d0;   parameters_max(4)=2.70001d0;    dparameters(4)=0.10000d0/4
-        !parameters_layer(3)=1;  parameters_type(3)="rho"; parameters_min(3)=2.30d0;   parameters_max(3)=2.50001d0;    dparameters(3)=0.05000d0
+        parameters_layer(1)=1;  parameters_type(1)="E";   parameters_min(1)=0.5d0;    parameters_max(1)=1.00001d0;    dparameters(1)=0.25000d0/4
+        parameters_layer(2)=1;  parameters_type(2)="nu";  parameters_min(2)=0.1d0;    parameters_max(2)=0.49999d0;    dparameters(2)=0.09999d0/4
+        !parameters_layer(3)=1;  parameters_type(3)="h";   parameters_min(3)=0.25d0;   parameters_max(3)=0.30001d0;    dparameters(3)=0.05000d0/4
+        !parameters_layer(4)=1;  parameters_type(4)="rho"; parameters_min(4)=2.30d0;   parameters_max(4)=2.50001d0;    dparameters(4)=0.10000d0/4
+        !parameters_layer(1)=1;  parameters_type(1)="rho"; parameters_min(1)=2.30d0;   parameters_max(1)=2.50001d0;    dparameters(1)=0.10000d0/4
         
         res_max_size=1000
         allocate(res(res_max_size,parameters_for_detect_size))
@@ -93,14 +96,14 @@ implicit none
         integer(4) file
         integer(4) i,j
         
-        xi_min=1; xi_max=0
+        xi_min=1; xi_max=get_Nx()
         
-        !read(*,*),xi_min,xi_max
-        !xi_max=min(xi_max,get_Nx())
-        !write(filename,*),"u_smoothing",xi_min,xi_max,".data"
-        !open(newunit=file,file=filename)
+        read(*,*),xi_min,xi_max
+        xi_max=min(xi_max,get_Nx())
+        write(filename,*),"u_smoothing",xi_min,xi_max,".data"
+        open(newunit=file,file=filename)
         !open(newunit=file,file="input/glass/u_smoothing.data")
-        open(newunit=file,file="graphics/load_experimental_measurements/u_smoothing.data")
+        !open(newunit=file,file="graphics/load_experimental_measurements/u_smoothing.data")
         do xi=1,get_Nx()
             if(.not.(xi_min.le.xi.and.xi.le.xi_max)) cycle
             !if(xi/=get_Nx()/2) cycle
@@ -140,8 +143,8 @@ implicit none
         
         if(.not.xi_min==1) return
         
-        open(newunit=file,file="graphics/load_experimental_measurements/t_smoothing.data")
-        !open(newunit=file,file="t_smoothing.data")
+        !open(newunit=file,file="graphics/load_experimental_measurements/t_smoothing.data")
+        open(newunit=file,file="t_smoothing.data")
         i=0
         do j=1,get_Nt()
             if(mod(j,2)==1) cycle
@@ -330,7 +333,7 @@ implicit none
         integer(4) file
         
         res_size_max=100;
-        omega_start=1d-1; domega=0.05d0; omega_end=12.499d0*2
+        omega_start=1d-1; domega=0.05d0; omega_end=12.499d0*1.5d0
         
         phi=0d0
         
@@ -360,11 +363,11 @@ implicit none
         integer(4) file
         
         L=90/2
-        L=40
+        L=40*2-20-20
         allocate(res(L))
         
         omega_start=0.01; domega=0.01d0*10d0; omega_end=6.25d0*2
-        omega_start=0.01; domega=0.05d0; omega_end=6.25d0*3
+        omega_start=0.1d0*20; domega=0.05d0*5*3/15; omega_end=6.25d0*3
         
         open(newunit=file,file="graphics/matrix_pencil_method/dispersion_curve.data")
         do omega=omega_start,omega_end,domega

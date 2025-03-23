@@ -4,8 +4,8 @@ implicit none
     
     public::count_dispersion_numbers
     
-    integer(4)::dx_filter_strength=2
-    integer(4)::L_filter_strength=2
+    integer(4)::dx_filter_strength=1
+    integer(4)::L_filter_strength=0
     
     complex(8),allocatable::res_(:)
     integer(4) res_size_
@@ -72,6 +72,8 @@ implicit none
         
         res_size=0
         do i=1,res_size_
+            if(abs(res_(i))>34d0) cycle
+            
             filter_check=dx_filter_strength==0
             do j=1,dx_filter_strength
                 filter_check=.false.

@@ -30,7 +30,9 @@ implicit none
         real(8),allocatable::signal(:)
         
         !open(newunit=file,file="input/Al/_x.data")
-        open(newunit=file,file="input/glass/x.data")
+        !open(newunit=file,file="input/glass/x.data")
+        open(newunit=file,file="input/glass/55000/x.data")
+        !open(newunit=file,file="input/glass/55000/with_less_points/x.data")
         read(file,*),Nx
         allocate(x(Nx))
         do i=1,Nx
@@ -41,7 +43,10 @@ implicit none
         
         !open(newunit=file,file="input/Al/_t.data")
         !open(newunit=file,file="input/glass/t.data")
-        open(newunit=file,file="input/glass/t_smoothing.data")
+        !open(newunit=file,file="input/glass/t_smoothing.data")
+        !open(newunit=file,file="input/glass/55000/t.data")
+        open(newunit=file,file="input/glass/55000/t_smoothing.data")
+        !open(newunit=file,file="input/glass/55000/with_less_points/t.data")
         read(file,*),Nt
         allocate(t(Nt))
         do j=1,Nt
@@ -52,12 +57,15 @@ implicit none
         
         !open(newunit=file,file="input/Al/_u.data")
         !open(newunit=file,file="input/glass/u.data")
-        open(newunit=file,file="input/glass/u_smoothing.data")
+        !open(newunit=file,file="input/glass/u_smoothing.data")
+        !open(newunit=file,file="input/glass/55000/u.data")
+        open(newunit=file,file="input/glass/55000/u_smoothing.data")
+        !open(newunit=file,file="input/glass/55000/with_less_points/u.data")
         allocate(u(Nx,Nt))
         do i=1,Nx
             do j=1,Nt
                 read(file,*),u(i,j)
-                u(i,j)=u(i,j)*1d-2
+                u(i,j)=u(i,j)!*1d-2
                 !u(i,j)=sin(t(j)*3.5d0)+cos(t(j)*30d0)*0.1d0
             enddo
         enddo

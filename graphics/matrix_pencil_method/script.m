@@ -6,7 +6,7 @@ A=load('dispersion_curve.data');
 %A=load('dispersion_curvedispersion_curve_2dx_2dL_filter_glass_L=40_large_f.data');
 %A=load('dispersion_curve_2dx_2dL_filter_glass_L=40_full_f.data');
 %A=load('dispersion_curve_2dx_2dL_filter_glass_L=40.data');
-plot(A(:,1),A(:,2),'xb');
+plot(A(:,1),A(:,2),'ob');
 hold('on');
 plot(A(:,1),A(:,3),'.r');
 
