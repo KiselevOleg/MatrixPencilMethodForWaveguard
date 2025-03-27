@@ -78,7 +78,7 @@ implicit none
         rho(1)=2.419d0
         
         h(1)=0.282804184159867d0
-        rho(1)=2.419d0
+        rho(1)=2.447d0
         
         do k=1,number_of_layers
             if(rho(k)<=epsilon) call print_error("pre_and_post_runtime_actions.init_main_parameters","it exists k that rho(k)<=epsilon")

@@ -4,8 +4,8 @@ implicit none
     
     public::count_dispersion_numbers
     
-    integer(4)::dx_filter_strength=1
-    integer(4)::L_filter_strength=0
+    integer(4)::dx_filter_strength=2
+    integer(4)::L_filter_strength=1
     
     complex(8),allocatable::res_(:)
     integer(4) res_size_
