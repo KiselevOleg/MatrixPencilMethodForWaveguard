@@ -58,6 +58,13 @@ void LoadSettings::loadData() {
 		if (parameterName == dispersionCurvesPointsFileNameParameterString) {
 			file >> dispersionCurvesPointsFileName;
 
+			if (
+				dispersionCurvesPointsFileName == "none" ||
+				dispersionCurvesPointsFileName == "-" ||
+				dispersionCurvesPointsFileName == "null" ||
+				dispersionCurvesPointsFileName == "NULL"
+				) dispersionCurvesPointsFileName = "";
+
 			continue;
 		}
 		if (parameterName == editablePointsResultFileNameParameterString) {

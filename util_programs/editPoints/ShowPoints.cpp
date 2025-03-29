@@ -10,21 +10,23 @@ void ShowPoints::resetPosition() {
 
 	for (const auto& p : fd.getPoints()) {
 		minF = std::min(minF, p.f);
-		maxF = std::max(minF, p.f);
+		maxF = std::max(maxF, p.f);
 		minReal = std::min(minReal, p.real);
 		maxReal = std::max(maxReal, p.real);
+		minReal = std::min(minReal, p.imag);
+		maxReal = std::max(maxReal, p.imag);
 	}
 
-	//if (!fd.getPoints().empty()) return;
 
 	for (const auto& p : fd.getDispersionCurvesPoints()) {
 		minF = std::min(minF, p.first);
-		maxF = std::max(minF, p.first);
+		maxF = std::max(maxF, p.first);
 		minReal = std::min(minReal, p.second);
 		maxReal = std::max(maxReal, p.second);
 	}
 
-	if (!fd.getDispersionCurvesPoints().empty()) return;
+	if (!fd.getDispersionCurvesPoints().empty() ||
+		!fd.getPoints().empty()) return;
 
 	minF = -1.0; maxF = 1.0;
 	minReal = -1.0; maxReal = 1.0;
@@ -32,7 +34,7 @@ void ShowPoints::resetPosition() {
 
 
 void ShowPoints::centerCircle(sf::CircleShape& circle) const {
-	circle.setPosition({circle.getPosition().x-circle.getRadius(), circle.getPosition().y-circle.getRadius()});
+	circle.setPosition({ circle.getPosition().x - circle.getRadius(), circle.getPosition().y - circle.getRadius() });
 }
 
 void ShowPoints::show(sf::RenderWindow& window, float time) const {
@@ -44,7 +46,7 @@ void ShowPoints::show(sf::RenderWindow& window, float time) const {
 		else circle.setFillColor(sf::Color(100, 100, 100));
 		circle.setPosition(getWindowCoordinatesFromPoint(p.f, p.real, window));
 
-		if (markerNotDeletedPoints && !p.deleted) circle.setRadius(5+15*abs(sin(timeFormArkeringNotDeletedPoints*5.0f)));
+		if (markerNotDeletedPoints && !p.deleted) circle.setRadius(5 + 15 * abs(sin(timeFormArkeringNotDeletedPoints * 5.0f)));
 		centerCircle(circle);
 		window.draw(circle);
 		if (markerNotDeletedPoints && !p.deleted) circle.setRadius(5);
@@ -148,7 +150,7 @@ void ShowPoints::handle(const std::optional<sf::Event>& event, float time, const
 	if (event->is<sf::Event::KeyReleased>() && event->getIf<sf::Event::KeyReleased>()->code == sf::Keyboard::Key::V)
 		markerNotDeletedPoints = false;
 
-	
+
 
 	if (event->is<sf::Event::MouseButtonPressed>() &&
 		event->getIf<sf::Event::MouseButtonPressed>()->button == sf::Mouse::Button::Left) {
