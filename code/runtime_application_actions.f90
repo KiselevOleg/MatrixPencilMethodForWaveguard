@@ -363,7 +363,7 @@ implicit none
         integer(4) file
         
         L=90/2
-        L=40*2
+        L=40*2-20
         allocate(res(L))
         
         omega_start=0.01; domega=0.01d0*10d0; omega_end=6.25d0*2
