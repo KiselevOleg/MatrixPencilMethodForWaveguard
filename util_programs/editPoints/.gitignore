@@ -727,7 +727,9 @@ FodyWeavers.xsd
 
 # End of https://www.toptal.com/developers/gitignore/api/c++,windows,linux,macos,vim,cmake,visualstudio,visualstudiocode,jetbrains,jetbrains+all
 
-#manual
+#custom
 !dispersion_curves.data
 !dispersion_curves_K.data
 
+libraries/
+!libraries/**.zip
