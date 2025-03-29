@@ -1,0 +1,11 @@
+editablePointsFileName
+dispersion_curves.data
+dispersionCurvesPointsFileName
+dispersion_curves_K.data
+editablePointsResultFileName
+dispersion_curves_result.data
+
+windowSizeX
+1920
+windowSizeY
+1080
