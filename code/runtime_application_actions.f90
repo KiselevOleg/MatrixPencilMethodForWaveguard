@@ -27,7 +27,10 @@ implicit none
         !open(newunit=file,file="input/glass_experimental_dispersion_curves/_dispersion_curve_experimental.data")
         !open(newunit=file,file="input/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental.data")
         !open(newunit=file,file="input/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental_extended.data")
-        open(newunit=file,file="input/glass_experimental_dispersion_curves/55000/with_first_points/accurate/_dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/glass_experimental_dispersion_curves/55000/with_first_points/accurate/_dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves.data")
+        open(newunit=file,file="input/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves2.data")
         read(file,*),dispersion_curves_size
         allocate(dispersion_curves(dispersion_curves_size,2))
         do i=1,dispersion_curves_size
@@ -43,8 +46,8 @@ implicit none
         allocate(parameters_max(parameters_for_detect_size))
         allocate(dparameters(parameters_for_detect_size))
         
-        parameters_layer(1)=1;  parameters_type(1)="E";   parameters_min(1)=0.5d0;    parameters_max(1)=1.00001d0;    dparameters(1)=0.25000d0/4
-        parameters_layer(2)=1;  parameters_type(2)="nu";  parameters_min(2)=0.1d0;    parameters_max(2)=0.49999d0;    dparameters(2)=0.09999d0/4
+        parameters_layer(1)=1;  parameters_type(1)="E";   parameters_min(1)=0.5d0;    parameters_max(1)=0.90001d0;    dparameters(1)=0.25000d0/4
+        parameters_layer(2)=1;  parameters_type(2)="nu";  parameters_min(2)=0.15d0;    parameters_max(2)=0.39999d0;    dparameters(2)=0.09999d0/4
         !parameters_layer(3)=1;  parameters_type(3)="h";   parameters_min(3)=0.25d0;   parameters_max(3)=0.30001d0;    dparameters(3)=0.05000d0/4
         !parameters_layer(4)=1;  parameters_type(4)="rho"; parameters_min(4)=2.30d0;   parameters_max(4)=2.50001d0;    dparameters(4)=0.10000d0/4
         !parameters_layer(1)=1;  parameters_type(1)="rho"; parameters_min(1)=2.30d0;   parameters_max(1)=2.50001d0;    dparameters(1)=0.10000d0/4

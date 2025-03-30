@@ -169,6 +169,12 @@ implicit none
         E(1)=0.677982442275035d0
         nu(1)=0.234775771509152d0
         
+        E(1)=0.690552432651200d0
+        nu(1)=0.236113396158856d0
+        
+        E(1)=0.690580089931651d0
+        nu(1)=0.236044180610061d0
+        
         do k=1,number_of_layers
             if(abs(E(k))>epsilon) then
                 if(abs(lambda(k))>epsilon.or.abs(Cp(k))>epsilon) call print_error("pre_and_post_runtime_actions.init_main_parameters_isotropic",&
