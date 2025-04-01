@@ -30,7 +30,7 @@ implicit none
         !f=GK_integral_ab(uz_inner_fun1,1d-4,-5d0,5d0,0d0,0d0)
         !f=GK_integral_ab(uz_inner_fun1,1d-4,-40d0,40d0,0d0,0d0)
         !f=GK_integral_ab(uz_inner_fun1,2d-2,0.3d0,6d0,0d0,0d0)
-        f=GK_integral_ab(uz_inner_fun1,2d-2,0.45d0,10d0,0d0,0d0)
+        f=GK_integral_ab(uz_inner_fun1,2d-2,0.7d0,10d0,0d0,0d0)
         f=f/sqrt(pi+pi)
     endfunction uz
     
@@ -60,7 +60,8 @@ implicit none
     implicit none
         complex(8),intent(in)::alpha
         
-        f=K(3,3,alpha,c0,z_)*Q(3,alpha,(0d0,0d0))*alpha*J0(alpha*r_)
+        !f=K(3,3,alpha,c0,z_)*Q(3,alpha,(0d0,0d0))*alpha*J0(alpha*r_)
+        f=K(3,1,alpha,c0,z_)*Q(1,alpha,(0d0,0d0))*alpha*J0(alpha*r_)
     endfunction uz_inner_fun2
     
     complex(8) function uz_omega(x,y,z,omega_) result(f)

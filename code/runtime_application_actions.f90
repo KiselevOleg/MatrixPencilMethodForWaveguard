@@ -19,14 +19,15 @@ implicit none
         
         x=1.2125d0; y=0d0; z=0d0
         x=1.325d0; y=0d0; z=0d0
-        x=2.5d0; y=0d0; z=0d0
+        x=1.325d0; y=0d0; z=0d0
         t1=0d0; t2=131.337d0; dt=6.40043d-2
         t1=-50d0+30d0+10d0; t2=50d0; dt=50d-2*2
+        t1=-5d0; t2=50d0; dt=50d-2
         !t1=-5d0; t2=5d0; dt=2d-3
         
         open(newunit=file,file="graphics/generate_teoretical_signal/signal.data")
         do t=t1,t2,dt
-            u=uz(x,y,z,t)
+            u=uz(x,y,z,t)-uz(x+0.8d0,y,z,t)
             write(file,*),t,real(u),aimag(u)
             
             print*,t
@@ -397,7 +398,7 @@ implicit none
         allocate(res(L))
         
         omega_start=0.01; domega=0.01d0*10d0; omega_end=6.25d0*2
-        omega_start=0.1d0; domega=0.05d0*5*3/15; omega_end=6.25d0*3
+        omega_start=0.1d0; domega=0.05d0*5*3/15*5; omega_end=6.25d0*3
         
         open(newunit=file,file="graphics/matrix_pencil_method/dispersion_curve.data")
         do omega=omega_start,omega_end,domega
