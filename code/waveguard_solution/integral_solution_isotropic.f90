@@ -28,7 +28,9 @@ implicit none
         
         !complex(8) function GK_integral_ab(functionName,accurate,a,b,upperPolesValue,depthOfAvoidingPoles)
         !f=GK_integral_ab(uz_inner_fun1,1d-4,-5d0,5d0,0d0,0d0)
-        f=GK_integral_ab(uz_inner_fun1,1d-4,-40d0,40d0,0d0,0d0)
+        !f=GK_integral_ab(uz_inner_fun1,1d-4,-40d0,40d0,0d0,0d0)
+        !f=GK_integral_ab(uz_inner_fun1,2d-2,0.3d0,6d0,0d0,0d0)
+        f=GK_integral_ab(uz_inner_fun1,2d-2,0.45d0,10d0,0d0,0d0)
         f=f/sqrt(pi+pi)
     endfunction uz
     
@@ -40,10 +42,15 @@ implicit none
         complex(8),intent(in)::omega_
         
         omega=real(omega_)
+        if(abs(omega)<1d-2) omega=1d-2
         !complex(8) function GK_integral_ab(functionName,accurate,a,b,upperPolesValue,depthOfAvoidingPoles)
         !f=GK_integral_ab(uz_inner_fun2,1d-4,0d0,10d0,3d0,1d-2)
-        f=GK_integral_ab(uz_inner_fun2,1d-4,0d0,300d0,250d0,1d-3)
-        f=f*Qomega(omega_)*exp(-ci*omega*t_)
+        !f=GK_integral_ab(uz_inner_fun2,1d-4,0d0,300d0,250d0,1d-3)
+        f=Qomega(omega_)*exp(-ci*omega_*t_)
+        !return
+        
+        f=GK_integral_ab(uz_inner_fun2,2d-2,0d0,50d0,40d0,1d-3)
+        f=f*Qomega(omega_)*exp(-ci*omega_*t_)
     endfunction uz_inner_fun1
     complex(8) function uz_inner_fun2(alpha) result(f)
     use main_parameters,only:Q

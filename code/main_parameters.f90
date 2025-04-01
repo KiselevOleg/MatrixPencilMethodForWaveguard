@@ -61,7 +61,20 @@ implicit none
     implicit none
         complex(8),intent(in)::omega
         
+        real(8) k
+        
         f=1d0
+        !if(abs(o)<1d-3) then
+        !    f=2*sin(0.5*omega)/omega*87d0
+        !else
+        !    f=87d0
+        !endif
+        k=0.9d0
+        if(abs(omega)>1d-4) then
+            f=2*sin(k*omega)/omega
+        else
+            f=2d0*k
+        endif
     endfunction Qomega
     
     real(8) function get_full_h() result(f)
