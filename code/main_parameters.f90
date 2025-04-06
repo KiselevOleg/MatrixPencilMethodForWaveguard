@@ -1,5 +1,327 @@
 module main_parameters
 implicit none
+    public::get_anisotropic_type,set_anisotropic_type,
+        material_isotropic_type,material_anisotropic_type
+    public::set_down_border_condition_type,get_down_border_condition_type,&
+        down_border_condition_type_fixed_border,down_border_condition_type_free_border,&
+        down_border_condition_type_halfspace
+    
+    public::set_omega,get_omega,set_f,get_f
+    
+    public::set_Q,get_Q,set_Qomega,get_Qomega
+    
+    public::get_number_of_layers,set_number_of_layers
+    
+    public::get_layer_parameter
+    
+    public::get_layer_E,get_layer_nu,get_layer_lambda,get_layer_mu,get_layer_Cp,get_layer_Cs
+    public::get_layer_rho,get_layer_h,get_full_h
+    public::set_layer_E_nu,set_layer_lambda_mu,set_layer_Cp_Cs
+    public::set_layer_rho,set_layer_h
+    
+    public::get_layer_Cijkl_parameter,get_layer_Calphabeta_parameter
+    public:set_layer_Calphabeta
+    
+    public::count_isotropic_material_parameters_form_lambda_mu,&
+        count_isotropic_material_parameters_form_E_nu,&
+        count_isotropic_material_parameters_form_Cp_Cs
+    public::count_isotropic_material_parameter_E_form_lambda_mu,count_isotropic_material_parameter_nu_form_lambda_mu,
+        count_isotropic_material_parameter_Cp_form_lambda_mu,count_isotropic_material_parameter_Cs_form_lambda_mu,
+        count_isotropic_material_parameter_lambda_form_E_nu,count_isotropic_material_parameter_mu_form_E_nu,
+        count_isotropic_material_parameter_Cp_form_E_nu,count_isotropic_material_parameter_Cs_form_E_nu,
+        count_isotropic_material_parameter_lambda_form_Cp_Cs,count_isotropic_material_parameter_mu_form_Cp_Cs,
+        count_isotropic_material_parameter_E_form_Cp_Cs,count_isotropic_material_parameter_nu_form_Cp_Cs
+    
+    
+    
+    integer(4),private::anisotropic_type=-1
+    integer(4),private::down_border_condition_type=-1
+    
+    real(8),private::omega
+    
+    complex(8),private,external::Q,Qomega
+    logical(1),private:Q_setted=.false.,Qomega_setted=.false.
+    
+    integer(4),private::number_of_layers=-1
+    real(8),private,allocatable::h(:)!number_of_layer
+    real(8),private,allocatable::rho(:)!number_of_layer
+    
+    complex(8),private,allocatable::Calphabeta(:,:,:)!number_of_layer,alpha,beta
+    
+    complex(8),private,allocatable::E(:)!number_of_layer
+    real(8),private,allocatable::nu(:)!number_of_layer
+    complex(8),private,allocatable::lambda(:)!number_of_layer
+    complex(8),private,allocatable::mu(:)!number_of_layer
+    complex(8),private,allocatable::Cp(:)!number_of_layer
+    complex(8),private,allocatable::Cs(:)!number_of_layer
+    
+    logical(1),private::matrixes_created=.false.
+    
+    
+    
+    private::free_matrixes,create_matrixes
+    contains
+    
+    pure integer(4) function get_anisotropic_type() result(f)
+    use system,only::print_error
+    implicit none
+        if(anisotropic_type==-1) &
+            call print_error("main_parameters.get_anisotropic_type","anisotripoc_type is not setted")
+        
+        f=anisotropic_type
+    endfunction get_anisotropic_type
+    subroutine set_anisotropic_type(anisotropic_type_) result(f)
+    use system,only::print_error
+    implicit none
+        integer(4),intent(in)::anisotropic_type_
+        
+        if(.not.anisotropic_type==-1) &
+            call print_error("main_parameters.set_anisotropic_type","anisotripoc_type has been already setted")
+        if(.not.(anisotropic_type_==material_isotropic_type().or.anisotropic_type_==material_anisotropic_type())) &
+            call print_error("main_parameters.set_anisotropic_type","incorrect anisotripoc_type")
+        
+        anisotropic_type=anisotropic_type_
+    endsubroutine set_anisotropic_type
+    pure integer(4) function material_isotropic_type() result(f)
+    implicit none
+        f=1
+    endfunction material_isotropic_type
+    pure integer(4) function material_anisotropic_type() result(f)
+    implicit none
+        f=2
+    endfunction material_anisotropic_type
+    
+    
+    
+    subroutine set_down_border_condition_type(down_border_condition_type_)
+    use system,only:print_error
+    implicit none
+        integer(4),intent(in)::down_border_condition_type_
+        
+        if(.not.down_border_condition_type==-1) &
+            call print_error("main_parameters.set_down_border_condition_type","down_border_condition_type has been already setted")
+        if(.not.(&
+            down_border_condition_type_==down_border_condition_type_fixed_border().or.&
+            down_border_condition_type_==down_border_condition_type_free_border().or.&
+            down_border_condition_type_==down_border_condition_type_halfspace().or.&
+            )) call print_error("main_parameters.set_down_border_condition_type","incorrect down_border_condition_type_")
+        
+        down_border_condition_type=down_border_condition_type_
+    endsubroutine set_down_border_condition_type
+    pure integer(4) function get_down_border_condition_type() result(f)
+    use system,only:print_error
+    implicit none
+        if(down_border_condition_type==-1) &
+            call print_error("main_parameters.get_down_border_condition_type","down_border_condition_type is not setted")
+        
+        f=down_border_condition_type
+    endfunction get_down_border_condition_type
+    pure integer(4) function down_border_condition_type_fixed_border() result(f)
+    implicit none
+        f=1
+    endfunction down_border_condition_type_fixed_border
+    pure integer(4) function down_border_condition_type_free_border() result(f)
+    implicit none
+        f=2
+    endfunction down_border_condition_type_free_border
+    pure integer(4) function down_border_condition_type_halfspace() result(f)
+    implicit none
+        f=3
+    endfunction down_border_condition_type_halfspace
+    
+    
+    
+    subroutine set_omega(omega_) result(f)
+    implicit none
+        real(8),intent(in)::omega_
+        
+        omega=omega_
+    endsubroutine set_omega
+    subroutine set_f(f_) result(f)
+    use math,only:pi
+    implicit none
+        real(8),intent(in)::f_
+        
+        omega=f_*2d0*pi
+    endsubroutine set_f
+    pure real(8) function get_omega() result(f)
+    implicit none
+        f=omega
+    endfunction get_omega
+    pure real(8) function get_f() result(f)
+    use math,only:pi
+    implicit none
+        f=omega*0.5d0/pi
+    endfunction get_f
+    
+    
+    
+    subroutine set_Q(Q_)
+    implicit none
+        Q_setted=.true.
+        Q=Q_
+    endsubroutine set_Q
+    pure complex(8) function get_Q(ind,alpha,beta) result(f)
+    use system,only:print_error
+    implicit none
+        integer(4),intent(in)::ind
+        complex(8),intent(in)::alpha
+        complex(8),intent(in)::beta
+        
+        if(.not.Q_setted) call print_error("main_parameters.set_Q","Q is not setted")
+        if(.not.(1<=ind.and.ind<=3)) call print_error("main_parameters.set_Q","incorrect ind")
+        
+        f=Q(ind,alpha,beta)
+    endfunction set_Q
+    subroutine set_Qomega(Qomega_)
+    implicit none
+        Qomega_setted=.true.
+        Qomega=Qomega_
+    endsubroutine set_Q
+    pure complex(8) function get_Qomega(omega) result(f)
+    use system,only:print_error
+    implicit none
+        real(8),intent(in)::omega
+        
+        if(.not.Qomega_setted) call print_error("main_parameters.set_Qomega","Qomega is not setted")
+        
+        f=Qomega(omega)
+    endfunction set_Q
+    
+    
+    
+    pure integer(4) function get_number_of_layers() result(f)
+    use system,only:print_error
+    implicit none
+        if(number_of_layers==-1) call print_error("main_parameters.get_number_of_layers","number_of_layer is not setted")
+        
+        f=number_of_layers
+    endfunction get_number_of_layers
+    subroutine set_number_of_layers(number_of_layers_)
+    use system,only:print_error,print_warning
+    implicit none
+        integer(4),intent(in)::set_number_of_layers_
+        
+        if(number_of_layers_<1) call print_error("mainr_parameters.set_number_of_layers","number_of_layers_<1")
+        if(number_of_layers_>10) call print_warning("mainr_parameters.set_number_of_layers","number_of_layers_>10")
+        
+        call free_matrixes()
+        call create_matrixes()
+    endsubroutine set_number_of_layers
+    
+    subroutine free_matrixes()
+    use system,only:print_error
+    implicit none
+        if(anisotropic_type==-1) call print_error("main_parameters.free_matrixes","anisotropic_type is not setted")
+        if(.not.matrixes_created) call print_error("main_parameters.free_matrixes","matrixes is not created")
+        
+        matrixes_created=.false.
+        
+        deallocate(h)
+        deallocate(rho)
+        
+        if(anisptripic_type==material_isotropic_type()) then
+            deallocate(E)
+            deallocate(nu)
+            deallocate(lambda)
+            deallocate(mu)
+            deallocate(Cp)
+            deallocate(Cs)
+        elseif(anisotropic_type==material_anisotropic_type()) then
+            deallocate(Calphabeta)
+        endif
+    endsubroutine free_matrixes
+    subroutine create_matrixes()
+    use system,only:print_error
+    implicit none
+        integer(4) i,j,k
+        
+        if(anisotropic_type==-1) call print_error("main_parameters.create_matrixes","anisotropic_type is not setted")
+        if(matrixes_created) call print_error("main_parameters.create_matrixes","matrixes has been already created")
+        if(number_Of_layers==-1) call print_error("main_parameters.create_matrixes","number_Of_layers is not setted")
+        
+        matrixes_created=.true.
+        
+        allocate(h(number_of_layers))
+        allocate(rho(number_of_layers))
+        do i=1,number_Of_layers
+            h(i)=-1d0
+            rho(i)=-1d0
+        enddo
+        
+        if(anisptripic_type==material_isotropic_type()) then
+            allocate(E(number_of_layers))
+            allocate(nu(number_of_layers))
+            allocate(lambda(number_of_layers))
+            allocate(mu(number_of_layers))
+            allocate(Cp(number_of_layers))
+            allocate(Cs(number_of_layers))
+            
+            do i=1,number_of_layers
+                E(i)=-1d0
+                nu(i)=-1d0
+                lambda(i)=-1d0
+                mu(i)=-1d0
+                Cp(i)=-1d0
+                Cs(i)=-1d0
+            enddo
+        elseif(anisotropic_type==material_anisotropic_type()) then
+            allocate(Calphabeta(number_of_layers,6,6))
+            do i=1,number_Of_layers
+                do j=1,6
+                    do k=1,6
+                        Calphabeta(i,j,k)=-1d0
+                    enddo
+                enddo
+            enddo
+        endif
+    endsubroutine create_matrixes
+    
+    
+    
+    public::get_layer_parameter
+    public::get_layer_E,get_layer_nu,get_layer_lambda,get_layer_mu,get_layer_Cp,get_layer_Cs
+    public::get_layer_rho,get_layer_h,get_full_h
+    public::set_layer_E_nu,set_layer_lambda_mu,set_layer_Cp_Cs
+    public::set_layer_rho,set_layer_h
+    public::get_layer_Cijkl_parameter,get_layer_Calphabeta_parameter
+    public:set_layer_Calphabeta
+endmodule main_parameters
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+module main_parameters_
+implicit none
     public::number_of_layers,h,get_full_h,Calphabeta,rho,omega,Q,Qomega,get_number_of_layer,Cijkl
     public::E,nu,lambda,mu,Cp,Cs
     public::count_isotropic_material_parameters_form_lambda_mu,&
@@ -296,4 +618,4 @@ implicit none
         
         down_border_condition_type=down_border_condition_type_v
     endsubroutine set_down_border_condition_type
-endmodule main_parameters
+endmodule main_parameters_
