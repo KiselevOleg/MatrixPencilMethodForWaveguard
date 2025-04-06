@@ -34,7 +34,10 @@ implicit none
         !open(newunit=file,file="input/glass/55000/x.data")
         !open(newunit=file,file="input/glass/55000/with_less_points/x.data")
         !open(newunit=file,file="input/glass/600/x.data")
-        open(newunit=file,file="input/glass/manual/x.data")
+        !open(newunit=file,file="input/Al_new/2000/x.data")
+        !open(newunit=file,file="input/Al_new/600_old_load/x.data")
+        !open(newunit=file,file="input\Al_new_new\many_points\x.data")
+        open(newunit=file,file="input\Al_new_new\quality_points\x.data")
         read(file,*),Nx
         allocate(x(Nx))
         do i=1,Nx
@@ -50,7 +53,11 @@ implicit none
         !open(newunit=file,file="input/glass/55000/t_smoothing.data")
         !open(newunit=file,file="input/glass/55000/with_less_points/t.data")
         !open(newunit=file,file="input/glass/600/t.data")
-        open(newunit=file,file="input/glass/manual/t.data")
+        !open(newunit=file,file="input/glass/manual/t.data")
+        !open(newunit=file,file="input/Al_new/2000/t.data")
+        !open(newunit=file,file="input/Al_new/600_old_load/t.data")
+        !open(newunit=file,file="input\Al_new_new\many_points\t.data")
+        open(newunit=file,file="input\Al_new_new\quality_points\t.data")
         read(file,*),Nt
         allocate(t(Nt))
         do j=1,Nt
@@ -66,7 +73,11 @@ implicit none
         !open(newunit=file,file="input/glass/55000/u_smoothing.data")
         !open(newunit=file,file="input/glass/55000/with_less_points/u.data")
         !open(newunit=file,file="input/glass/600//u.data")
-        open(newunit=file,file="input/glass/manual//u.data")
+        !open(newunit=file,file="input/glass/manual/u.data")
+        !open(newunit=file,file="input/Al_new/2000/u.data")
+        !open(newunit=file,file="input/Al_new/600_old_load/u.data")
+        !open(newunit=file,file="input\Al_new_new\many_points\u.data")
+        open(newunit=file,file="input\Al_new_new\quality_points\u.data")
         allocate(u(Nx,Nt))
         do i=1,Nx
             do j=1,Nt
