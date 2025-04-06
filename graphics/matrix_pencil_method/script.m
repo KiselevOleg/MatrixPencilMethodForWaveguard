@@ -1,6 +1,6 @@
 clear all;
 
-A=load('dispersion_curve3.data');
+A=load('dispersion_curve_r.data');
 %A=load('dispersion_curve_experimental.data');
 %A=load('dispersion_curve_2dx_2dL_filter_glass_L=40_full_f_smoothing.data');
 %A=load('dispersion_curvedispersion_curve_2dx_2dL_filter_glass_L=40_large_f.data');
