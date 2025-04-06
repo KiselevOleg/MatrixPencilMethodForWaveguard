@@ -80,6 +80,12 @@ implicit none
         h(1)=0.282804184159867d0
         rho(1)=2.447d0
         
+        h(1)=0.3d0
+        rho(1)=2.6989d0
+        
+        !h(1)=0.39d0
+        !rho(1)=2.6989d0
+        
         do k=1,number_of_layers
             if(rho(k)<=epsilon) call print_error("pre_and_post_runtime_actions.init_main_parameters","it exists k that rho(k)<=epsilon")
             if(rho(k)>=10d0) call print_warning("pre_and_post_runtime_actions.init_main_parameters","it looks like rho(k) is too large")
@@ -174,6 +180,14 @@ implicit none
         
         E(1)=0.690580089931651d0
         nu(1)=0.236044180610061d0
+        
+        E(1)=0.705764375424274d0
+        nu(1)=0.341504652664807d0
+        
+        !E(1)=0.636365788744810d0
+        !nu(1)=0.222128593068961d0
+        !E(1)=0.708478596963202d0
+        !nu(1)=0.255132303408228d0
         
         do k=1,number_of_layers
             if(abs(E(k))>epsilon) then
