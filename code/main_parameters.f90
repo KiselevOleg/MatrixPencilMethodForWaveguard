@@ -708,6 +708,7 @@ implicit none
             call print_error("main_parameters.set_layer_Calphabeta",".not.(epsilon.le.real(new_value).and.real(new_value).le.1000d0)")
                 
         Calphabeta(layer,i,j)=new_value
+        Calphabeta(layer,j,i)=new_value
     endsubroutine set_layer_Calphabeta_element
     
     
