@@ -359,7 +359,7 @@ implicit none
     endsubroutine count_distersion_curve_for_K_graphics
     
     subroutine count_matrix_pencil_method_distersion_curve_graphics()
-    use matrix_pencil_method,only:count_dispersion_numbers
+    use matrix_pencil_method,only:count_dispersion_numbers,set_dx_filter_strength,set_L_filter_strength,set_dL_filter_value
     use math,only:c0,pi
     implicit none
         integer(4) L,res_size
@@ -369,6 +369,10 @@ implicit none
         
         integer(4) i
         integer(4) file
+        
+        call set_dx_filter_strength(0)
+        call set_L_filter_strength(1)
+        call set_dL_filter_value(3)
         
         L=90/2
         L=40*2-20
