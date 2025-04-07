@@ -4,17 +4,17 @@ implicit none
     
     public::init_sigma_and_eigenvectors,destructor_sigma_and_eigenvectors
     
-    complex(8),allocatable::sigma(:,:)!number_of_sigma,number_of_layer
-    complex(8),allocatable::m(:,:,:)!number_of_sigma,number_of_index,number_of_layer
+    complex(8),allocatable,private::sigma(:,:)!number_of_sigma,number_of_layer
+    complex(8),allocatable,private::m(:,:,:)!number_of_sigma,number_of_index,number_of_layer
     
-    complex(8),save::last_alpha=(1.182745372d99,1.91764672d101),last_beta=(1.183645274d98,1.8245282591d97)
+    complex(8),private::last_alpha=(1.182745372d99,1.91764672d101),last_beta=(1.183645274d98,1.8245282591d97)
     
-    private::last_alpha,last_beta,sigma,m,count_sigma_and_eigenvectors
+    private::count_sigma_and_eigenvectors
     contains
     
     complex(8) function get_sigma(alpha,beta,number_of_sigma,number_of_layer) result(f)
     use system,only:print_error
-    use main_parameters,only:number_of_layers,get_anisotropic
+    use main_parameters,only:get_number_of_layers,get_anisotropic_type,material_isotropic_type
     implicit none
         complex(8),intent(in)::alpha
         complex(8),intent(in)::beta
@@ -24,20 +24,20 @@ implicit none
         if(number_of_sigma<1.or.number_of_sigma>6) then
             call print_error("sigma_and_eigenvectors.get_sigma","number_of_sigma<1.or.number_of_sigma>6")
         endif
-        if(number_of_layer<1.or.number_of_layer>number_of_layers) then
+        if(number_of_layer<1.or.number_of_layer>get_number_of_layers()) then
             call print_error("sigma_and_eigenvectors.get_sigma",&
-                "number_of_layer<1.or.number_of_layer>number_of_layers")
+                "number_of_layer<1.or.number_of_layer>get_number_of_layers()")
         endif
         
-        !if(get_anisotropic()==0.and..not.beta==0d0) call print_error("sigma_and_eigenvectors.get_sigma",&
-        !    "(anisotropic==0.and..not.bera==0d0")
+        !if(get_anisotropic_type()==material_isotropic_type().and..not.beta==0d0) call print_error("sigma_and_eigenvectors.get_sigma",&
+        !    "get_anisotropic_type()==material_isotropic_type().and..not.beta==0d0")
         
         call count_sigma_and_eigenvectors(alpha,beta)
         f=sigma(number_of_sigma,number_of_layer)
     endfunction get_sigma
     complex(8) function get_eigenvector_component(alpha,beta,number_of_sigma,index,number_of_layer) result(f)
     use system,only:print_error
-    use main_parameters,only:number_of_layers,get_anisotropic
+    use main_parameters,only:get_number_of_layers,get_anisotropic_type,material_isotropic_type
     implicit none
         complex(8),intent(in)::alpha
         complex(8),intent(in)::beta
@@ -48,21 +48,22 @@ implicit none
         if(number_of_sigma<1.or.number_of_sigma>6) then
             call print_error("sigma_and_eigenvectors.get_eigenvector_component","number_of_sigma<1.or.number_of_sigma>6")
         endif
-        if(number_of_layer<1.or.number_of_layer>number_of_layers) then
+        if(number_of_layer<1.or.number_of_layer>get_number_of_layers()) then
             call print_error("sigma_and_eigenvectors.get_eigenvector_component",&
-                "number_of_layer<1.or.number_of_layer>number_of_layers")
+                "number_of_layer<1.or.number_of_layer>get_number_of_layers()")
         endif
         if(index<1.or.index>3) call print_error("sigma_and_eigenvectors.get_eigenvector_component","index<1.or.index>3")
         
-        !if(get_anisotropic()==0.and..not.beta==0d0) call print_error("sigma_and_eigenvectors.get_eigenvector_component",&
-        !    "(anisotropic==0.and..not.bera==0d0")
+        !if(get_anisotropic_type()==material_isotropic_type().and..not.beta==0d0) call print_error("sigma_and_eigenvectors.get_eigenvector_component",&
+        !    "get_anisotropic_type()==material_isotropic_type().and..not.beta==0d0")
         
         call count_sigma_and_eigenvectors(alpha,beta)
         f=m(number_of_sigma,index,number_of_layer)
     endfunction get_eigenvector_component
     
     subroutine count_sigma_and_eigenvectors(alpha,beta)
-    use main_parameters,only:number_of_layers,Cijkl,rho,omega,get_anisotropic,lambda,mu
+    use main_parameters,only:get_number_of_layers,Cijkl=>get_layer_Cijkl_parameter,rho=>get_layer_rho,omega=>get_omega,&
+        get_anisotropic_type,material_isotropic_type,lambda=>get_layer_lambda,mu=>get_layer_mu
     use system,only:print_error
     use math,only:ci,c0,epsilon
     implicit none
@@ -77,8 +78,8 @@ implicit none
         
         complex(8) alpha2
         
-        !if(get_anisotropic()==0.and..not.beta==0d0) call print_error("sigma_and_eigenvectors.count_sigma_and_eigenvectors",&
-        !    "(anisotropic==0.and..not.bera==0d0")
+        !if(get_anisotropic_type()==material_isotropic_type().and..not.beta==0d0) call print_error("sigma_and_eigenvectors.count_sigma_and_eigenvectors",&
+        !    "get_anisotropic_type()==material_isotropic_type().and..not.beta==0d0")
         
         if(alpha==last_alpha.and.beta==last_beta) then
             return
@@ -87,14 +88,14 @@ implicit none
             last_beta=beta
         endif
         
-        if(get_anisotropic()==0) then
+        if(get_anisotropic_type()==material_isotropic_type()) then
             alpha2=alpha*alpha+beta*beta
             !complex(8),allocatable::sigma(:,:)!number_of_sigma,number_of_layer
             !complex(8),allocatable::m(:,:,:)!number_of_sigma,number_of_index,number_of_layer
-            do layer=1,number_of_layers
-                sigma(1,layer)=sqrt(alpha2-rho(layer)*omega*omega/(lambda(layer)+mu(layer)+mu(layer)))
+            do layer=1,get_number_of_layers()
+                sigma(1,layer)=sqrt(alpha2-rho(layer)*omega()*omega()/(lambda(layer)+mu(layer)+mu(layer)))
                 sigma(2,layer)=-sigma(1,layer)
-                sigma(3,layer)=sqrt(alpha2-rho(layer)*omega*omega/mu(layer))
+                sigma(3,layer)=sqrt(alpha2-rho(layer)*omega()*omega()/mu(layer))
                 sigma(4,layer)=-sigma(3,layer)
                 sigma(5,layer)=sigma(3,layer)
                 sigma(6,layer)=-sigma(3,layer)
@@ -145,21 +146,21 @@ implicit none
             return
         endif
         
-        do layer=1,number_of_layers
+        do layer=1,get_number_of_layers()
             do i=1,3
                 do l=1,3
                     B(i,l,0)=&
-                        Cijkl(i,1,1,l,layer)*alpha*alpha+&
-                        Cijkl(i,1,2,l,layer)*alpha*beta+&
-                        Cijkl(i,2,1,l,layer)*beta*alpha+&
-                        Cijkl(i,2,2,l,layer)*beta*beta
+                        Cijkl(layer,i,1,1,l)*alpha*alpha+&
+                        Cijkl(layer,i,1,2,l)*alpha*beta+&
+                        Cijkl(layer,i,2,1,l)*beta*alpha+&
+                        Cijkl(layer,i,2,2,l)*beta*beta
                     B(i,l,1)=&
-                        Cijkl(i,1,3,l,layer)*alpha+&
-                        Cijkl(i,2,3,l,layer)*beta+&
-                        Cijkl(i,3,1,l,layer)*alpha+&
-                        Cijkl(i,3,2,l,layer)*beta
+                        Cijkl(layer,i,1,3,l)*alpha+&
+                        Cijkl(layer,i,2,3,l)*beta+&
+                        Cijkl(layer,i,3,1,l)*alpha+&
+                        Cijkl(layer,i,3,2,l)*beta
                     B(i,l,2)=&
-                        Cijkl(i,3,3,l,layer)
+                        Cijkl(layer,i,3,3,l)
                 enddo
             enddo
             
@@ -173,7 +174,7 @@ implicit none
             enddo
             
             do i=1,3
-                B(i,i,0)=B(i,i,0)-rho(layer)*omega*omega
+                B(i,i,0)=B(i,i,0)-rho(layer)*omega()*omega()
             enddo
             do i=1,3
                 do j=1,3
@@ -267,10 +268,10 @@ implicit none
     endsubroutine count_sigma_and_eigenvectors
     
     subroutine init_sigma_and_eigenvectors()
-    use main_parameters,only:number_of_layers
+    use main_parameters,only:get_number_of_layers
     implicit none
-        allocate(sigma(6,number_of_layers))
-        allocate(m(6,3,number_of_layers))
+        allocate(sigma(6,get_number_of_layers()))
+        allocate(m(6,3,get_number_of_layers()))
     endsubroutine init_sigma_and_eigenvectors
     subroutine destructor_sigma_and_eigenvectors()
     implicit none
