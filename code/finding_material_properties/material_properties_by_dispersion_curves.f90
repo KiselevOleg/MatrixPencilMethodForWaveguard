@@ -10,7 +10,7 @@ implicit none
     subroutine find_material_properties(dispersion_curves_size,dispersion_curves,all_disoersion_points_is_difenetly_true,&
         parameters_for_detect_size,parameters_layer,parameters_type,parameters_min,parameters_max,dparameters,&
         res_max_size,res,res_value_of_right,res_size)
-    use main_parameters,only:number_of_layers
+    use main_parameters,only:get_number_of_layers,get_anisotropic_type,material_isotropic_type
     use gradient_descent_method,only:find_strict_minimum_points_on_surf
     use math,only:epsilon
     use system,only:print_error
@@ -36,6 +36,10 @@ implicit none
         real(8) v,x(parameters_for_detect_size)
         integer(4) i,j,k
         
+        if(.not.get_anisotropic_type()==material_isotropic_type()) &
+            call print_error("material_properties_by_dispersion_curves.find_material_properties",&
+            ".not.get_anisotropic_type()==material_isotropic_type()")
+        
         if(dispersion_curves_size<3) call print_error("material_properties_by_dispersion_curves.find_material_properties",&
             "dispersion_curves_size<3")
         do i=1,dispersion_curves_size
@@ -53,9 +57,9 @@ implicit none
         enddo
         
         do i=1,parameters_for_detect_size
-            if(.not.(1.le.parameters_layer(i).and.parameters_layer(i).le.number_of_layers)) &
+            if(.not.(1.le.parameters_layer(i).and.parameters_layer(i).le.get_number_of_layers())) &
                 call print_error("material_properties_by_dispersion_curves.find_material_properties",&
-                    ".not.(1.le.parameters_layer(i).and.parameters_layer(i).le.number_of_layers)")
+                    ".not.(1.le.parameters_layer(i).and.parameters_layer(i).le.get_number_of_layers())")
             do j=1,i-1
                 if(parameters_layer(i)<parameters_layer(j)) &
                     call print_error("material_properties_by_dispersion_curves.find_material_properties",&
@@ -181,7 +185,10 @@ implicit none
         
         contains
             real(8) function surf_by_K(x) result(f)
-            use main_parameters,only:omega,lambda,mu,E,nu,Cp,Cs,rho,h,count_isotropic_material_parameters_form_E_nu
+            use main_parameters,only:set_omega,get_omega,&
+                lambda=>get_layer_lambda,mu=>get_layer_mu,E=>get_layer_E,nu=>get_layer_nu,&
+                Cp=>get_layer_Cp,Cs=>get_layer_Cs,rho=>get_Layer_rho,h=>get_layer_h,&
+                set_layer_E_nu,set_layer_rho,set_layer_h
             use count_K,only:K
             use math,only:epsilon,c0
             implicit none
@@ -190,7 +197,8 @@ implicit none
                 real(8) omega_current
                 
                 integer(4) current_layer
-                complex(8) Ev,nuv
+                complex(8) Ev
+                real(8) nuv
                 real(8) rhov
                 real(8) v
                 integer(4) i,j
@@ -207,14 +215,8 @@ implicit none
                             if(Ev==-1d0) Ev=E(current_layer)
                             if(nuv==-1d0) nuv=nu(current_layer)
                             if(rhov==-1d0) rhov=rho(current_layer)
-                            call count_isotropic_material_parameters_form_E_nu(&
-                                lambda(current_layer),mu(current_layer),&
-                                Ev,nuv,&
-                                Cp(current_layer),Cs(current_layer),&
-                                rhov)
-                            E(current_layer)=Ev
-                            nu(current_layer)=nuv
-                            rho(current_layer)=rhov
+                            call set_layer_rho(current_layer,rhov)
+                            call set_layer_E_nu(current_layer,Ev,nuv)
                             Ev=-1d0
                             nuv=-1d0
                             rhov=-1d0
@@ -224,7 +226,7 @@ implicit none
                     endif
                     
                     if(parameters_type(i)=="h") then
-                        h(current_layer)=x(i)
+                        call set_layer_h(current_layer,x(i))
                         
                         cycle
                     endif
@@ -248,21 +250,15 @@ implicit none
                     if(Ev==-1d0) Ev=E(current_layer)
                     if(nuv==-1d0) nuv=nu(current_layer)
                     if(rhov==-1d0) rhov=rho(current_layer)
-                    call count_isotropic_material_parameters_form_E_nu(&
-                        lambda(current_layer),mu(current_layer),&
-                        Ev,nuv,&
-                        Cp(current_layer),Cs(current_layer),&
-                        rhov)
-                    E(current_layer)=Ev
-                    nu(current_layer)=nuv
-                    rho(current_layer)=rhov
+                    call set_layer_rho(current_layer,rhov)
+                    call set_layer_E_nu(current_layer,Ev,nuv)
                 endif
                 
                 omega_current=-1d0
                 do i=1,dispersion_curves_size
                     if(abs(omega_current-dispersion_curves(i,1))>epsilon) then
-                        omega=dispersion_curves(i,1)
-                        omega_current=omega
+                        call set_omega(dispersion_curves(i,1))
+                        omega_current=get_omega()
                     endif
                     
                     f=f+1d0/max(1d-5,abs(K(i=3,j=3,alpha=(dispersion_curves(i,2)+c0),beta=c0,z=0d0)))
@@ -272,7 +268,11 @@ implicit none
                 f=f/dispersion_curves_size
             endfunction surf_by_K
             real(8) function surf_by_dispersion_curves(x) result(f)
-            use main_parameters,only:omega,lambda,mu,E,nu,Cp,Cs,rho,h,count_isotropic_material_parameters_form_E_nu
+            use main_parameters,only:set_omega,get_omega,&
+                lambda=>get_layer_lambda,mu=>get_layer_mu,E=>get_layer_E,nu=>get_layer_nu,&
+                Cp=>get_layer_Cp,Cs=>get_layer_Cs,rho=>get_Layer_rho,h=>get_layer_h,&
+                set_layer_E_nu,set_layer_rho,set_layer_h
+            
             use dispersion_curves_for_K,only:count_poles
             use math,only:epsilon,c0
             implicit none
@@ -284,7 +284,8 @@ implicit none
                 integer(4) res_size
                 
                 integer(4) current_layer
-                complex(8) Ev,nuv
+                complex(8) Ev
+                real(8) nuv
                 real(8) rhov
                 real(8) v
                 integer(4) i,j
@@ -301,14 +302,8 @@ implicit none
                             if(Ev==-1d0) Ev=E(current_layer)
                             if(nuv==-1d0) nuv=nu(current_layer)
                             if(rhov==-1d0) rhov=rho(current_layer)
-                            call count_isotropic_material_parameters_form_E_nu(&
-                                lambda(current_layer),mu(current_layer),&
-                                Ev,nuv,&
-                                Cp(current_layer),Cs(current_layer),&
-                                rhov)
-                            E(current_layer)=Ev
-                            nu(current_layer)=nuv
-                            rho(current_layer)=rhov
+                            call set_layer_rho(current_layer,rhov)
+                            call set_layer_E_nu(current_layer,Ev,nuv)
                             Ev=-1d0
                             nuv=-1d0
                             rhov=-1d0
@@ -318,7 +313,7 @@ implicit none
                     endif
                     
                     if(parameters_type(i)=="h") then
-                        h(current_layer)=x(i)
+                        call set_layer_h(current_layer,x(i))
                         
                         cycle
                     endif
@@ -342,21 +337,15 @@ implicit none
                     if(Ev==-1d0) Ev=E(current_layer)
                     if(nuv==-1d0) nuv=nu(current_layer)
                     if(rhov==-1d0) rhov=rho(current_layer)
-                    call count_isotropic_material_parameters_form_E_nu(&
-                        lambda(current_layer),mu(current_layer),&
-                        Ev,nuv,&
-                        Cp(current_layer),Cs(current_layer),&
-                        rhov)
-                    E(current_layer)=Ev
-                    nu(current_layer)=nuv
-                    rho(current_layer)=rhov
+                    call set_layer_rho(current_layer,rhov)
+                    call set_layer_E_nu(current_layer,Ev,nuv)
                 endif
                 
                 omega_current=-1d0
                 do i=1,dispersion_curves_size
                     if(abs(omega_current-dispersion_curves(i,1))>epsilon) then
-                        omega=dispersion_curves(i,1)
-                        omega_current=omega
+                        call set_omega(dispersion_curves(i,1))
+                        omega_current=get_omega()
                         
                         call count_poles(phi=0d0,number_of_en=3,res_max_size=25,res=res,res_size=res_size)
                     endif
