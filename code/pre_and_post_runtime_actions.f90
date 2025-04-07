@@ -9,6 +9,7 @@ implicit none
     contains
     
     subroutine init()
+    use main_parameters,only:init_main_parameters
     use sigma_and_eigenvectors,only:init_sigma_and_eigenvectors
     use count_K,only:init_count_K
     use integral_solution,only:init_integral_solution
@@ -16,9 +17,8 @@ implicit none
     use load_experimental_measurements,only:init_load_experimental_measurements
     use matrix_pencil_method,only:init_matrix_pencil_method
     use matrix_pencil_method_basis,only:init_matrix_pencil_method_basis
-    implicit none
+    implicit none        
         call init_main_parameters
-        
         call init_sigma_and_eigenvectors
         call init_count_K
         call init_integral_solution
@@ -26,8 +26,11 @@ implicit none
         call init_load_experimental_measurements
         call init_matrix_pencil_method
         call init_matrix_pencil_method_basis
+        
+        call establish_main_parameters()
     endsubroutine init
     subroutine destructor
+    use main_parameters,only:destructor_main_parameters
     use sigma_and_eigenvectors,only:destructor_sigma_and_eigenvectors
     use count_K,only:destructor_count_K
     use integral_solution,only:destructor_integral_solution
@@ -37,7 +40,6 @@ implicit none
     use matrix_pencil_method_basis,only:destructor_matrix_pencil_method_basis
     implicit none
         call destructor_main_parameters
-        
         call destructor_sigma_and_eigenvectors
         call destructor_count_K
         call destructor_integral_solution

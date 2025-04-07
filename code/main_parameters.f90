@@ -1,5 +1,7 @@
 module main_parameters
 implicit none
+    public::init_main_parameters,destructor_main_parameters
+    
     public::get_anisotropic_type,set_anisotropic_type,&
         material_isotropic_type,material_anisotropic_type
     public::set_down_border_condition_type,get_down_border_condition_type,&
@@ -32,6 +34,16 @@ implicit none
         count_isotropic_material_parameter_lambda_form_Cp_Cs,count_isotropic_material_parameter_mu_form_Cp_Cs,&
         count_isotropic_material_parameter_E_form_Cp_Cs,count_isotropic_material_parameter_nu_form_Cp_Cs
     
+    public::check_correct_completing_parameters_establishment_noexcept,&
+        check_correct_completing_parameters_establishment_throwable
+    
+    
+    
+    interface set_layer_Calphabeta
+        procedure set_layer_Calphabeta_matrix
+        procedure set_layer_Calphabeta_element
+    endinterface
+    
     
     
     integer(4),private::anisotropic_type=-1
@@ -51,8 +63,8 @@ implicit none
             complex(8),intent(in)::omega
         endfunction Qomega_type
     endinterface
-    procedure(Q_type),pointer,private::Q
-    procedure(Qomega_type),pointer,private::Qomega
+    procedure(Q_type),pointer,private::Q=>null()
+    procedure(Qomega_type),pointer,private::Qomega=>null()
     logical(1),private::Q_setted=.false.,Qomega_setted=.false.
     
     integer(4),private::number_of_layers=-1
@@ -75,6 +87,7 @@ implicit none
     real(8),private::full_h=-1d0
     
     private::free_matrixes,create_matrixes
+    private::set_layer_Calphabeta_matrix,set_layer_Calphabeta_element
     contains
     
     integer(4) function get_anisotropic_type() result(f)
@@ -641,7 +654,7 @@ implicit none
     
     
     
-    subroutine set_layer_Calphabeta(layer,Calphabeta_)
+    subroutine set_layer_Calphabeta_matrix(layer,Calphabeta_)
     use system,only:print_error
     use math,only:epsilon
     implicit none
@@ -655,6 +668,12 @@ implicit none
             call print_error("main_parameters.get_layer_Cijkl_parameter",".not.anisotropic_type==material_anisotropic_type()")
         if(.not.(1.le.layer.and.layer.le.number_of_Layers)) &
             call print_error("main_parameters.get_layer_Cijkl_parameter",".not.(1.le.layer.and.layer.le.number_of_Layers)")
+        do i=1,6
+            do j=i+1,j
+                if(.not.(Calphabeta(layer,i,j)==Calphabeta(layer,j,i))) &
+                    call print_error("main_parameters.set_layer_Calphabeta",".not.(Calphabeta(layer,i,j==Calphabeta(layer,j,i))")
+            enddo
+        enddo
         
         do i=1,6
             do j=1,6
@@ -666,7 +685,30 @@ implicit none
                 Calphabeta(layer,i,j)=v
             enddo
         enddo
-    endsubroutine set_layer_Calphabeta
+    endsubroutine set_layer_Calphabeta_matrix
+    subroutine set_layer_Calphabeta_element(layer,i,j,new_value)
+    use system,only:print_error
+    use math,only:epsilon
+    implicit none
+        integer(4),intent(in)::layer
+        integer(4),intent(in)::i
+        integer(4),intent(in)::j
+        complex(8),intent(in)::new_value
+        
+        if(.not.anisotropic_type==material_anisotropic_type()) &
+            call print_error("main_parameters.get_layer_Cijkl_parameter",".not.anisotropic_type==material_anisotropic_type()")
+        if(.not.(1.le.layer.and.layer.le.number_of_Layers)) &
+            call print_error("main_parameters.get_layer_Cijkl_parameter",".not.(1.le.layer.and.layer.le.number_of_Layers)")
+        if(.not.(1.le.i.and.i.le.6)) &
+            call print_error("main_parameters.get_layer_Cijkl_parameter",".not.(1.le.i.and.i.le.6)")
+        if(.not.(1.le.j.and.j.le.6)) &
+            call print_error("main_parameters.get_layer_Cijkl_parameter",".not.(1.le.j.and.j.le.6)")
+
+        if(.not.(epsilon.le.real(new_value).and.real(new_value).le.1000d0)) &
+            call print_error("main_parameters.set_layer_Calphabeta",".not.(epsilon.le.real(new_value).and.real(new_value).le.1000d0)")
+                
+        Calphabeta(layer,i,j)=new_value
+    endsubroutine set_layer_Calphabeta_element
     
     
     
@@ -1062,4 +1104,285 @@ implicit none
         
         call print_error("main_parameters.get_layer_parameter","incorrect parameter name")
     endfunction get_Layer_parameter
+    
+    
+    
+    !logical(1) function check_correct_completing_parameters_establishment_without_exception_throwing(message) result(f)
+    logical(1) function check_correct_completing_parameters_establishment_noexcept(message) result(f)
+    use system,only:print_warning
+    use math,only:epsilon
+    implicit none
+        character(len=1024),intent(out)::message
+        
+        integer(4) layer,i,j
+        
+        if(anisotropic_type==-1) then
+            message="anisotropic type is not setted"
+            f=.false.
+            return
+        endif
+        
+        if(down_border_condition_type==-1) then
+            message="down border condition type is not setted"
+            f=.false.
+            return
+        endif
+        if(.not.(&
+            get_down_border_condition_type()==down_border_condition_type_fixed_border().or.&
+            get_down_border_condition_type()==down_border_condition_type_free_border().or.&
+            get_down_border_condition_type()==down_border_condition_type_halfspace()&
+            )) then
+            message="down border condition type is incorrect"
+            f=.false.
+            return
+        endif
+        
+        if(get_omega()<epsilon) then
+            message="a start const omega value suspussionly is less then epsilon(neally 0 or negative or 0)"
+            f=.false.
+            return
+        endif
+        if(get_omega()<0.05d0) call print_warning(&
+            "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+            "get_omega()<0.05d0")
+        
+        if(.not.Q_setted) then
+            message="a function Q is not setted"
+            f=.false.
+            return
+        endif
+        if(.not.Qomega_setted) then
+            message="a function Qomega is not setted"
+            f=.false.
+            return
+        endif
+            
+        if(number_of_layers==-1) then
+            message="number_of_layer is not setted"
+            f=.false.
+            return
+        endif
+        if(.not.(1.le.number_of_layers.and.number_of_layers.le.100)) then
+            message=".not.(1.le.number_of_layers.and.number_of_layers.le.100)"
+            f=.false.
+            return
+        endif
+        
+        do layer=1,number_of_layers
+            if(h(layer)==-1d0) then
+                message="h(layer) is not setted"
+                f=.false.
+                return
+            endif
+            if(.not.(epsilon<h(layer).and.h(layer)<100d0)) then
+                message=".not.(epsilon<h(layer).and.h(layer)<100d0)"
+                f=.false.
+                return
+            endif
+            if(0.01d0>h(layer)) call print_warning(&
+                "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                "0.01d0>h(layer)")
+            if(10d0<h(layer)) call print_warning(&
+                "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                "10d0<h(layer)")
+            
+            if(rho(layer)==-1d0) then
+                message="rho(layer) is not setted"
+                f=.false.
+                return
+            endif
+            if(.not.(epsilon<rho(layer).and.rho(layer)<100d0)) then
+                message=".not.(epsilon<rho(layer).and.rho(layer)<100d0)"
+                f=.false.
+                return
+            endif
+            if(0.01d0>rho(layer)) call print_warning(&
+                "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                "0.01d0>rho(layer)")
+            if(10d0<rho(layer)) call print_warning(&
+                "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                "10d0<rho(layer)")
+        enddo
+        
+        if(get_anisotropic_type()==material_isotropic_type()) then
+            do layer=1,get_number_of_layers()
+                if(real(E(layer))==-1d0) then
+                    message="E(layer) is not setted"
+                    f=.false.
+                    return
+                endif
+                if(.not.(epsilon<real(E(layer)).and.real(E(layer))<100d0)) then
+                    message=".not.(epsilon<real(E(layer)).and.real(E(layer))<100d0)"
+                    f=.false.
+                    return
+                endif
+                if(0.01d0>real(E(layer))) call print_warning(&
+                    "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                    "0.01d0>real(E(layer))")
+                if(10d0<real(E(layer))) call print_warning(&
+                    "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                    "10d0<real(E(layer))")
+                
+                if(nu(layer)==-1d0) then
+                    message="nu(layer) is not setted"
+                    f=.false.
+                    return
+                endif
+                if(.not.(epsilon<nu(layer).and.nu(layer)<0.5d0-epsilon)) then
+                    message=".not.(nu<h(layer).and.nu(layer)<0.5d0-epsilon)"
+                    f=.false.
+                    return
+                endif
+                if(0.01d0>nu(layer)) call print_warning(&
+                    "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                    "0.01d0>nu(layer)")
+                if(0.49d0<nu(layer)) call print_warning(&
+                    "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                    "0.49d0<nu(layer)")
+                
+                if(real(lambda(layer))==-1d0) then
+                    message="lambda(layer) is not setted"
+                    f=.false.
+                    return
+                endif
+                if(.not.(epsilon<real(lambda(layer)).and.real(lambda(layer))<100d0)) then
+                    message=".not.(epsilon<real(lambda(layer)).and.real(lambda(layer))<100d0)"
+                    f=.false.
+                    return
+                endif
+                if(0.01d0>real(lambda(layer))) call print_warning(&
+                    "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                    "0.01d0>real(lambda(layer))")
+                if(10d0<real(lambda(layer))) call print_warning(&
+                    "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                    "10d0<real(lambda(layer))")
+                
+                if(real(mu(layer))==-1d0) then
+                    message="mu(layer) is not setted"
+                    f=.false.
+                    return
+                endif
+                if(.not.(epsilon<real(mu(layer)).and.real(mu(layer))<100d0)) then
+                    message=".not.(epsilon<real(mu(layer)).and.real(mu(layer))<100d0)"
+                    f=.false.
+                    return
+                endif
+                if(0.01d0>real(mu(layer))) call print_warning(&
+                    "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                    "0.01d0>real(mu(layer))")
+                if(10d0<real(mu(layer))) call print_warning(&
+                    "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                    "10d0<real(mu(layer))")
+                
+                if(real(Cp(layer))==-1d0) then
+                    message="Cp(layer) is not setted"
+                    f=.false.
+                    return
+                endif
+                if(.not.(epsilon<real(Cp(layer)).and.real(Cp(layer))<100d0)) then
+                    message=".not.(epsilon<real(Cp(layer)).and.real(Cp(layer))<100d0)"
+                    f=.false.
+                    return
+                endif
+                if(0.01d0>real(Cp(layer))) call print_warning(&
+                    "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                    "0.01d0>real(Cp(layer))")
+                if(10d0<real(Cp(layer))) call print_warning(&
+                    "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                    "10d0<real(Cp(layer))")
+                
+                if(real(Cs(layer))==-1d0) then
+                    message="Cs(layer) is not setted"
+                    f=.false.
+                    return
+                endif
+                if(.not.(epsilon<real(Cs(layer)).and.real(Cs(layer))<100d0)) then
+                    message=".not.(epsilon<real(Cs(layer)).and.real(Cs(layer))<100d0)"
+                    f=.false.
+                    return
+                endif
+                if(0.01d0>real(Cs(layer))) call print_warning(&
+                    "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                    "0.01d0>real(Cs(layer))")
+                if(10d0<real(Cs(layer))) call print_warning(&
+                    "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                    "10d0<real(Cs(layer))")
+                if(real(Cp(layer))<real(Cs(layer))) then
+                    message="real(Cp(layer))<real(Cs(layer))"
+                    f=.false.
+                    return
+                endif
+            enddo
+        elseif(get_anisotropic_type()==material_anisotropic_type()) then
+            do layer=1,get_number_of_layers()
+                do i=1,6
+                    do j=1,6
+                        if(real(Calphabeta(layer,i,j))==-1d0) then
+                            message="Calphabeta(layer,i,j) is not setted"
+                            f=.false.
+                            return
+                        endif
+                        if((i>3.or.j>3).and.(.not.i==j)) then
+                            if(.not.(0d0.le.real(Calphabeta(layer,i,j)).and.real(Calphabeta(layer,i,j))<100d0)) then
+                                message=".not.((0d0.le.<real(Calphabeta(layer,i,j)).and.real(Calphabeta(layer,i,j))<100d0)"
+                                f=.false.
+                                return
+                            endif
+                        else
+                            if(.not.(epsilon<real(Calphabeta(layer,i,j)).and.real(Calphabeta(layer,i,j))<100d0)) then
+                                message=".not.(epsilon<real(Calphabeta(layer,i,j)).and.real(Calphabeta(layer,i,j))<100d0)"
+                                f=.false.
+                                return
+                            endif
+                        endif
+                        if(((i>3.or.j>3).and.(.not.i==j)).and.0.01d0>real(Calphabeta(layer,i,j))) call print_warning(&
+                            "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                            "((i>3.or.j>3).and.(.not.i==j)).and.0.01d0>real(Calphabeta(layer,i,j))")
+                        if(10d0<real(Calphabeta(layer,i,j))) call print_warning(&
+                            "main_parameters.check_correct_completing_parameters_establishment_without_exception_throwing",&
+                            "10d0<real(Calphabeta(layer,i,j))")
+                    enddo
+                enddo
+                do i=1,6
+                    do j=i+1,6
+                        if(.not.Calphabeta(layer,i,j)==Calphabeta(layer,j,i)) then
+                            message=".not.Calphabeta(layer,i,j)==Calphabeta(layer,j,i)"
+                            f=.false.
+                            return
+                        endif
+                    enddo
+                enddo
+            enddo
+        else
+            message="incorrect anisotropic type"
+            f=.false.
+            return
+        endif
+        
+        f=.true.
+    endfunction check_correct_completing_parameters_establishment_noexcept
+    !logical(1) function check_correct_completing_parameters_establishment_with_exception_throwing() result(f)
+    logical(1) function check_correct_completing_parameters_establishment_throwable() result(f)
+    use system,only:print_error
+    implicit none
+        character(len=1024) message
+        
+        f=.true.
+        
+        if(.not.check_correct_completing_parameters_establishment_noexcept(message)) then
+            call print_error(&
+                "main_parameters.check_correct_completing_parameters_establishment_throwable",&
+                message)
+        endif
+    endfunction check_correct_completing_parameters_establishment_throwable
+    
+    
+    
+    subroutine init_main_parameters()
+    implicit none
+    endsubroutine init_main_parameters
+    subroutine destructor_main_parameters()
+    implicit none
+        if(matrixes_created) call free_matrixes()
+    endsubroutine destructor_main_parameters
 endmodule main_parameters
