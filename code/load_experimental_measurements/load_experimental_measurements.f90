@@ -20,25 +20,26 @@ implicit none
     private::is_dt_const,is_dx_const,dt_max_difference_for_be_const,dx_max_difference_for_be_const
     contains
     
-    subroutine init_load_experimental_measurements
+    subroutine init_load_experimental_measurements(&
+        x_file_name_length,x_file_name,&
+        t_file_name_length,t_file_name,&
+        u_file_name_length,u_file_name)
     use smoothing_signal,only:arithmetic_mean_smoothing
     implicit none
+        integer(4),intent(in)::x_file_name_length
+        character(len=x_file_name_length),intent(in)::x_file_name
+        integer(4),intent(in)::t_file_name_length
+        character(len=x_file_name_length),intent(in)::t_file_name
+        integer(4),intent(in)::u_file_name_length
+        character(len=x_file_name_length),intent(in)::u_file_name
+        
         integer(4) file
         
         integer(4) i,j
         real(8) v
         real(8),allocatable::signal(:)
         
-        !open(newunit=file,file="input/Al/_x.data")
-        !open(newunit=file,file="input/glass/x.data")
-        !open(newunit=file,file="input/glass/55000/x.data")
-        !open(newunit=file,file="input/glass/55000/with_less_points/x.data")
-        !open(newunit=file,file="input/glass/600/x.data")
-        !open(newunit=file,file="input/Al_new/2000/x.data")
-        !open(newunit=file,file="input/Al_new/600_old_load/x.data")
-        !open(newunit=file,file="input\Al_new_new\many_points\x.data")
-        !open(newunit=file,file="input\Al_new_new\quality_points\x.data")
-        open(newunit=file,file="input\glass\signal_0.25\x.data")
+        open(newunit=file,file=x_file_name)
         read(file,*),Nx
         allocate(x(Nx))
         do i=1,Nx
@@ -47,19 +48,7 @@ implicit none
         enddo
         close(file)
         
-        !open(newunit=file,file="input/Al/_t.data")
-        !open(newunit=file,file="input/glass/t.data")
-        !open(newunit=file,file="input/glass/t_smoothing.data")
-        !open(newunit=file,file="input/glass/55000/t.data")
-        !open(newunit=file,file="input/glass/55000/t_smoothing.data")
-        !open(newunit=file,file="input/glass/55000/with_less_points/t.data")
-        !open(newunit=file,file="input/glass/600/t.data")
-        !open(newunit=file,file="input/glass/manual/t.data")
-        !open(newunit=file,file="input/Al_new/2000/t.data")
-        !open(newunit=file,file="input/Al_new/600_old_load/t.data")
-        !open(newunit=file,file="input\Al_new_new\many_points\t.data")
-        !open(newunit=file,file="input\Al_new_new\quality_points\t.data")
-        open(newunit=file,file="input\glass\signal_0.25\t.data")
+        open(newunit=file,file=t_file_name)
         read(file,*),Nt
         allocate(t(Nt))
         do j=1,Nt
@@ -68,19 +57,7 @@ implicit none
         enddo
         close(file)
         
-        !open(newunit=file,file="input/Al/_u.data")
-        !open(newunit=file,file="input/glass/u.data")
-        !open(newunit=file,file="input/glass/u_smoothing.data")
-        !open(newunit=file,file="input/glass/55000/u.data")
-        !open(newunit=file,file="input/glass/55000/u_smoothing.data")
-        !open(newunit=file,file="input/glass/55000/with_less_points/u.data")
-        !open(newunit=file,file="input/glass/600//u.data")
-        !open(newunit=file,file="input/glass/manual/u.data")
-        !open(newunit=file,file="input/Al_new/2000/u.data")
-        !open(newunit=file,file="input/Al_new/600_old_load/u.data")
-        !open(newunit=file,file="input\Al_new_new\many_points\u.data")
-        !open(newunit=file,file="input\Al_new_new\quality_points\u.data")
-        open(newunit=file,file="input\glass\signal_0.25\u.data")
+        open(newunit=file,file=u_file_name)
         allocate(u(Nx,Nt))
         do i=1,Nx
             do j=1,Nt

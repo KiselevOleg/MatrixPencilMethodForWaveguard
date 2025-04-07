@@ -20,7 +20,11 @@ implicit none
         call init_count_K
         call init_integral_solution
         call init_integral_solution_isotropic
-        call init_load_experimental_measurements
+        call init_load_experimental_measurements(&
+            len(trim(get_x_file_name())),trim(get_x_file_name()),&
+            len(trim(get_t_file_name())),trim(get_t_file_name()),&
+            len(trim(get_u_file_name())),trim(get_u_file_name())&
+        )
         call init_matrix_pencil_method
         call init_matrix_pencil_method_basis
     endsubroutine init
@@ -73,27 +77,27 @@ implicit none
         
         call set_down_border_condition_type(down_border_condition_type_free_border())
         
-        call set_omega(3d0)
+        call set_omega(1d0)
         call set_Q(Q)
         call set_Qomega(Qomega)
         
         call set_number_of_layers(1)
         
-        call set_layer_h(1,1d0)
-        call set_layer_rho(1,1d0)
+        call set_layer_h(1,0.282d0)
+        call set_layer_rho(1,2.419d0)
         
-        call set_layer_E_nu(1,1d0+c0,0.2d0)
+        call set_layer_E_nu(1,0.678d0+c0,0.234d0)
         
         if(.not.check_correct_completing_parameters_establishment_throwable()) call end_program_pause()
         
-        print*,"h",get_layer_parameter(layer=1,parameter_name_length=1,parameter_name="h")
-        print*,"rho",get_layer_parameter(layer=1,parameter_name_length=3,parameter_name="rho")
-        print*,"E",get_layer_parameter(layer=1,parameter_name_length=1,parameter_name="E")
-        print*,"nu",get_layer_parameter(layer=1,parameter_name_length=2,parameter_name="nu")
-        print*,"lambda",get_layer_parameter(layer=1,parameter_name_length=6,parameter_name="lambda")
-        print*,"mu",get_layer_parameter(layer=1,parameter_name_length=2,parameter_name="mu")
-        print*,"Cp",get_layer_parameter(layer=1,parameter_name_length=2,parameter_name="Cp")
-        print*,"Cs",get_layer_parameter(layer=1,parameter_name_length=2,parameter_name="Cs")
+        !print*,"h",get_layer_parameter(layer=1,parameter_name_length=1,parameter_name="h")
+        !print*,"rho",get_layer_parameter(layer=1,parameter_name_length=3,parameter_name="rho")
+        !print*,"E",get_layer_parameter(layer=1,parameter_name_length=1,parameter_name="E")
+        !print*,"nu",get_layer_parameter(layer=1,parameter_name_length=2,parameter_name="nu")
+        !print*,"lambda",get_layer_parameter(layer=1,parameter_name_length=6,parameter_name="lambda")
+        !print*,"mu",get_layer_parameter(layer=1,parameter_name_length=2,parameter_name="mu")
+        !print*,"Cp",get_layer_parameter(layer=1,parameter_name_length=2,parameter_name="Cp")
+        !print*,"Cs",get_layer_parameter(layer=1,parameter_name_length=2,parameter_name="Cs")
         
     contains
         complex(8) function Q(ind,alpha,beta) result(f)
@@ -116,12 +120,25 @@ implicit none
                 f=1d0
             endif
         endfunction Q
+        pure complex(8) function Qomega(omega) result(f)
+        use math,only:ci,c0
+        implicit none
+            complex(8),intent(in)::omega
+            
+            f=1d0
+        endfunction Qomega
     endsubroutine establish_main_parameters
-    pure complex(8) function Qomega(omega) result(f)
-    use math,only:ci,c0
+    
+    pure character(len=1024) function get_x_file_name() result(f)
     implicit none
-        complex(8),intent(in)::omega
-        
-        f=1d0
-    endfunction Qomega
+        f="input/glass/600/x.data"
+    endfunction get_x_file_name
+    pure character(len=1024) function get_t_file_name() result(f)
+    implicit none
+        f="input/glass/600/t.data"
+    endfunction get_t_file_name
+    pure character(len=1024) function get_u_file_name() result(f)
+    implicit none
+        f="input/glass/600/u.data"
+    endfunction get_u_file_name
 endmodule pre_and_post_runtime_actions
