@@ -63,6 +63,10 @@ implicit none
             complex(8),intent(in)::omega
         endfunction Qomega_type
     endinterface
+    abstract interface
+        subroutine establish_main_parameters_type()
+        endsubroutine establish_main_parameters_type
+    endinterface
     procedure(Q_type),pointer,private::Q=>null()
     procedure(Qomega_type),pointer,private::Qomega=>null()
     logical(1),private::Q_setted=.false.,Qomega_setted=.false.
@@ -238,7 +242,7 @@ implicit none
         if(number_of_layers_>10) call print_warning("mainr_parameters.set_number_of_layers","number_of_layers_>10")
         
         number_of_layers=number_of_layers_
-        call free_matrixes()
+        if(matrixes_created) call free_matrixes()
         call create_matrixes()
         
         full_h=-1d0
@@ -482,8 +486,8 @@ implicit none
             call print_error("main_parameters.set_layer_E_nu",".not.(1.le.layer.and.layer.le.number_of_Layers)")
         if(rho(layer)==-1d0) call print_error("main_parameters.set_layer_E_nu","rho(layer) is not setted")
         if(.not.(epsilon<real(E_).and.real(E_)<1000d0)) &
-            call printerror("main_parameters.set_layer_E_nu",".not.(epsilon<real(E_).and.real(E_)<1000d0)")
-        if(.not.(0d0<nu_.and.nu_<0.5d0)) call printerror("main_parameters.set_layer_E_nu",".not.(0d0<nu_.and.nu_<0.5d0)")
+            call print_error("main_parameters.set_layer_E_nu",".not.(epsilon<real(E_).and.real(E_)<1000d0)")
+        if(.not.(0d0<nu_.and.nu_<0.5d0)) call print_error("main_parameters.set_layer_E_nu",".not.(0d0<nu_.and.nu_<0.5d0)")
         
         E(layer)=E_
         nu(layer)=nu_
@@ -496,7 +500,7 @@ implicit none
     implicit none
         integer(4),intent(in)::layer
         complex(8),intent(in)::lambda_
-        real(8),intent(in)::mu_
+        complex(8),intent(in)::mu_
         
         if(.not.anisotropic_type==material_isotropic_type()) &
             call print_error("main_parameters.set_layer_lambda_mu",".not.anisotropic_type==material_isotropic_type()")
@@ -504,9 +508,9 @@ implicit none
             call print_error("main_parameters.set_layer_lambda_mu",".not.(1.le.layer.and.layer.le.number_of_Layers)")
         if(rho(layer)==-1d0) call print_error("main_parameters.set_layer_lambda_mu","rho(layer) is not setted")
         if(.not.(epsilon<real(lambda_).and.real(lambda_)<1000d0)) &
-            call printerror("main_parameters.set_layer_lambda_mu",".not.(epsilon<real(lambda_).and.real(lambda_)<1000d0)")
+            call print_error("main_parameters.set_layer_lambda_mu",".not.(epsilon<real(lambda_).and.real(lambda_)<1000d0)")
         if(.not.(epsilon<real(mu_).and.real(mu_)<1000d0)) &
-            call printerror("main_parameters.set_layer_lambda_mu",".not.(epsilon<real(mu_).and.real(mu_)<1000d0)")
+            call print_error("main_parameters.set_layer_lambda_mu",".not.(epsilon<real(mu_).and.real(mu_)<1000d0)")
         
         lambda(layer)=lambda_
         mu(layer)=mu_
@@ -519,7 +523,7 @@ implicit none
     implicit none
         integer(4),intent(in)::layer
         complex(8),intent(in)::Cp_
-        real(8),intent(in)::Cs_
+        complex(8),intent(in)::Cs_
         
         if(.not.anisotropic_type==material_isotropic_type()) &
             call print_error("main_parameters.set_layer_Cp_Cs",".not.anisotropic_type==material_isotropic_type()")
@@ -527,14 +531,14 @@ implicit none
             call print_error("main_parameters.set_layer_Cp_Cs",".not.(1.le.layer.and.layer.le.number_of_Layers)")
         if(rho(layer)==-1d0) call print_error("main_parameters.set_layer_Cp_Cs","rho(layer) is not setted")
         if(.not.(epsilon<real(Cp_).and.real(Cp_)<1000d0)) &
-            call printerror("main_parameters.set_layer_Cp_Cs",".not.(epsilon<real(Cp_).and.real(Cp_)<1000d0)")
+            call print_error("main_parameters.set_layer_Cp_Cs",".not.(epsilon<real(Cp_).and.real(Cp_)<1000d0)")
         if(.not.(epsilon<real(Cs_).and.real(Cs_)<1000d0)) &
-            call printerror("main_parameters.set_layer_Cp_Cs",".not.(epsilon<real(Cs_).and.real(Cs_)<1000d0)")
+            call print_error("main_parameters.set_layer_Cp_Cs",".not.(epsilon<real(Cs_).and.real(Cs_)<1000d0)")
         if(real(cp_)<real(Cs_)) call print_error("main_parameters.set_layer_Cp_Cs","real(cp_)<real(Cs_)")
         
         Cp(layer)=Cp_
         Cs(layer)=Cs_
-        call count_isotropic_material_parameters_form_lambda_mu(lambda(layer),mu(layer),E(layer),nu(layer),Cp(layer),Cs(layer),rho(layer))
+        call count_isotropic_material_parameters_form_Cp_Cs(lambda(layer),mu(layer),E(layer),nu(layer),Cp(layer),Cs(layer),rho(layer))
     endsubroutine set_layer_Cp_Cs
     
     
@@ -757,11 +761,11 @@ implicit none
         if(rho<epsilon) &
             call print_error("main_parameters.count_isotropic_material_parameters_form_E_nu","rho<epsilon")
         
-        lambda=count_isotropic_material_parameter_lambda_form_E_nu(lambda,nu)
-        mu=count_isotropic_material_parameter_mu_form_E_nu(lambda,nu)
+        lambda=count_isotropic_material_parameter_lambda_form_E_nu(E,nu)
+        mu=count_isotropic_material_parameter_mu_form_E_nu(E,nu)
         
-        Cp=count_isotropic_material_parameter_Cp_form_E_nu(lambda,nu,rho)
-        Cs=count_isotropic_material_parameter_Cs_form_E_nu(lambda,nu,rho)
+        Cp=count_isotropic_material_parameter_Cp_form_E_nu(E,nu,rho)
+        Cs=count_isotropic_material_parameter_Cs_form_E_nu(E,nu,rho)
     endsubroutine count_isotropic_material_parameters_form_E_nu
     subroutine count_isotropic_material_parameters_form_Cp_Cs(lambda,mu,E,nu,Cp,Cs,rho)
     use math,only:epsilon
@@ -999,11 +1003,13 @@ implicit none
     
     
     
-    complex(8) function get_layer_parameter(layer,parameter_name) result(f)
+    complex(8) function get_layer_parameter(layer,parameter_name_length,parameter_name) result(f)
     use system,only:print_error
     implicit none
         integer(4),intent(in)::layer
-        character(len=10),intent(in)::parameter_name
+        !character(len=6),intent(in)::parameter_name
+        integer(4),intent(in)::parameter_name_length
+        character(len=parameter_name_length),intent(in)::parameter_name
         
         integer(4) alpha,beta,i,j,k,l
         
@@ -1379,8 +1385,11 @@ implicit none
     
     
     
-    subroutine init_main_parameters()
+    subroutine init_main_parameters(establish_main_parameters)
     implicit none
+        procedure(establish_main_parameters_type),pointer,intent(in)::establish_main_parameters
+        
+        call establish_main_parameters
     endsubroutine init_main_parameters
     subroutine destructor_main_parameters()
     implicit none
