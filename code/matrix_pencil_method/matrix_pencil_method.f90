@@ -3,25 +3,23 @@ implicit none
     public::init_matrix_pencil_method,destructor_matrix_pencil_method
     
     public::count_dispersion_numbers
+    public::get_dx_filter_strength,get_L_filter_strength,get_dL_filter_value
+    public::set_dx_filter_strength,set_L_filter_strength,set_dL_filter_value
     
-    integer(4)::dx_filter_strength=0
-    integer(4)::L_filter_strength=2
-    integer(4)::dL_filter_value=3
+    integer(4),private::dx_filter_strength=1
+    integer(4),private::L_filter_strength=1
+    integer(4),private::dL_filter_value=5
     
-    complex(8),allocatable::res_(:)
-    integer(4) res_size_
+    complex(8),allocatable,private::res_(:)
+    integer(4),private::res_size_
     
-    complex(8),allocatable::dx_filter_res(:,:)
-    integer(4),allocatable::dx_filter_res_size(:)
+    complex(8),allocatable,private::dx_filter_res(:,:)
+    integer(4),allocatable,private::dx_filter_res_size(:)
     
-    complex(8),allocatable::L_filter_res(:,:)
-    integer(4),allocatable::L_filter_res_size(:)
+    complex(8),allocatable,private::L_filter_res(:,:)
+    integer(4),allocatable,private::L_filter_res_size(:)
     
     private::refresh_matrixes
-    
-    private::res_,res_size_
-    private::dx_filter_strength,dx_filter_res,dx_filter_res_size
-    private::L_filter_strength,L_filter_res,L_filter_res_size
     contains
     
     subroutine count_dispersion_numbers(omega,L,res,res_size)
@@ -124,6 +122,51 @@ implicit none
         allocate(L_filter_res(L_filter_strength,L+5*L_filter_strength))
         allocate(L_filter_res_size(L_filter_strength))
     endsubroutine refresh_matrixes
+    
+    
+    
+    pure integer(4) function get_dx_filter_strength() result(f)
+    implicit none
+        f=dx_filter_strength
+    endfunction get_dx_filter_strength
+    pure integer(4) function get_L_filter_strength() result(f)
+    implicit none
+        f=L_filter_strength
+    endfunction get_L_filter_strength
+    pure integer(4) function get_dL_filter_value() result(f)
+    implicit none
+        f=dL_filter_value
+    endfunction get_dL_filter_value
+    
+    subroutine set_dx_filter_strength(dx_filter_strength_)
+    use system,only:print_error
+    implicit none
+        integer(4),intent(in)::dx_filter_strength_
+        
+        if(dx_filter_strength_<0) call print_error("matrix_pencil_method.set_dx_filter_strength","dx_filter_strength_<0")
+        
+        dx_filter_strength=dx_filter_strength_
+    endsubroutine set_dx_filter_strength
+    subroutine set_L_filter_strength(L_filter_strength_)
+    use system,only:print_error
+    implicit none
+        integer(4),intent(in)::L_filter_strength_
+        
+        if(L_filter_strength_<0) call print_error("matrix_pencil_method.set_L_filter_strength","L_filter_strength_<0")
+        
+        L_filter_strength=L_filter_strength_
+    endsubroutine set_L_filter_strength
+    subroutine set_dL_filter_value(dL_filter_value_)
+    use system,only:print_error
+    implicit none
+        integer(4),intent(in)::dL_filter_value_
+        
+        if(dL_filter_value_<0) call print_error("matrix_pencil_method.set_dL_filter_value","dL_filter_value_<0")
+        
+        dL_filter_value=dL_filter_value_
+    endsubroutine set_dL_filter_value
+    
+    
     
     subroutine init_matrix_pencil_method()
     implicit none

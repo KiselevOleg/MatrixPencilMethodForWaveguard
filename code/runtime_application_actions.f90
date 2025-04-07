@@ -288,11 +288,11 @@ implicit none
     endsubroutine count_complex_det_A_matrix_in_K_graphics
     
     subroutine count_complex_distersion_curve_for_K_graphics()
-    use main_parameters,only:omega
+    use main_parameters,only:set_omega
     use dispersion_curves_for_K,only:count_complex_poles
     use math,only:pi
     implicit none
-        real(8) omega_start,domega,omega_end
+        real(8) omega,omega_start,domega,omega_end
         
         real(8) phi
         
@@ -311,6 +311,7 @@ implicit none
         
         open(newunit=file,file="graphics/complex_distersion_curve_for_K/dispersion_curves.data")
         do omega=omega_start,omega_end,domega
+            call set_omega(omega)
             call count_complex_poles(phi,3,res_size_max,res,res_size)
             
             do i=1,res_size
@@ -322,11 +323,11 @@ implicit none
         close(file)
     endsubroutine count_complex_distersion_curve_for_K_graphics
     subroutine count_distersion_curve_for_K_graphics()
-    use main_parameters,only:omega
+    use main_parameters,only:set_omega
     use dispersion_curves_for_K,only:count_poles
     use math,only:pi
     implicit none
-        real(8) omega_start,domega,omega_end
+        real(8) omega,omega_start,domega,omega_end
         
         real(8) phi
         
@@ -345,6 +346,7 @@ implicit none
         
         open(newunit=file,file="graphics/distersion_curve_for_K/dispersion_curves.data")
         do omega=omega_start,omega_end,domega
+            call set_omega(omega)
             call count_poles(phi,3,res_size_max,res,res_size)
             
             do i=1,res_size
@@ -357,7 +359,7 @@ implicit none
     endsubroutine count_distersion_curve_for_K_graphics
     
     subroutine count_matrix_pencil_method_distersion_curve_graphics()
-    use matrix_pencil_method,only:count_dispersion_numbers
+    use matrix_pencil_method,only:count_dispersion_numbers,set_dx_filter_strength,set_L_filter_strength,set_dL_filter_value
     use math,only:c0,pi
     implicit none
         integer(4) L,res_size
@@ -367,6 +369,10 @@ implicit none
         
         integer(4) i
         integer(4) file
+        
+        call set_dx_filter_strength(0)
+        call set_L_filter_strength(1)
+        call set_dL_filter_value(3)
         
         L=90/2
         L=40*2-20
