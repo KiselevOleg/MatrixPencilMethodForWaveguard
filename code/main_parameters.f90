@@ -554,6 +554,12 @@ implicit none
             call print_error("main_parameters.set_layer_rho",".not.(epsilon.le.rho_.and.rho_.le.100d0)")
         
         rho(layer)=rho_
+        lambda(layer)=-1d0
+        mu(layer)=-1d0
+        E(layer)=-1d0
+        nu(layer)=-1d0
+        Cp(layer)=-1d0
+        Cs(layer)=-1d0
     endsubroutine set_layer_rho
     
     
