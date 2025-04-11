@@ -8,18 +8,18 @@ program main
 implicit none
     call init()
     
-    !call generate_teoretical_signal()
+    call generate_teoretical_signal()
     !call find_material_properties_from_experimental_measurements()
     !call count_wavelet_transform_smoothing()
     !call count_wavelet_transform_graphics()
     !call count_complex_det_A_matrix_in_K_graphics()
     !call count_complex_distersion_curve_for_K_graphics()
     !call count_distersion_curve_for_K_graphics()
-    call count_matrix_pencil_method_distersion_curve_graphics()
+    !call count_matrix_pencil_method_distersion_curve_graphics()
     !call load_experimental_measurements_view()
     !call test_K()
     
     call destructor()
-    call end_program_pause()
+    !call end_program_pause()
     call end_program()
 endprogram main

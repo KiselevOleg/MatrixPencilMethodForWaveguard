@@ -8,7 +8,8 @@ implicit none
     contains
     
     subroutine generate_teoretical_signal()
-    use integral_solution_isotropic,only:uz
+    use integral_solution_isotropic,only:uz,uz_omega
+    use main_parameters,only:Qomega
     implicit none
         real(8) x,y,z,t
         
@@ -22,12 +23,18 @@ implicit none
         x=1.325d0; y=0d0; z=0d0
         t1=0d0; t2=131.337d0; dt=6.40043d-2
         t1=-50d0+30d0+10d0; t2=50d0; dt=50d-2*2
-        t1=-5d0; t2=50d0; dt=50d-2
+        t1=-5d0; t2=150d0; dt=50d-2
         !t1=-5d0; t2=5d0; dt=2d-3
+        
+        x=5.2d0+2.5d0*0; y=0d0; z=0d0
+        !x=3.3d0; y=0d0; z=0d0
+        t1=0.01d0; t2=15d0; dt=50d-2/20
         
         open(newunit=file,file="graphics/generate_teoretical_signal/signal.data")
         do t=t1,t2,dt
-            u=uz(x,y,z,t)-uz(x+0.8d0,y,z,t)
+            !u=uz(x,y,z,t)-uz(x+1d0,y,z,t)
+            u=uz_omega(x,y,z,t)!-uz_omega(x+1.025d0,y,z,t)
+            u=u*Qomega(t+(0d0,0d0))
             write(file,*),t,real(u),aimag(u)
             
             print*,t
@@ -58,7 +65,8 @@ implicit none
         !open(newunit=file,file="input/glass_experimental_dispersion_curves/55000/with_first_points/accurate/_dispersion_curve_experimental.data")
         !open(newunit=file,file="input/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental.data")
         !open(newunit=file,file="input/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves.data")
-        open(newunit=file,file="input/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves2.data")
+        !open(newunit=file,file="input/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves2.data")
+        open(newunit=file,file="input/test_Al/dispersion_curve.data")
         read(file,*),dispersion_curves_size
         allocate(dispersion_curves(dispersion_curves_size,2))
         do i=1,dispersion_curves_size

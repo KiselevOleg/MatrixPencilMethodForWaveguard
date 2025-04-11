@@ -49,7 +49,7 @@ implicit none
         f=Qomega(omega_)*exp(-ci*omega_*t_)
         !return
         
-        f=GK_integral_ab(uz_inner_fun2,2d-2,0d0,50d0,40d0,1d-3)
+        f=GK_integral_ab(uz_inner_fun2,2d-2,0d0,50d0,40d0,1d-2)
         f=f*Qomega(omega_)*exp(-ci*omega_*t_)
     endfunction uz_inner_fun1
     complex(8) function uz_inner_fun2(alpha) result(f)
@@ -60,8 +60,8 @@ implicit none
     implicit none
         complex(8),intent(in)::alpha
         
-        !f=K(3,3,alpha,c0,z_)*Q(3,alpha,(0d0,0d0))*alpha*J0(alpha*r_)
-        f=K(3,1,alpha,c0,z_)*Q(1,alpha,(0d0,0d0))*alpha*J0(alpha*r_)
+        f=K(3,3,alpha,c0,z_)*Q(3,alpha,(0d0,0d0))*alpha*J0(alpha*r_)
+        !f=K(3,1,alpha,c0,z_)*Q(1,alpha,(0d0,0d0))*alpha*J0(alpha*r_)
     endfunction uz_inner_fun2
     
     complex(8) function uz_omega(x,y,z,omega_) result(f)
@@ -83,7 +83,8 @@ implicit none
         z_=z
         
         !complex(8) function GK_integral_ab(functionName,accurate,a,b,upperPolesValue,depthOfAvoidingPoles)
-        f=GK_integral_ab(uz_inner_fun2,1d-5,0d0,300d0,250d0,1d-4)
+        !f=GK_integral_ab(uz_inner_fun2,1d-5,0d0,300d0,250d0,1d-4)
+        f=GK_integral_ab(uz_inner_fun2,1d-4,0d0,150d0,40d0,1d-5)
     endfunction uz_omega
     
     subroutine init_integral_solution_isotropic()

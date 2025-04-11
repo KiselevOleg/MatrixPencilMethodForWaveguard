@@ -48,11 +48,11 @@ implicit none
         if(ind<1.or.ind>3) call print_error("main_parameters.Q","ind<1.or.ind>3")
         
         if(ind==1) then
-            f=1d0
+            f=0d0
         elseif(ind==2) then
             f=0d0
         else
-            f=0d0
+            f=1d0
         endif
     endfunction Q
     complex(8) function Qomega(omega) result(f)
@@ -69,7 +69,7 @@ implicit none
         !else
         !    f=87d0
         !endif
-        k=2.0d0
+        k=0.25d0
         if(abs(omega)>1d-4) then
             f=2*sin(k*omega)/omega
         else
