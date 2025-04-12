@@ -24,16 +24,16 @@ implicit none
         integer(4) file
         integer(4) i,j
         
-        !open(newunit=file,file="input/glass_experimental_dispersion_curves/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental_extended.data")
-        !open(newunit=file,file="input/glass_experimental_dispersion_curves/55000/with_first_points/accurate/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves.data")
-        !open(newunit=file,file="input/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves2.data")
-        !open(newunit=file,file="input/Al_new_experimental_dispersion_curves/2000/dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/Al_new_new_experimental_dispersion_curves/many_points/dispersion_curve_experimental.data")
-        open(newunit=file,file="input/Al_new_new_experimental_dispersion_curves/quality_points/dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/_dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental_extended.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/55000/with_first_points/accurate/_dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves2.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/Al_new_experimental_dispersion_curves/2000/dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/Al_new_new_experimental_dispersion_curves/many_points/dispersion_curve_experimental.data")
+        open(newunit=file,file="input/matrix_pencil_method_result/Al_new_new_experimental_dispersion_curves/quality_points/dispersion_curve_experimental.data")
         read(file,*),dispersion_curves_size
         allocate(dispersion_curves(dispersion_curves_size,2))
         do i=1,dispersion_curves_size

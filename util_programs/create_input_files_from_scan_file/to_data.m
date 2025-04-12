@@ -1,24 +1,36 @@
 clear all;
 
-N=4;
-%load('Glass_rect_1mks-2025-03-19.mat');
-load('Glass_rect_1mks-2025-03-13_small.mat');
+scan_file_name="scan.mat";
 
-data_=data(20:length(coord_),50:length(time_)/2.5);
-data2_=data2(20:length(coord_),50:length(time_)/2.5);
-coord_=coord_(20:length(coord_));
-time_=time_(50:length(time_)/2.5)/1000;
+get_point_for_t_from=3000;
+get_point_for_t_to=8000;
+get_only_Nth_point_for_t_where_N=1;
+
+skip_first_point_for_x=0;
+
+known_parameters=[
+  "material=Al",
+  "h=0.329cm",
+  "rho=null"
+];
+
+
+
+N=get_only_Nth_point_for_t_where_N;
+load(scan_file_name);
+
+data_=data(skip_first_point_for_x+1:length(coord_),get_point_for_t_from:get_point_for_t_to);
+coord_=coord_(skip_first_point_for_x+1:length(coord_));
+time_=time_(get_point_for_t_from:get_point_for_t_to);
 
 coord=coord_;
 time=[];
 data=[];
-data2=[];
 
 disp("start")
 if(N==1)
   time=time_;
   data=data_;
-  data2=data2_;
 else
   i_next=1; di=1000;
   for i=1:1:length(time_)/N
@@ -32,60 +44,48 @@ else
 
     for j=1:1:length(coord_)
       v=0;
-      v2=0;
       for k=1:1:N
         v=v+data_(j,i_+k-1);
-        v2=v2+data2_(j,i_+k-1);
       end
       v=v/N;
-      v2=v2/N;
       data(j,i)=v;
-      data2(j,i)=v2;
     end
   end
 end
 
-f=fopen('_parameters.data','w');
-fprintf(f,'h=%d\n',0.274);
-fprintf(f,'rho=%d\n',2.419);
+f=fopen("parameters.data","w");
+for i=1:1:size(known_parameters,1)
+  fprintf(f,strcat(known_parameters(i,:),"\n"));
+end
+%fprintf(f,"h=%d\n",0.274);
+%fprintf(f,"rho=%d\n",2.419);
 fclose(f);
-disp('parameters');
+disp("parameters");
 
-f=fopen('_x.data','w');
-fprintf(f,'%d\n',length(coord));
+f=fopen("x.data",'w');
+fprintf(f,"%d\n",length(coord));
 for i=1:1:length(coord)
-    fprintf(f,'%d\n',coord(i)/1000);
+    fprintf(f,"%d\n",coord(i));
 end
 fclose(f);
-disp('x');
+disp("x");
 
-f=fopen('_t.data','w');
-fprintf(f,'%d\n',length(time));
+f=fopen("t.data","w");
+fprintf(f,"%d\n",length(time));
 for i=1:1:length(time)
-    fprintf(f,'%d\n',time(i)-time(1));
+    fprintf(f,"%d\n",time(i)-time(1));
 end
 fclose(f);
-disp('t');
+disp("t");
 
-f=fopen('_u.data','w');
+f=fopen("u.data","w");
 for i=1:1:length(coord)
     for j=1:1:length(time)
-        fprintf(f,'%d\n',data(i,j));
+        fprintf(f,"%d\n",data(i,j));
     end
     disp(i);
     disp(length(coord));
 end
 fclose(f);
-disp('u');
-
-f=fopen('_u2.data','w');
-for i=1:1:length(coord)
-    for j=1:1:length(time)
-        fprintf(f,'%d\n',data2(i,j));
-    end
-    disp(i);
-    disp(length(coord));
-end
-fclose(f);
-disp('u2');
+disp("u");
 

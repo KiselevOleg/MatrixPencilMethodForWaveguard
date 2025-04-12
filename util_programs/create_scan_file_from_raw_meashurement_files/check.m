@@ -1,7 +1,7 @@
 clear all;
 
-d = load("px0,5py0.txt");
-d = load("px49py0.txt");
+%d = load("px0,5py0.txt");
+%d = load("px49py0.txt");
 %plot(d,'.-');
 %hold('on');
 
@@ -12,10 +12,11 @@ for x=0:0.5:50
     while(abs(floor(floatx)-floatx)>0.0001)
         floatx=floatx*10;
     end
+	file="./../result/";
     if(floatx<0.00001)
-        file = "px"+string(intx)+"py0.txt";
+        file = file+"px"+string(intx)+"py0.txt";
     else
-        file = "px"+string(intx)+","+string(floatx)+"py0.txt";
+        file = file+"px"+string(intx)+","+string(floatx)+"py0.txt";
     end
     d=load(file);
     
