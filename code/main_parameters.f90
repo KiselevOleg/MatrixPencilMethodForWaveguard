@@ -429,7 +429,7 @@ implicit none
     implicit none
         integer(4) i
         
-        if(full_h==-1d0) then
+        if(.not.full_h==-1d0) then
             f=full_h
             return
         endif
