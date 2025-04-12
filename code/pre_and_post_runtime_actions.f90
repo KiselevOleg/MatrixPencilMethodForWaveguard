@@ -131,14 +131,14 @@ implicit none
     
     pure character(len=1024) function get_x_file_name() result(f)
     implicit none
-        f="input/glass/600/x.data"
+        f="input/measurement_data/glass/600/x.data"
     endfunction get_x_file_name
     pure character(len=1024) function get_t_file_name() result(f)
     implicit none
-        f="input/glass/600/t.data"
+        f="input/measurement_data/glass/600/t.data"
     endfunction get_t_file_name
     pure character(len=1024) function get_u_file_name() result(f)
     implicit none
-        f="input/glass/600/u.data"
+        f="input/measurement_data/glass/600/u.data"
     endfunction get_u_file_name
 endmodule pre_and_post_runtime_actions
