@@ -83,10 +83,12 @@ implicit none
         
         call set_number_of_layers(1)
         
-        call set_layer_h(1,0.282d0)
-        call set_layer_rho(1,2.419d0)
+        call set_layer_h(1,0.329d0)
+        call set_layer_h(1,0.297908327431356d0)
+        call set_layer_rho(1,2.89952085005492d0)
         
-        call set_layer_E_nu(1,0.678d0+c0,0.234d0)
+        call set_layer_E_nu(1,0.7d0+c0,0.25d0)
+        call set_layer_E_nu(1,0.747546110029204d0+c0,0.339997227204140d0)
         
         if(.not.check_correct_completing_parameters_establishment_throwable()) call end_program_pause()
         
@@ -131,14 +133,14 @@ implicit none
     
     pure character(len=1024) function get_x_file_name() result(f)
     implicit none
-        f="input/measurement_data/glass/600/x.data"
+        f="input\measurement_data\Al3029mcm500mm595mmrd5mm6rd10mm\rd5\experiment_restoring_properties\measurement_1\processing\x.data"
     endfunction get_x_file_name
     pure character(len=1024) function get_t_file_name() result(f)
     implicit none
-        f="input/measurement_data/glass/600/t.data"
+        f="input\measurement_data\Al3029mcm500mm595mmrd5mm6rd10mm\rd5\experiment_restoring_properties\measurement_1\processing\t.data"
     endfunction get_t_file_name
     pure character(len=1024) function get_u_file_name() result(f)
     implicit none
-        f="input/measurement_data/glass/600/u.data"
+        f="input\measurement_data\Al3029mcm500mm595mmrd5mm6rd10mm\rd5\experiment_restoring_properties\measurement_1\processing\u.data"
     endfunction get_u_file_name
 endmodule pre_and_post_runtime_actions

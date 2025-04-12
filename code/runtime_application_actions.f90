@@ -24,16 +24,7 @@ implicit none
         integer(4) file
         integer(4) i,j
         
-        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental_extended.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/55000/with_first_points/accurate/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves2.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/Al_new_experimental_dispersion_curves/2000/dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/Al_new_new_experimental_dispersion_curves/many_points/dispersion_curve_experimental.data")
-        open(newunit=file,file="input/matrix_pencil_method_result/Al_new_new_experimental_dispersion_curves/quality_points/dispersion_curve_experimental.data")
+        open(newunit=file,file="input\matrix_pencil_method_result\Al3029mcm500mm595mmrd5mm6rd10mm\rd5\experiment_restoring_properties\measurement_1\processing\dispersion_curve.data")
         read(file,*),dispersion_curves_size
         allocate(dispersion_curves(dispersion_curves_size,2))
         do i=1,dispersion_curves_size
@@ -42,18 +33,22 @@ implicit none
         enddo
         close(file)
         
-        parameters_for_detect_size=2
+        parameters_for_detect_size=4
         allocate(parameters_layer(parameters_for_detect_size))
         allocate(parameters_type(parameters_for_detect_size))
         allocate(parameters_min(parameters_for_detect_size))
         allocate(parameters_max(parameters_for_detect_size))
         allocate(dparameters(parameters_for_detect_size))
         
-        parameters_layer(1)=1;  parameters_type(1)="E";   parameters_min(1)=0.5d0;    parameters_max(1)=1.50001d0;    dparameters(1)=0.25000d0/4
-        parameters_layer(2)=1;  parameters_type(2)="nu";  parameters_min(2)=0.15d0;    parameters_max(2)=0.39999d0;    dparameters(2)=0.09999d0/4
-        !parameters_layer(3)=1;  parameters_type(3)="h";   parameters_min(3)=0.25d0;   parameters_max(3)=0.30001d0;    dparameters(3)=0.05000d0/4
-        !parameters_layer(4)=1;  parameters_type(4)="rho"; parameters_min(4)=2.30d0;   parameters_max(4)=2.50001d0;    dparameters(4)=0.10000d0/4
-        !parameters_layer(1)=1;  parameters_type(1)="rho"; parameters_min(1)=2.30d0;   parameters_max(1)=2.50001d0;    dparameters(1)=0.10000d0/4
+        parameters_layer(1)=1;  parameters_type(1)="E";   parameters_min(1)=0.62d0;    parameters_max(1)=0.85001d0;    dparameters(1)=0.25000d0/4/2
+        parameters_layer(2)=1;  parameters_type(2)="nu";  parameters_min(2)=0.25d0;   parameters_max(2)=0.39999d0;    dparameters(2)=0.09999d0/4!/2
+        parameters_layer(3)=1;  parameters_type(3)="rho"; parameters_min(3)=2.40d0;   parameters_max(3)=3.00001d0;    dparameters(3)=0.10000d0!/2
+        parameters_layer(4)=1;  parameters_type(4)="h"; parameters_min(4)=0.2d0;   parameters_max(4)=0.400001d0;    dparameters(4)=0.05000d0!/2
+        !parameters_layer(2)=1;  parameters_type(2)="rho"; parameters_min(2)=2.40d0;   parameters_max(2)=3.00001d0;    dparameters(2)=0.10000d0!/2
+        !parameters_layer(3)=1;  parameters_type(3)="h"; parameters_min(3)=0.2d0;   parameters_max(3)=0.40001d0;    dparameters(3)=0.05000d0
+        !parameters_layer(1)=1;  parameters_type(1)="rho"; parameters_min(1)=2.40d0;   parameters_max(1)=3.00001d0;    dparameters(1)=0.10000d0/8
+        !parameters_layer(1)=1;  parameters_type(1)="nu";  parameters_min(1)=0.25d0;   parameters_max(1)=0.39999d0;    dparameters(1)=0.09999d0/8
+        !parameters_layer(1)=1;  parameters_type(1)="E";   parameters_min(1)=0.62d0;    parameters_max(1)=0.85001d0;    dparameters(1)=0.25000d0/8
         
         res_max_size=1000
         allocate(res(res_max_size,parameters_for_detect_size))
@@ -340,7 +335,7 @@ implicit none
         integer(4) file
         
         res_size_max=100;
-        omega_start=1d-1; domega=0.05d0; omega_end=12.499d0*1.5d0
+        omega_start=1d-1; domega=0.05d0; omega_end=12.499d0*1.5d0*2
         
         phi=0d0
         
@@ -371,7 +366,7 @@ implicit none
         integer(4) file
         
         call set_dx_filter_strength(0)
-        call set_L_filter_strength(1)
+        call set_L_filter_strength(2)
         call set_dL_filter_value(3)
         
         L=90/2
@@ -379,7 +374,7 @@ implicit none
         allocate(res(L))
         
         omega_start=0.01; domega=0.01d0*10d0; omega_end=6.25d0*2
-        omega_start=0.1d0; domega=0.05d0*5*3/15; omega_end=6.25d0*3
+        omega_start=0.1d0; domega=0.05d0*5*3/15; omega_end=6.25d0*3*5
         
         open(newunit=file,file="graphics/matrix_pencil_method/dispersion_curve.data")
         do omega=omega_start,omega_end,domega
