@@ -24,7 +24,8 @@ implicit none
         integer(4) file
         integer(4) i,j
         
-        open(newunit=file,file="input\matrix_pencil_method_result\Al3029mcm500mm595mmrd5mm6rd10mm\rd5\experiment_restoring_properties\measurement_1\processing\dispersion_curve.data")
+        !open(newunit=file,file="input\matrix_pencil_method_result\Al3029mcm500mm595mmrd5mm6rd10mm\rd5\experiment_restoring_properties\measurement_1\processing\dispersion_curve.data")
+        open(newunit=file,file="input\matrix_pencil_method_result\st2770mcm250mm450mm\rd5\experiment_measure_for_restoring_properties\measurement_1\processing\dispersion_curve.data")
         read(file,*),dispersion_curves_size
         allocate(dispersion_curves(dispersion_curves_size,2))
         do i=1,dispersion_curves_size
@@ -33,28 +34,23 @@ implicit none
         enddo
         close(file)
         
-        parameters_for_detect_size=4
+        parameters_for_detect_size=3
         allocate(parameters_layer(parameters_for_detect_size))
         allocate(parameters_type(parameters_for_detect_size))
         allocate(parameters_min(parameters_for_detect_size))
         allocate(parameters_max(parameters_for_detect_size))
         allocate(dparameters(parameters_for_detect_size))
         
-        parameters_layer(1)=1;  parameters_type(1)="E";   parameters_min(1)=0.62d0;    parameters_max(1)=0.85001d0;    dparameters(1)=0.25000d0/4/2
-        parameters_layer(2)=1;  parameters_type(2)="nu";  parameters_min(2)=0.25d0;   parameters_max(2)=0.39999d0;    dparameters(2)=0.09999d0/4!/2
-        parameters_layer(3)=1;  parameters_type(3)="rho"; parameters_min(3)=2.40d0;   parameters_max(3)=3.00001d0;    dparameters(3)=0.10000d0!/2
-        parameters_layer(4)=1;  parameters_type(4)="h"; parameters_min(4)=0.2d0;   parameters_max(4)=0.400001d0;    dparameters(4)=0.05000d0!/2
-        !parameters_layer(2)=1;  parameters_type(2)="rho"; parameters_min(2)=2.40d0;   parameters_max(2)=3.00001d0;    dparameters(2)=0.10000d0!/2
-        !parameters_layer(3)=1;  parameters_type(3)="h"; parameters_min(3)=0.2d0;   parameters_max(3)=0.40001d0;    dparameters(3)=0.05000d0
-        !parameters_layer(1)=1;  parameters_type(1)="rho"; parameters_min(1)=2.40d0;   parameters_max(1)=3.00001d0;    dparameters(1)=0.10000d0/8
-        !parameters_layer(1)=1;  parameters_type(1)="nu";  parameters_min(1)=0.25d0;   parameters_max(1)=0.39999d0;    dparameters(1)=0.09999d0/8
-        !parameters_layer(1)=1;  parameters_type(1)="E";   parameters_min(1)=0.62d0;    parameters_max(1)=0.85001d0;    dparameters(1)=0.25000d0/8
+        parameters_layer(1)=1;  parameters_type(1)="E";   parameters_min(1)=1.5d0;    parameters_max(1)=2.50001d0;    dparameters(1)=0.25000d0/4/2
+        parameters_layer(2)=1;  parameters_type(2)="nu";  parameters_min(2)=0.05d0;   parameters_max(2)=0.49999d0;    dparameters(2)=0.09999d0/4!/2
+        parameters_layer(3)=1;  parameters_type(3)="rho"; parameters_min(3)=7.50d0;   parameters_max(3)=8.00001d0;    dparameters(3)=0.10000d0
+        !parameters_layer(4)=1;  parameters_type(4)="h"; parameters_min(4)=0.2d0;   parameters_max(4)=0.400001d0;    dparameters(4)=0.05000d0!/2
         
-        res_max_size=1000
+        res_max_size=10000
         allocate(res(res_max_size,parameters_for_detect_size))
         allocate(res_value_of_right(res_max_size))
         
-        call find_material_properties(dispersion_curves_size,dispersion_curves,.true.,&
+        call find_material_properties(dispersion_curves_size,dispersion_curves,.false.,&
             parameters_for_detect_size,parameters_layer,parameters_type,parameters_min,parameters_max,dparameters,&
             res_max_size,res,res_value_of_right,res_size)
         
