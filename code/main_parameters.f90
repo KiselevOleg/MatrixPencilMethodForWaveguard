@@ -440,6 +440,7 @@ implicit none
             
             full_h=full_h+h(i)
         enddo
+        f=full_h
     endfunction get_full_h
     integer(4) function get_number_of_layer_from_z(z) result(f)
     use system,only:print_error
