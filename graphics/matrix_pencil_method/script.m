@@ -11,12 +11,12 @@ hold('on');
 plot(A(:,1),A(:,3),'.r');
 
 A=load('../distersion_curve_for_K/dispersion_curves.data');
-plot(A(:,1),A(:,2),'.k');
+%plot(A(:,1),A(:,2),'.k');
 
 xlim([0 3]);
 ylim([0 35]);
-%xlim([0 6]);
-%ylim([0 70]);
+xlim([0 6]);
+ylim([0 70]);
 set(gca,'FontSize',24,'fontWeight','bold');
 set(findall(gcf,'type','text'),'FontSize',24,'fontWeight','bold');
 

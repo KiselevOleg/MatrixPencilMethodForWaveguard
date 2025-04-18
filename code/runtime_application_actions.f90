@@ -362,15 +362,16 @@ implicit none
         integer(4) file
         
         call set_dx_filter_strength(0)
-        call set_L_filter_strength(2)
+        call set_L_filter_strength(1)
         call set_dL_filter_value(3)
         
         L=90/2
         L=40*2-20
+        L=40*2
         allocate(res(L))
         
         omega_start=0.01; domega=0.01d0*10d0; omega_end=6.25d0*2
-        omega_start=0.1d0; domega=0.05d0*5*3/15; omega_end=6.25d0*3*5
+        omega_start=0.1d0; domega=0.05d0*5*3/15/3; omega_end=6.25d0*3*5
         
         open(newunit=file,file="graphics/matrix_pencil_method/dispersion_curve.data")
         do omega=omega_start,omega_end,domega

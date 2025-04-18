@@ -83,11 +83,12 @@ implicit none
         
         call set_number_of_layers(1)
         
-        call set_layer_h(1,0.277d0)
-        call set_layer_rho(1,7.58821391582958d0)
+        call set_layer_h(1,0.21d0)
+        call set_layer_rho(1,2.7d0)
         
         call set_layer_E_nu(1,0.7d0+c0,0.25d0)
         call set_layer_E_nu(1,2.04318266277561d0+c0,0.284841778632198d0)
+        call set_layer_E_nu(1,0.7d0+c0,0.35d0)
         
         if(.not.check_correct_completing_parameters_establishment_throwable()) call end_program_pause()
         
@@ -136,6 +137,7 @@ implicit none
         f="input\measurement_data\st2770mcm250mm450mm\rd5\experiment_measure_for_restoring_properties\measurement_1\processing\x.data"
         f="input\measurement_data\st2770mcm250mm450mm\rd5\experiment_measure_for_restoring_properties\measurement_2\processing\x.data"
         f="input\measurement_data\st2770mcm250mm450mm\rd5\experiment_measure_for_restoring_properties\measurement_3\processing\x.data"
+        f="input\measurement_data\Al1mm0.1mmAl1mm105mm600mm\rd10mm\experiment_dispersion_curves\measurement_1\processing\x.data"
     endfunction get_x_file_name
     pure character(len=1024) function get_t_file_name() result(f)
     implicit none
@@ -143,6 +145,7 @@ implicit none
         f="input\measurement_data\st2770mcm250mm450mm\rd5\experiment_measure_for_restoring_properties\measurement_1\processing\t.data"
         f="input\measurement_data\st2770mcm250mm450mm\rd5\experiment_measure_for_restoring_properties\measurement_2\processing\t.data"
         f="input\measurement_data\st2770mcm250mm450mm\rd5\experiment_measure_for_restoring_properties\measurement_3\processing\t.data"
+        f="input\measurement_data\Al1mm0.1mmAl1mm105mm600mm\rd10mm\experiment_dispersion_curves\measurement_1\processing\t.data"
     endfunction get_t_file_name
     pure character(len=1024) function get_u_file_name() result(f)
     implicit none
@@ -150,5 +153,6 @@ implicit none
         f="input\measurement_data\st2770mcm250mm450mm\rd5\experiment_measure_for_restoring_properties\measurement_1\processing\u.data"
         f="input\measurement_data\st2770mcm250mm450mm\rd5\experiment_measure_for_restoring_properties\measurement_2\processing\u.data"
         f="input\measurement_data\st2770mcm250mm450mm\rd5\experiment_measure_for_restoring_properties\measurement_3\processing\u.data"
+        f="input\measurement_data\Al1mm0.1mmAl1mm105mm600mm\rd10mm\experiment_dispersion_curves\measurement_1\processing\u.data"
     endfunction get_u_file_name
 endmodule pre_and_post_runtime_actions
