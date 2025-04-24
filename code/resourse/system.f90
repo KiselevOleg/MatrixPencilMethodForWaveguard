@@ -47,7 +47,7 @@ implicit none
         print*
         print*
         print*,message
-        pause " "
+        !pause " "
     endsubroutine end_program_pause_with_message
     
     subroutine end_program_default()
@@ -84,7 +84,7 @@ implicit none
         
         if(with_logging) call logging("error", function_name, message)
         print*,"error in ",function_name,": ",message
-        pause "print Enter to continue and stop program..."
+        !pause "print Enter to continue and stop program..."
         stop
     endsubroutine print_error
 endmodule system

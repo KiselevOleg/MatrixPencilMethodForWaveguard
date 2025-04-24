@@ -129,16 +129,34 @@ implicit none
         endfunction Qomega
     endsubroutine establish_main_parameters
     
-    pure character(len=1024) function get_x_file_name() result(f)
+    character(len=1024) function get_x_file_name() result(f)
     implicit none
-        f="input/measurement_data/glass/600/x.data"
+        integer(4) file
+        character(len=1024) path
+        
+        open(newunit=file, file="get_x_file_name.txt", status="old", action="read")
+        read(file,*),path
+        f=path
+        close(file)
     endfunction get_x_file_name
-    pure character(len=1024) function get_t_file_name() result(f)
+    character(len=1024) function get_t_file_name() result(f)
     implicit none
-        f="input/measurement_data/glass/600/t.data"
+        integer(4) file
+        character(len=1024) path
+        
+        open(newunit=file, file="get_t_file_name.txt", status="old", action="read")
+        read(file,*),path
+        f=path
+        close(file)
     endfunction get_t_file_name
-    pure character(len=1024) function get_u_file_name() result(f)
+    character(len=1024) function get_u_file_name() result(f)
     implicit none
-        f="input/measurement_data/glass/600/u.data"
+        integer(4) file
+        character(len=1024) path
+        
+        open(newunit=file, file="get_u_file_name.txt", status="old", action="read")
+        read(file,*),path
+        f=path
+        close(file)
     endfunction get_u_file_name
 endmodule pre_and_post_runtime_actions

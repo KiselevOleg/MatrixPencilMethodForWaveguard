@@ -369,27 +369,49 @@ implicit none
         real(8) omega,omega_start,domega,omega_end
         
         integer(4) i,j,k
+        integer(4) file
+        integer(4) dx_filter, dL_filter, dL_filter_value
+        character(len=64) result_path
         integer(4) file_result,file_filters(100,100)!dx_filter_number,L_filter_number
         character(len=128) file_name
         
-        call set_dx_filter_strength(0)
-        call set_L_filter_strength(1)
-        call set_dL_filter_value(3)
+        open(newunit=file,file="dx_filter.txt", status="old", action="read")
+        read(file,*),dx_filter
+        close(file)
+        open(newunit=file,file="dL_filter.txt", status="old", action="read")
+        read(file,*),dL_filter
+        close(file)
+        open(newunit=file,file="dL_filter_value.txt", status="old", action="read")
+        read(file,*),dL_filter_value
+        close(file)
+        call set_dx_filter_strength(dx_filter)
+        call set_L_filter_strength(dL_filter)
+        call set_dL_filter_value(dL_filter_value)
         
-        L=90/2
-        L=40*2-20
+        open(newunit=file,file="L.txt", status="old", action="read")
+        read(file,*),L
+        close(file)
         allocate(res(L))
         
-        omega_start=0.01; domega=0.01d0*10d0; omega_end=6.25d0*2
-        omega_start=0.1d0; domega=0.05d0*5*3/15; omega_end=6.25d0*3
+        open(newunit=file,file="omega.txt", status="old", action="read")
+        read(file,*),omega_start
+        read(file,*),domega
+        read(file,*),omega_end
+        close(file)
         
-        open(newunit=file_result,file="graphics/matrix_pencil_method/dispersion_curves.data")
+        open(newunit=file,file="result_path.txt", status="old", action="read")
+        read(file,*),result_path
+        close(file)
+        
+        write(file_name,*),trim(result_path),"dispersion_curves.data"
+        open(newunit=file_result,file=file_name)
         do i=0,get_dx_filter_strength()
             do j=0,get_L_filter_strength()
-                write(file_name,*),"graphics/matrix_pencil_method/dispersion_curves_dx_filter=",i,"dL_filter=",j,".data"
+                write(file_name,*),trim(result_path),"dispersion_curves_dx_filter=",i,"dL_filter=",j,".data"
                 open(newunit=file_filters(i+1,j+1),file=file_name)
             enddo
         enddo
+        
         do omega=omega_start,omega_end,domega
             call count_dispersion_numbers(omega+c0,L,res,res_size)
             

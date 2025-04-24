@@ -1,0 +1,94 @@
+[33me687248[m[33m ([m[1;36mHEAD -> [m[1;32mdevelopment[m[33m, [m[1;31morigin/matrix_pencil_method[m[33m, [m[1;32mmatrix_pencil_method[m[33m)[m matrix_pencil_method counting modified to print also lower filter results
+[33md84ad84[m Merge branch 'development' into matrix_pencil_method
+[33m713ebe0[m[33m ([m[1;31morigin/development[m[33m)[m Merge branch 'code_refactoring' into development
+[33m120e9d1[m[33m ([m[1;31morigin/code_refactoring[m[33m, [m[1;32mcode_refactoring[m[33m)[m main_parameters.get_full_h bug fix
+[33me45f57d[m Merge branch 'code_refactoring' into development
+[33m52d1dff[m main_paarameters get_full_h returns -1 bug has been fixed
+[33m7c17364[m Merge branch 'code_refactoring' into development
+[33ma4f5c7b[m input folder not markered topics bug has been fixed
+[33mb8227b9[m unit_programs scripts have been rewritten
+[33m58e24ba[m Merge pull request #2 from KiselevOleg/code_refactoring
+[33m404d6fd[m matrix_pencil_method.f90 has been freeed from input filter parameters
+[33m5673b6a[m load_experimental_measurements has been free from input file names
+[33me6d7ea8[m pre_nad_post_runtime_actions.f90 has been rewritten
+[33ma4962e5[m hotfix set_layer_Calphabeta_element fogoten simetrical element
+[33mc2bcff4[m material_properties_by_dispersion_curves.f90 has been rewritten
+[33m7a03dbb[m runtime_application_actions.f90 has been rewritten
+[33m395ecbc[m count_k.f90 has been rewritten
+[33m099f8e8[m sigma_and_eigenvectors has been rewritten
+[33mc831aee[m validation functions into main_parameters have been added
+[33mb401c49[m main_parameters.set_layer_rho fotfix with reset layer elastic parameters to unsetted
+[33mb2045fb[m dispersion_curves_for_K has been rewritten
+[33m53061c5[m  integral_solution has been rewritten
+[33m1769f3a[m integral_solution_isotropic has been rewritten
+[33mc3c77ed[m main_parameters has been rewritted(finish)
+[33m0755fc1[m Merge branch 'development' into code_refactoring
+[33mf2f86e5[m[33m ([m[1;31morigin/get_poles_K[m[33m, [m[1;32mget_poles_K[m[33m)[m Merge branch 'report' into development
+[33m2ba27d5[m[33m ([m[1;31morigin/report[m[33m, [m[1;32mreport[m[33m)[m measurements with 0.25mcs signal has been added
+[33m7c5c22b[m main_parameters has been rewrited
+[33ma60f669[m Merge branch 'development' of https://github.com/KiselevOleg/MatrixPencilMethodForWaveguard into development
+[33m81478e9[m Merge branch 'report' into development
+[33m504d2bf[m measurements for a new Al ans a new load type has been added
+[33mf4101ba[m Merge pull request #1 from KiselevOleg/protocol
+[33m0797d62[m Protocol(with short description of curent actions) has been added
+[33m00a93c1[m Merge branch 'report' into development
+[33m0265f77[m measurement for glass with more max f has been added
+[33mc81c5d3[m Merge branch 'development' into report
+[33m894ad07[m Merge branch 'edit_points' into development
+[33mf6086ff[m[33m ([m[1;31morigin/edit_points[m[33m, [m[1;32medit_points[m[33m)[m delete useless files from libraries
+[33mce17aef[m Merge branch 'edit_points' into development
+[33m83f62d3[m Merge branch 'util_programs' into development
+[33m3da4e8a[m[33m ([m[1;31morigin/util_programs[m[33m, [m[1;32mutil_programs[m[33m)[m some useful script for processing signals have been added
+[33ma42448c[m readme.txt file for editPoints has been added
+[33meee509f[m a program 'editPoints' for comfortable fast clearing counted dispersion curves by matrix percil method has been added
+[33m8174560[m Merge branch 'report' into development
+[33mfe8a8b7[m new glass measurements has been processed
+[33m2231a57[m new glass measurements has been processed
+[33mb0a6d42[m Merge branch 'development' into report
+[33mca8a23f[m large useless files have deen added fix
+[33me832115[m new measurement has been processed
+[33m05ad52c[m Merge branch 'development' into report
+[33m316092a[m Merge branch 'restoration_of_material_properties' into development
+[33ma90679e[m[33m ([m[1;31morigin/restoration_of_material_properties[m[33m, [m[1;32mrestoration_of_material_properties[m[33m)[m finding dispersion curves by gradient decent method for a difference between experimental measurement dispersion points and teoretical ones function has been added
+[33m35d49c1[m experimental dispersion curves have been added as input data for finding material parameters
+[33m76f2ec1[m smothing signal for glass has been used for recounting dispersion curves
+[33m2820b75[m Merge branch 'read_input_data' into development
+[33m1ce5cfc[m[33m ([m[1;31morigin/read_input_data[m[33m, [m[1;32mread_input_data[m[33m)[m smoothing experimantal measurements by a wavelet transform has been added and used for smooting the glass measuremets
+[33mbb0072f[m glass exterimental measurements have been added
+[33m6781186[m reading input experimental measurement replaced with more accutare postprocessing
+[33md01ea79[m static integration for integration based on a fixed massive points resource has been added
+[33mfcdd682[m Merge branch 'development' into read_input_data
+[33m370a45c[m Merge branch 'teoretical_dispersion_curves' into development
+[33m2c81464[m[33m ([m[1;31morigin/teoretical_dispersion_curves[m[33m, [m[1;32mteoretical_dispersion_curves[m[33m)[m viscosity material parameters have been added, counting teoretical distersion curves with viscosity has been added
+[33ma34b9ad[m dispersion_curves_for_K code refactor
+[33mf35c45a[m Merge branch 'development' into teoretical_dispersion_curves
+[33m511a113[m gradient descent menhod for finding minimums of an n-dinmension surf with a start points nest has been added
+[33mde35c5f[m animations changing matrix pencil method despersion curves result with changing L have been added
+[33m210b8ae[m Merge branch 'report' into development
+[33mdab7bbb[m basis report and anasysis has been added with optimal seting for matrix pencil method
+[33m270a481[m Merge branch 'development' into report
+[33m62f27aa[m Merge branch 'matrix_pencil_method' into development
+[33mfe1a118[m multi filters for diff dx filters and diff L filters have been added
+[33m979f3df[m basis images for matrix pencil method resultivity has been added with needed for adding more dx changing filter for check filtering false points
+[33me3d8078[m steel has been replaced with Al for input experimental measurements
+[33mf549c45[m Merge branch 'teoretical_dispersion_curves' into development
+[33m70485ea[m counting teoretical dispersion curve points from K has been added
+[33mf3ffc62[m counting det of summary matrixes for finding consts t for counting K has been added in count_k.f90 for access for counting poles
+[33m10132ed[m change line ends at code/main_parameters.f90
+[33mc499bfc[m Merge branch 'smoothing_signal' into development
+[33maa8b6ea[m[33m ([m[1;31morigin/smoothing_signal[m[33m, [m[1;32msmoothing_signal[m[33m)[m smooting signal has added into loading input experimental measurements
+[33m2e27048[m arithmetic_mean_smoothing has been added
+[33meff1972[m Merge branch 'matrix_pencil_method' into development
+[33m4e23770[m incorrect 1/mu=lambda filter has been replaced with result for Nx=result for Nx/2 filter and added result for L=result for other L filter
+[33ma2879e8[m incorrect dispersion curves points values fix
+[33m8826035[m getting x0 dx t0 dt parameters for dx=const dt=const input experimental measurements
+[33m6f1940e[m real>const and 1/mu=lambda filters have foor added for found dispersion curves points
+[33ma38acf4[m counting matrix pencil method dispersion curve graphics
+[33mafc9a3c[m counting matrix pencil method dispersion curve without filters has been added
+[33m2252342[m counting matrixes resourse has been added
+[33m9ef723a[m a scheme for matrix pencil method has been added
+[33mbf8a9f6[m Merge branch 'read_input_data' into development
+[33mbba6136[m couning spectrum for experimental data
+[33m4e005e5[m loading experimental measurements have beed added
+[33m17b4f1c[m experimental measurements files have been added
+[33mb0bdf8e[m init
