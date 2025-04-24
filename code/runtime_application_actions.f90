@@ -359,7 +359,8 @@ implicit none
     endsubroutine count_distersion_curve_for_K_graphics
     
     subroutine count_matrix_pencil_method_distersion_curve_graphics()
-    use matrix_pencil_method,only:count_dispersion_numbers,set_dx_filter_strength,set_L_filter_strength,set_dL_filter_value
+    use matrix_pencil_method,only:count_dispersion_numbers,set_dx_filter_strength,set_L_filter_strength,set_dL_filter_value,&
+        get_dx_filter_strength,get_L_filter_strength,get_dL_filter_value,get_result_with_lower_filters
     use math,only:c0,pi
     implicit none
         integer(4) L,res_size
@@ -367,8 +368,9 @@ implicit none
         
         real(8) omega,omega_start,domega,omega_end
         
-        integer(4) i
-        integer(4) file
+        integer(4) i,j,k
+        integer(4) file_result,file_filters(100,100)!dx_filter_number,L_filter_number
+        character(len=128) file_name
         
         call set_dx_filter_strength(0)
         call set_L_filter_strength(1)
@@ -381,17 +383,36 @@ implicit none
         omega_start=0.01; domega=0.01d0*10d0; omega_end=6.25d0*2
         omega_start=0.1d0; domega=0.05d0*5*3/15; omega_end=6.25d0*3
         
-        open(newunit=file,file="graphics/matrix_pencil_method/dispersion_curve.data")
+        open(newunit=file_result,file="graphics/matrix_pencil_method/dispersion_curves.data")
+        do i=0,get_dx_filter_strength()
+            do j=0,get_L_filter_strength()
+                write(file_name,*),"graphics/matrix_pencil_method/dispersion_curves_dx_filter=",i,"dL_filter=",j,".data"
+                open(newunit=file_filters(i+1,j+1),file=file_name)
+            enddo
+        enddo
         do omega=omega_start,omega_end,domega
             call count_dispersion_numbers(omega+c0,L,res,res_size)
             
             do i=1,res_size
-                write(file,*),omega*0.5d0/pi,real(res(i)),aimag(res(i))
+                write(file_result,*),omega*0.5d0/pi,real(res(i)),aimag(res(i))
+            enddo
+            do i=0,get_dx_filter_strength()
+                do j=0,get_L_filter_strength()
+                    call get_result_with_lower_filters(res=res,res_size=res_size,dx_filter_strength_=i,dL_filter_strength_=j)
+                    do k=1,res_size
+                        write(file_filters(i+1,j+1),*),omega*0.5d0/pi,real(res(k)),aimag(res(k))
+                    enddo
+                enddo
             enddo
             
             print*,omega,res_size
         enddo
-        close(file)
+        do i=0,get_dx_filter_strength()
+            do j=0,get_L_filter_strength()
+                close(file_filters(i+1,j+1))
+            enddo
+        enddo
+        close(file_result)
         
         deallocate(res)
     endsubroutine count_matrix_pencil_method_distersion_curve_graphics
