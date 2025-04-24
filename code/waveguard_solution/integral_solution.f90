@@ -7,7 +7,7 @@ implicit none
     private::Q,K
     contains
     
-    complex(8) function u(ind,x,y,z,accurate, lenght_of_integration,upper_poles_value,depthOfAvoidingPoles) result(f)
+    complex(8) function u(ind,x,y,z,accurate,lenght_of_integration,upper_poles_value,depthOfAvoidingPoles) result(f)
     use GK_integration,only:GK_integral
     use math,only:pi,epsilon
     use system,only:print_error
@@ -61,7 +61,7 @@ implicit none
     endfunction u
     
     complex(8) function Q(ind,alpha,gamma) result(f)
-    use main_parameters,only:Q_=>Q
+    use main_parameters,only:Q_=>get_Q
     use math,only:pi,from_polar_to_cartesian2_coordinate_system
     use system,only:print_error
     implicit none
@@ -104,7 +104,6 @@ implicit none
     endfunction K
     
     subroutine init_integral_solution()
-    use main_parameters,only:number_of_layers
     implicit none
     endsubroutine init_integral_solution
     subroutine destructor_integral_solution()

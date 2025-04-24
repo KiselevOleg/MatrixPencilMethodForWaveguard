@@ -19,12 +19,27 @@ implicit none
     private::get_sceptum_in_xi_common,get_sceptum_in_xi_dt_const
     private::is_dt_const,is_dx_const,dt_max_difference_for_be_const,dx_max_difference_for_be_const
     contains
-    subroutine init_load_experimental_measurements
+    
+    subroutine init_load_experimental_measurements(&
+        x_file_name_length,x_file_name,&
+        t_file_name_length,t_file_name,&
+        u_file_name_length,u_file_name)
+    use smoothing_signal,only:arithmetic_mean_smoothing
+    implicit none
+        integer(4),intent(in)::x_file_name_length
+        character(len=x_file_name_length),intent(in)::x_file_name
+        integer(4),intent(in)::t_file_name_length
+        character(len=x_file_name_length),intent(in)::t_file_name
+        integer(4),intent(in)::u_file_name_length
+        character(len=x_file_name_length),intent(in)::u_file_name
+        
         integer(4) file
         
         integer(4) i,j
+        real(8) v
+        real(8),allocatable::signal(:)
         
-        open(newunit=file,file="input/steel/_x.data")
+        open(newunit=file,file=x_file_name)
         read(file,*),Nx
         allocate(x(Nx))
         do i=1,Nx
@@ -33,7 +48,7 @@ implicit none
         enddo
         close(file)
         
-        open(newunit=file,file="input/steel/_t.data")
+        open(newunit=file,file=t_file_name)
         read(file,*),Nt
         allocate(t(Nt))
         do j=1,Nt
@@ -42,12 +57,13 @@ implicit none
         enddo
         close(file)
         
-        open(newunit=file,file="input/steel/_u.data")
+        open(newunit=file,file=u_file_name)
         allocate(u(Nx,Nt))
         do i=1,Nx
             do j=1,Nt
                 read(file,*),u(i,j)
-                u(i,j)=u(i,j)*1d2
+                u(i,j)=u(i,j)*1d-2
+                !u(i,j)=sin(t(j)*3.5d0)+cos(t(j)*30d0)*0.1d0
             enddo
         enddo
         close(file)
@@ -71,6 +87,22 @@ implicit none
                 exit
             endif
         enddo
+        
+        !allocate(signal(Nt))
+        !do i=1,Nx
+        !    v=0d0
+        !    do j=1,Nt
+        !        signal(j)=u(i,j)
+        !        v=v+signal(j)
+        !    enddo
+        !    !call arithmetic_mean_smoothing(2,Nt,signal,.true.)
+        !    !call remove_cost_difference_with_0(Nt,signal)
+        !    v=v/Nt
+        !    do j=1,Nt
+        !        u(i,j)=signal(j)-v
+        !    enddo
+        !enddo
+        !deallocate(signal)
     endsubroutine init_load_experimental_measurements
     
     subroutine destructor_load_experimental_measurements
@@ -132,37 +164,41 @@ implicit none
         endif
     endfunction get_sceptum_in_xi
     complex(8) function get_sceptum_in_xi_common(i,omega) result(f)
+    use static_integration,only:riemann_sum,simpson_sum
     use math,only:ci,c0,pi
     implicit none
         integer(4),intent(in)::i
         complex(8),intent(in)::omega
         
+        complex(8) u_(Nt)
         integer(4) tj
         
-        f=u(i,1)*exp(ci*omega*t(1))*t(1)
+        u_(1)=u(i,1)*exp(ci*omega*t(1))
         do tj=2,Nt
-            f=f+u(i,tj)*exp(ci*omega*t(tj))*(t(tj)-t(tj-1))
+            u_(tj)=u(i,tj)*exp(ci*omega*t(tj))
         enddo
-        f=f/sqrt(pi+pi)
+        f=riemann_sum(Nt,t,u_)/sqrt(pi+pi)
     endfunction get_sceptum_in_xi_common
     complex(8) function get_sceptum_in_xi_dt_const(i,omega) result(f)
+    use static_integration,only:riemann_sum,simpson_sum
     use math,only:ci,c0,pi
     implicit none
         integer(4),intent(in)::i
         complex(8),intent(in)::omega
         
         integer(4) tj
+        complex(8) u_(Nt)
         complex(8) exps,dexp
         
         exps=exp(ci*omega*t(1))
         dexp=exp(ci*omega*dt)
         
-        f=u(i,1)*exps*t(1)
+        u_(1)=u(i,1)*exps
         do tj=2,Nt
             exps=exps*dexp
-            f=f+u(i,tj)*exps*dt
+            u_(tj)=u(i,tj)*exps
         enddo
-        f=f/sqrt(pi+pi)
+        f=simpson_sum(Nt,dt,u_)/sqrt(pi+pi)
     endfunction get_sceptum_in_xi_dt_const
     
     logical(1) function if_dt_const() result(f)
