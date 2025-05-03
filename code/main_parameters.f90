@@ -1237,7 +1237,7 @@ implicit none
                     return
                 endif
                 if(.not.(epsilon<nu(layer).and.nu(layer)<0.5d0-epsilon)) then
-                    message=".not.(nu<h(layer).and.nu(layer)<0.5d0-epsilon)"
+                    message=".not.(epsilon<nu(layer).and.nu(layer)<0.5d0-epsilon)"
                     f=.false.
                     return
                 endif
