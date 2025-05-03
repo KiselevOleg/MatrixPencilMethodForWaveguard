@@ -5,37 +5,37 @@ implicit none
     public::K
     public::get_det_A,get_det_AX,get_det_AY
     
-    logical(1),save::already_counted(3)!number en for an elementary Q
+    logical(1),private::already_counted(3)!number en for an elementary Q
     
     !anisotropic
-    complex(8),allocatable::t(:,:,:)!number_of_t_for_layer,number_of_layers,number_of_en
-    complex(8),save::S(3,6,2)!i,j,layer(1~up,2~down)
-    complex(8),allocatable::C(:,:,:,:)!i,j,position(1~left,2~right),number_of_up_layer_for_border
-    complex(8),allocatable::F(:)
+    complex(8),allocatable,private::t(:,:,:)!number_of_t_for_layer,number_of_layers,number_of_en
+    complex(8),private::S(3,6,2)!i,j,layer(1~up,2~down)
+    complex(8),allocatable,private::C(:,:,:,:)!i,j,position(1~left,2~right),number_of_up_layer_for_border
+    complex(8),allocatable,private::F(:)
     !isotropic
-    complex(8),allocatable::Yt(:,:,:)!number_of_t_for_layer,number_of_layers,number_of_en
-    complex(8),save::YS(2,4,2)!i,j,layer(1~up,2~down)
-    complex(8),allocatable::YC(:,:,:,:)!i,j,position(1~left,2~right),number_of_up_layer_for_border
-    complex(8),allocatable::YF(:)
-    complex(8),allocatable::Xt(:,:,:)!number_of_t_for_layer,number_of_layers,number_of_en
-    complex(8),save::XS(1,2,2)!i,j,layer(1~up,2~down)
-    complex(8),allocatable::XC(:,:,:,:)!i,j,position(1~left,2~right),number_of_up_layer_for_border
-    complex(8),allocatable::XF(:)
+    complex(8),allocatable,private::Yt(:,:,:)!number_of_t_for_layer,number_of_layers,number_of_en
+    complex(8),private::YS(2,4,2)!i,j,layer(1~up,2~down)
+    complex(8),allocatable,private::YC(:,:,:,:)!i,j,position(1~left,2~right),number_of_up_layer_for_border
+    complex(8),allocatable,private::YF(:)
+    complex(8),allocatable,private::Xt(:,:,:)!number_of_t_for_layer,number_of_layers,number_of_en
+    complex(8),private::XS(1,2,2)!i,j,layer(1~up,2~down)
+    complex(8),allocatable,private::XC(:,:,:,:)!i,j,position(1~left,2~right),number_of_up_layer_for_border
+    complex(8),allocatable,private::XF(:)
     
     
-    complex(8),save::last_alpha=(1.182735375d98,1.91724672d99),last_beta=(1.183245574d100,1.8245262591d101)
+    complex(8),private::last_alpha=(1.182735375d98,1.91724672d99),last_beta=(1.183245574d100,1.8245262591d101)
     
-    private::already_counted,t,S,C,F,last_alpha,last_beta,count_t,count_K_element,generate_matrics,solve_matrics_system,&
+    private::count_t,count_K_element,generate_matrics,solve_matrics_system,&
         generate_matrics_isotropic,solve_matrics_system_isotropic
     private::generate_summary_matrix_A,generate_summary_matrix_AY,generate_summary_matrix_AX
     
     !todo delete
-    complex(8),save,allocatable::A(:,:),B(:,:),AY(:,:),BY(:,:),AX(:,:),BX(:,:)
+    complex(8),private,allocatable::A(:,:),B(:,:),AY(:,:),BY(:,:),AX(:,:),BX(:,:)
     contains
     
     complex(8) function K(i,j,alpha,beta,z) result(f)
     use system,only:print_error
-    use main_parameters,only:get_full_h,get_anisotropic
+    use main_parameters,only:get_full_h,get_anisotropic_type,material_isotropic_type
     implicit none
         integer(4),intent(in)::i
         integer(4),intent(in)::j
@@ -47,7 +47,8 @@ implicit none
         if(j<1.or.j>3) call print_error("count_K.K","(j<1.or.j>3")
         if(z>0d0.or.z<-get_full_h()) call print_error("count_K.K","z>0d0.or.z<-get_full_h()")
         
-        !if(get_anisotropic()==0.and..not.beta==0d0) call print_error("count_K.K","anisotropic==0.and..not.beta==0d0")
+        !if(get_anisotropic_type()==material_isotropic_type().and..not.beta==0d0) &
+        !    call print_error("count_K.K","get_anisotropic_type()==material_isotropic_type().and..not.beta==0d0")
         
         if(alpha/=last_alpha.or.beta/=last_beta) then
             last_alpha=alpha
@@ -67,7 +68,9 @@ implicit none
     
     complex(8) function count_K_element(i,j,z) result(f)
     use sigma_and_eigenvectors,only:get_sigma,get_eigenvector_component
-    use main_parameters,only:number_of_layers,h,get_full_h,Calphabeta,rho,omega,Q,get_number_of_layer,Cijkl,get_anisotropic
+    use main_parameters,only:get_number_of_layers,h=>get_layer_h,get_full_h,&
+        Calphabeta=>get_layer_Calphabeta_parameter,rho=>get_layer_rho,omega=>get_omega,Q=>get_Q,get_number_of_layer_from_z,&
+        Cijkl=>get_layer_Cijkl_parameter,get_anisotropic_type,material_isotropic_type
     use system,only:print_error
     use math,only:ci
     implicit none
@@ -84,7 +87,7 @@ implicit none
         if(j<1.or.j>3) call print_error("count_K.count_K_element","(j<1.or.j>3")
         if(z>0d0.or.z<-get_full_h()) call print_error("count_K.count_K_element","z>0d0.or.z<-get_full_h()")
         
-        number_of_layer=get_number_of_layer(z)
+        number_of_layer=get_number_of_layer_from_z(z)
         z_=z
         do ind=1,number_of_layer-1
             z_=z_+h(ind)
@@ -92,7 +95,7 @@ implicit none
         
         f=0d0
         
-        if(get_anisotropic()==0) then
+        if(get_anisotropic_type()==material_isotropic_type()) then
             phi=0d0
             psi=0d0
             w=0d0
@@ -159,10 +162,11 @@ implicit none
     endsubroutine count_t
     
     subroutine generate_matrics(alpha,beta,number_of_en)
-    use main_parameters,only:number_of_layers,Cijkl,h,get_anisotropic,&
+    use main_parameters,only:get_number_of_layers,Cijkl=>get_layer_Cijkl_parameter,&
+        h=>get_layer_h,get_anisotropic_type,material_isotropic_type,&
         get_down_border_condition_type,&
-        get_down_border_condition_type_fixed_border,get_down_border_condition_type_free_border,&
-        get_down_border_condition_type_halfspace
+        down_border_condition_type_fixed_border,down_border_condition_type_free_border,&
+        down_border_condition_type_halfspace
     use sigma_and_eigenvectors,only:get_sigma,get_eigenvector_component
     use system,only:print_error
     use math,only:ci
@@ -175,13 +179,13 @@ implicit none
         
         if(number_of_en<1.or.number_of_en>3) call print_error("count_K.generate_matrics","number_of_en<1.or.number_of_en>3")
         
-        if(get_anisotropic()==0) then
+        if(get_anisotropic_type()==material_isotropic_type()) then
             call generate_matrics_isotropic(alpha,beta,number_of_en)
             
             return
         endif
         
-        do i=1,number_of_layers*6
+        do i=1,get_number_of_layers()*6
             F(i)=0d0
         enddo
         F(number_of_en)=1d0
@@ -192,38 +196,38 @@ implicit none
             do j=1,3
                 S(i,j,1)=(&
                     
-                    Cijkl(i,3,1,1,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,1)+&
-                    Cijkl(i,3,1,2,1)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,1)+&
-                    Cijkl(i,3,1,3,1)*(get_sigma(alpha,beta,j,1))*get_eigenvector_component(alpha,beta,j,1,1)+&
+                    Cijkl(1,i,3,1,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,1)+&
+                    Cijkl(1,i,3,1,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,1)+&
+                    Cijkl(1,i,3,1,3)*(get_sigma(alpha,beta,j,1))*get_eigenvector_component(alpha,beta,j,1,1)+&
                     
-                    Cijkl(i,3,2,1,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,1)+&
-                    Cijkl(i,3,2,2,1)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,1)+&
-                    Cijkl(i,3,2,3,1)*(get_sigma(alpha,beta,j,1))*get_eigenvector_component(alpha,beta,j,2,1)+&
+                    Cijkl(1,i,3,2,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,1)+&
+                    Cijkl(1,i,3,2,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,1)+&
+                    Cijkl(1,i,3,2,3)*(get_sigma(alpha,beta,j,1))*get_eigenvector_component(alpha,beta,j,2,1)+&
                     
-                    Cijkl(i,3,3,1,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,1)+&
-                    Cijkl(i,3,3,2,1)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,1)+&
-                    Cijkl(i,3,3,3,1)*(get_sigma(alpha,beta,j,1))*get_eigenvector_component(alpha,beta,j,3,1)&
+                    Cijkl(1,i,3,3,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,1)+&
+                    Cijkl(1,i,3,3,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,1)+&
+                    Cijkl(1,i,3,3,3)*(get_sigma(alpha,beta,j,1))*get_eigenvector_component(alpha,beta,j,3,1)&
                     )!*exp(get_sigma(alpha,beta,j,1)*0)
             enddo
             do j=4,6
                 S(i,j,1)=(&
                     
-                    Cijkl(i,3,1,1,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,1)+&
-                    Cijkl(i,3,1,2,1)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,1)+&
-                    Cijkl(i,3,1,3,1)*(get_sigma(alpha,beta,j,1))*get_eigenvector_component(alpha,beta,j,1,1)+&
+                    Cijkl(1,i,3,1,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,1)+&
+                    Cijkl(1,i,3,1,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,1)+&
+                    Cijkl(1,i,3,1,3)*(get_sigma(alpha,beta,j,1))*get_eigenvector_component(alpha,beta,j,1,1)+&
                     
-                    Cijkl(i,3,2,1,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,1)+&
-                    Cijkl(i,3,2,2,1)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,1)+&
-                    Cijkl(i,3,2,3,1)*(get_sigma(alpha,beta,j,1))*get_eigenvector_component(alpha,beta,j,2,1)+&
+                    Cijkl(1,i,3,2,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,1)+&
+                    Cijkl(1,i,3,2,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,1)+&
+                    Cijkl(1,i,3,2,3)*(get_sigma(alpha,beta,j,1))*get_eigenvector_component(alpha,beta,j,2,1)+&
                     
-                    Cijkl(i,3,3,1,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,1)+&
-                    Cijkl(i,3,3,2,1)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,1)+&
-                    Cijkl(i,3,3,3,1)*(get_sigma(alpha,beta,j,1))*get_eigenvector_component(alpha,beta,j,3,1)&
+                    Cijkl(1,i,3,3,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,1)+&
+                    Cijkl(1,i,3,3,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,1)+&
+                    Cijkl(1,i,3,3,3)*(get_sigma(alpha,beta,j,1))*get_eigenvector_component(alpha,beta,j,3,1)&
                     )*exp(get_sigma(alpha,beta,j,1)*h(1))
             enddo
         enddo
         
-        do layer=1,number_of_layers-1
+        do layer=1,get_number_of_layers()-1
             do i=1,3
                 do j=1,3
                     C(i,j,1,layer)=get_eigenvector_component(alpha,beta,j,i,layer)*exp(-get_sigma(alpha,beta,j,layer)*h(layer))
@@ -238,115 +242,115 @@ implicit none
                 do j=1,3
                     C(i+3,j,1,layer)=(&
                         
-                        Cijkl(i,3,1,1,layer)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,layer)+&
-                        Cijkl(i,3,1,2,layer)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,layer)+&
-                        Cijkl(i,3,1,3,layer)*(get_sigma(alpha,beta,j,layer))*get_eigenvector_component(alpha,beta,j,1,layer)+&
+                        Cijkl(layer,i,3,1,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,layer)+&
+                        Cijkl(layer,i,3,1,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,layer)+&
+                        Cijkl(layer,i,3,1,3)*(get_sigma(alpha,beta,j,layer))*get_eigenvector_component(alpha,beta,j,1,layer)+&
                         
-                        Cijkl(i,3,2,1,layer)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,layer)+&
-                        Cijkl(i,3,2,2,layer)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,layer)+&
-                        Cijkl(i,3,2,3,layer)*(get_sigma(alpha,beta,j,layer))*get_eigenvector_component(alpha,beta,j,2,layer)+&
+                        Cijkl(layer,i,3,2,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,layer)+&
+                        Cijkl(layer,i,3,2,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,layer)+&
+                        Cijkl(layer,i,3,2,3)*(get_sigma(alpha,beta,j,layer))*get_eigenvector_component(alpha,beta,j,2,layer)+&
                         
-                        Cijkl(i,3,3,1,layer)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,layer)+&
-                        Cijkl(i,3,3,2,layer)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,layer)+&
-                        Cijkl(i,3,3,3,layer)*(get_sigma(alpha,beta,j,layer))*get_eigenvector_component(alpha,beta,j,3,layer)&
+                        Cijkl(layer,i,3,3,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,layer)+&
+                        Cijkl(layer,i,3,3,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,layer)+&
+                        Cijkl(layer,i,3,3,3)*(get_sigma(alpha,beta,j,layer))*get_eigenvector_component(alpha,beta,j,3,layer)&
                         )*exp(-get_sigma(alpha,beta,j,layer)*h(layer))
                     C(i+3,j,2,layer)=-(&
                         
-                        Cijkl(i,3,1,1,layer+1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,layer+1)+&
-                        Cijkl(i,3,1,2,layer+1)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,layer+1)+&
-                        Cijkl(i,3,1,3,layer+1)*(get_sigma(alpha,beta,j,layer+1))*get_eigenvector_component(alpha,beta,j,1,layer+1)+&
+                        Cijkl(layer+1,i,3,1,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,layer+1)+&
+                        Cijkl(layer+1,i,3,1,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,layer+1)+&
+                        Cijkl(layer+1,i,3,1,3)*(get_sigma(alpha,beta,j,layer+1))*get_eigenvector_component(alpha,beta,j,1,layer+1)+&
                         
-                        Cijkl(i,3,2,1,layer+1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,layer+1)+&
-                        Cijkl(i,3,2,2,layer+1)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,layer+1)+&
-                        Cijkl(i,3,2,3,layer+1)*(get_sigma(alpha,beta,j,layer+1))*get_eigenvector_component(alpha,beta,j,2,layer+1)+&
+                        Cijkl(layer+1,i,3,2,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,layer+1)+&
+                        Cijkl(layer+1,i,3,2,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,layer+1)+&
+                        Cijkl(layer+1,i,3,2,3)*(get_sigma(alpha,beta,j,layer+1))*get_eigenvector_component(alpha,beta,j,2,layer+1)+&
                         
-                        Cijkl(i,3,3,1,layer+1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,layer+1)+&
-                        Cijkl(i,3,3,2,layer+1)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,layer+1)+&
-                        Cijkl(i,3,3,3,layer+1)*(get_sigma(alpha,beta,j,layer+1))*get_eigenvector_component(alpha,beta,j,3,layer+1)&
+                        Cijkl(layer+1,i,3,3,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,layer+1)+&
+                        Cijkl(layer+1,i,3,3,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,layer+1)+&
+                        Cijkl(layer+1,i,3,3,3)*(get_sigma(alpha,beta,j,layer+1))*get_eigenvector_component(alpha,beta,j,3,layer+1)&
                         )!*exp(get_sigma(alpha,beta,j,layer+1)*0d0)
                 enddo
                 do j=4,6
                     C(i+3,j,1,layer)=(&
                         
-                        Cijkl(i,3,1,1,layer)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,layer)+&
-                        Cijkl(i,3,1,2,layer)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,layer)+&
-                        Cijkl(i,3,1,3,layer)*(get_sigma(alpha,beta,j,layer))*get_eigenvector_component(alpha,beta,j,1,layer)+&
+                        Cijkl(layer,i,3,1,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,layer)+&
+                        Cijkl(layer,i,3,1,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,layer)+&
+                        Cijkl(layer,i,3,1,3)*(get_sigma(alpha,beta,j,layer))*get_eigenvector_component(alpha,beta,j,1,layer)+&
                         
-                        Cijkl(i,3,2,1,layer)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,layer)+&
-                        Cijkl(i,3,2,2,layer)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,layer)+&
-                        Cijkl(i,3,2,3,layer)*(get_sigma(alpha,beta,j,layer))*get_eigenvector_component(alpha,beta,j,2,layer)+&
+                        Cijkl(layer,i,3,2,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,layer)+&
+                        Cijkl(layer,i,3,2,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,layer)+&
+                        Cijkl(layer,i,3,2,3)*(get_sigma(alpha,beta,j,layer))*get_eigenvector_component(alpha,beta,j,2,layer)+&
                         
-                        Cijkl(i,3,3,1,layer)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,layer)+&
-                        Cijkl(i,3,3,2,layer)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,layer)+&
-                        Cijkl(i,3,3,3,layer)*(get_sigma(alpha,beta,j,layer))*get_eigenvector_component(alpha,beta,j,3,layer)&
+                        Cijkl(layer,i,3,3,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,layer)+&
+                        Cijkl(layer,i,3,3,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,layer)+&
+                        Cijkl(layer,i,3,3,3)*(get_sigma(alpha,beta,j,layer))*get_eigenvector_component(alpha,beta,j,3,layer)&
                         )!*exp(get_sigma(alpha,beta,j,layer)*0d0)
                     C(i+3,j,2,layer)=-(&
                         
-                        Cijkl(i,3,1,1,layer+1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,layer+1)+&
-                        Cijkl(i,3,1,2,layer+1)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,layer+1)+&
-                        Cijkl(i,3,1,3,layer+1)*(get_sigma(alpha,beta,j,layer+1))*get_eigenvector_component(alpha,beta,j,1,layer+1)+&
+                        Cijkl(layer+1,i,3,1,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,layer+1)+&
+                        Cijkl(layer+1,i,3,1,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,layer+1)+&
+                        Cijkl(layer+1,i,3,1,3)*(get_sigma(alpha,beta,j,layer+1))*get_eigenvector_component(alpha,beta,j,1,layer+1)+&
                         
-                        Cijkl(i,3,2,1,layer+1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,layer+1)+&
-                        Cijkl(i,3,2,2,layer+1)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,layer+1)+&
-                        Cijkl(i,3,2,3,layer+1)*(get_sigma(alpha,beta,j,layer+1))*get_eigenvector_component(alpha,beta,j,2,layer+1)+&
+                        Cijkl(layer+1,i,3,2,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,layer+1)+&
+                        Cijkl(layer+1,i,3,2,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,layer+1)+&
+                        Cijkl(layer+1,i,3,2,3)*(get_sigma(alpha,beta,j,layer+1))*get_eigenvector_component(alpha,beta,j,2,layer+1)+&
                         
-                        Cijkl(i,3,3,1,layer+1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,layer+1)+&
-                        Cijkl(i,3,3,2,layer+1)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,layer+1)+&
-                        Cijkl(i,3,3,3,layer+1)*(get_sigma(alpha,beta,j,layer+1))*get_eigenvector_component(alpha,beta,j,3,layer+1)&
+                        Cijkl(layer+1,i,3,3,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,layer+1)+&
+                        Cijkl(layer+1,i,3,3,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,layer+1)+&
+                        Cijkl(layer+1,i,3,3,3)*(get_sigma(alpha,beta,j,layer+1))*get_eigenvector_component(alpha,beta,j,3,layer+1)&
                         )*exp(get_sigma(alpha,beta,j,layer+1)*h(layer+1))
                 enddo
             enddo
         enddo
         
-        if(get_down_border_condition_type()==get_down_border_condition_type_fixed_border()) then
+        if(get_down_border_condition_type()==down_border_condition_type_fixed_border()) then
             do i=1,3
                 do j=1,3
                     S(i,j,2)=(&
-                        get_eigenvector_component(alpha,beta,j,i,number_of_layers)&
-                        )*exp(-get_sigma(alpha,beta,j,number_of_layers)*h(number_of_layers))
+                        get_eigenvector_component(alpha,beta,j,i,get_number_of_layers())&
+                        )*exp(-get_sigma(alpha,beta,j,get_number_of_layers())*h(get_number_of_layers()))
                 enddo
                 do j=4,6
                     S(i,j,2)=(&
-                        get_eigenvector_component(alpha,beta,j,i,number_of_layers)&
-                        )!*exp(get_sigma(alpha,beta,j,number_of_layers)*0)
+                        get_eigenvector_component(alpha,beta,j,i,get_number_of_layers())&
+                        )!*exp(get_sigma(alpha,beta,j,get_number_of_layers())*0)
                 enddo
             enddo
-        elseif(get_down_border_condition_type()==get_down_border_condition_type_free_border()) then
+        elseif(get_down_border_condition_type()==down_border_condition_type_free_border()) then
             do i=1,3
                 do j=1,3
                     S(i,j,2)=(&
                         
-                        Cijkl(i,3,1,1,number_of_layers)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,number_of_layers)+&
-                        Cijkl(i,3,1,2,number_of_layers)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,number_of_layers)+&
-                        Cijkl(i,3,1,3,number_of_layers)*(get_sigma(alpha,beta,j,number_of_layers))*get_eigenvector_component(alpha,beta,j,1,number_of_layers)+&
+                        Cijkl(get_number_of_layers(),i,3,1,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,get_number_of_layers())+&
+                        Cijkl(get_number_of_layers(),i,3,1,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,get_number_of_layers())+&
+                        Cijkl(get_number_of_layers(),i,3,1,3)*(get_sigma(alpha,beta,j,get_number_of_layers()))*get_eigenvector_component(alpha,beta,j,1,get_number_of_layers())+&
                         
-                        Cijkl(i,3,2,1,number_of_layers)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,number_of_layers)+&
-                        Cijkl(i,3,2,2,number_of_layers)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,number_of_layers)+&
-                        Cijkl(i,3,2,3,number_of_layers)*(get_sigma(alpha,beta,j,number_of_layers))*get_eigenvector_component(alpha,beta,j,2,number_of_layers)+&
+                        Cijkl(get_number_of_layers(),i,3,2,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,get_number_of_layers())+&
+                        Cijkl(get_number_of_layers(),i,3,2,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,get_number_of_layers())+&
+                        Cijkl(get_number_of_layers(),i,3,2,3)*(get_sigma(alpha,beta,j,get_number_of_layers()))*get_eigenvector_component(alpha,beta,j,2,get_number_of_layers())+&
                         
-                        Cijkl(i,3,3,1,number_of_layers)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,number_of_layers)+&
-                        Cijkl(i,3,3,2,number_of_layers)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,number_of_layers)+&
-                        Cijkl(i,3,3,3,number_of_layers)*(get_sigma(alpha,beta,j,number_of_layers))*get_eigenvector_component(alpha,beta,j,3,number_of_layers)&
-                        )*exp(-get_sigma(alpha,beta,j,number_of_layers)*h(number_of_layers))
+                        Cijkl(get_number_of_layers(),i,3,3,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,get_number_of_layers())+&
+                        Cijkl(get_number_of_layers(),i,3,3,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,get_number_of_layers())+&
+                        Cijkl(get_number_of_layers(),i,3,3,3)*(get_sigma(alpha,beta,j,get_number_of_layers()))*get_eigenvector_component(alpha,beta,j,3,get_number_of_layers())&
+                        )*exp(-get_sigma(alpha,beta,j,get_number_of_layers())*h(get_number_of_layers()))
                 enddo
                 do j=4,6
                     S(i,j,2)=(&
                         
-                        Cijkl(i,3,1,1,number_of_layers)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,number_of_layers)+&
-                        Cijkl(i,3,1,2,number_of_layers)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,number_of_layers)+&
-                        Cijkl(i,3,1,3,number_of_layers)*(get_sigma(alpha,beta,j,number_of_layers))*get_eigenvector_component(alpha,beta,j,1,number_of_layers)+&
+                        Cijkl(get_number_of_layers(),i,3,1,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,1,get_number_of_layers())+&
+                        Cijkl(get_number_of_layers(),i,3,1,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,1,get_number_of_layers())+&
+                        Cijkl(get_number_of_layers(),i,3,1,3)*(get_sigma(alpha,beta,j,get_number_of_layers()))*get_eigenvector_component(alpha,beta,j,1,get_number_of_layers())+&
                         
-                        Cijkl(i,3,2,1,number_of_layers)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,number_of_layers)+&
-                        Cijkl(i,3,2,2,number_of_layers)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,number_of_layers)+&
-                        Cijkl(i,3,2,3,number_of_layers)*(get_sigma(alpha,beta,j,number_of_layers))*get_eigenvector_component(alpha,beta,j,2,number_of_layers)+&
+                        Cijkl(get_number_of_layers(),i,3,2,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,2,get_number_of_layers())+&
+                        Cijkl(get_number_of_layers(),i,3,2,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,2,get_number_of_layers())+&
+                        Cijkl(get_number_of_layers(),i,3,2,3)*(get_sigma(alpha,beta,j,get_number_of_layers()))*get_eigenvector_component(alpha,beta,j,2,get_number_of_layers())+&
                         
-                        Cijkl(i,3,3,1,number_of_layers)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,number_of_layers)+&
-                        Cijkl(i,3,3,2,number_of_layers)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,number_of_layers)+&
-                        Cijkl(i,3,3,3,number_of_layers)*(get_sigma(alpha,beta,j,number_of_layers))*get_eigenvector_component(alpha,beta,j,3,number_of_layers)&
+                        Cijkl(get_number_of_layers(),i,3,3,1)*(-ci*alpha)*get_eigenvector_component(alpha,beta,j,3,get_number_of_layers())+&
+                        Cijkl(get_number_of_layers(),i,3,3,2)*(-ci*beta)*get_eigenvector_component(alpha,beta,j,3,get_number_of_layers())+&
+                        Cijkl(get_number_of_layers(),i,3,3,3)*(get_sigma(alpha,beta,j,get_number_of_layers()))*get_eigenvector_component(alpha,beta,j,3,get_number_of_layers())&
                         )!*exp(get_sigma(alpha,beta,j,number_of_layers)*0)
                 enddo
             enddo
-        elseif(get_down_border_condition_type()==get_down_border_condition_type_halfspace()) then
+        elseif(get_down_border_condition_type()==down_border_condition_type_halfspace()) then
             S(1,4,2)=1d0
             S(2,5,2)=1d0
             S(3,6,2)=1d0
@@ -356,7 +360,7 @@ implicit none
     endsubroutine generate_matrics
     
     subroutine solve_matrics_system(number_of_en)
-    use main_parameters,only:number_of_layers,get_anisotropic
+    use main_parameters,only:get_number_of_layers,get_anisotropic_type,material_isotropic_type
     use linear_system,only:star5_
     use system,only:print_error
     implicit none
@@ -366,13 +370,13 @@ implicit none
         
         if(number_of_en<1.or.number_of_en>3) call print_error("count_K.solve_matrics_system","number_of_en<1.or.number_of_en>3")
         
-        if(get_anisotropic()==0) then
+        if(get_anisotropic_type()==material_isotropic_type()) then
             call solve_matrics_system_isotropic(number_of_en)
             
             return
         endif
         
-        do i=1,number_of_layers*6
+        do i=1,get_number_of_layers()*6
             B(i,1)=0d0
         enddo
         B(number_of_en,1)=1d0
@@ -382,7 +386,7 @@ implicit none
         call star5_(A,B)
         
         j=1
-        do layer=1,number_of_layers
+        do layer=1,get_number_of_layers()
             do i=1,6
                 t(i,layer,number_of_en)=B(j,1)
                 j=j+1
@@ -392,7 +396,7 @@ implicit none
         !integer(4) i,j,layer
         !real(8) norm_current,norm_last,min_diff
         !
-        !do i=1,number_of_layers
+        !do i=1,get_number_of_layers()
         !    do j=1,6
         !        t(j,i,number_of_en)=0d0
         !    enddo
@@ -512,31 +516,31 @@ implicit none
         !        t(3,layer+1,number_of_en)=t(3,layer+1,number_of_en)/C(6,3,2,layer)
         !    enddo
         !    
-        !    t(4,number_of_layers,number_of_en)=&
-        !        -t(1,number_of_layers,number_of_en)*S(1,1,2)&
-        !        -t(2,number_of_layers,number_of_en)*S(1,2,2)&
-        !        -t(3,number_of_layers,number_of_en)*S(1,3,2)&
-        !        -t(5,number_of_layers,number_of_en)*S(1,5,2)&
-        !        -t(6,number_of_layers,number_of_en)*S(1,6,2)
-        !    t(4,number_of_layers,number_of_en)=t(4,number_of_layers,number_of_en)/S(1,4,2)
-        !    t(5,number_of_layers,number_of_en)=&
-        !        -t(1,number_of_layers,number_of_en)*S(2,1,2)&
-        !        -t(2,number_of_layers,number_of_en)*S(2,2,2)&
-        !        -t(3,number_of_layers,number_of_en)*S(2,3,2)&
-        !        -t(4,number_of_layers,number_of_en)*S(2,4,2)&
-        !        -t(6,number_of_layers,number_of_en)*S(2,6,2)
-        !    t(5,number_of_layers,number_of_en)=t(5,number_of_layers,number_of_en)/S(2,5,2)
-        !    t(6,number_of_layers,number_of_en)=&
-        !        -t(1,number_of_layers,number_of_en)*S(3,1,2)&
-        !        -t(2,number_of_layers,number_of_en)*S(3,2,2)&
-        !        -t(3,number_of_layers,number_of_en)*S(3,3,2)&
-        !        -t(4,number_of_layers,number_of_en)*S(3,4,2)&
-        !        -t(5,number_of_layers,number_of_en)*S(3,5,2)
-        !    t(6,number_of_layers,number_of_en)=t(6,number_of_layers,number_of_en)/S(3,6,2)
+        !    t(4,get_number_of_layers(),number_of_en)=&
+        !        -t(1,get_number_of_layers(),number_of_en)*S(1,1,2)&
+        !        -t(2,get_number_of_layers(),number_of_en)*S(1,2,2)&
+        !        -t(3,get_number_of_layers(),number_of_en)*S(1,3,2)&
+        !        -t(5,get_number_of_layers(),number_of_en)*S(1,5,2)&
+        !        -t(6,get_number_of_layers(),number_of_en)*S(1,6,2)
+        !    t(4,get_number_of_layers(),number_of_en)=t(4,get_number_of_layers(),number_of_en)/S(1,4,2)
+        !    t(5,get_number_of_layers(),number_of_en)=&
+        !        -t(1,get_number_of_layers(),number_of_en)*S(2,1,2)&
+        !        -t(2,get_number_of_layers(),number_of_en)*S(2,2,2)&
+        !        -t(3,get_number_of_layers(),number_of_en)*S(2,3,2)&
+        !        -t(4,get_number_of_layers(),number_of_en)*S(2,4,2)&
+        !        -t(6,get_number_of_layers(),number_of_en)*S(2,6,2)
+        !    t(5,get_number_of_layers(),number_of_en)=t(5,get_number_of_layers(),number_of_en)/S(2,5,2)
+        !    t(6,get_number_of_layers(),number_of_en)=&
+        !        -t(1,get_number_of_layers(),number_of_en)*S(3,1,2)&
+        !        -t(2,get_number_of_layers(),number_of_en)*S(3,2,2)&
+        !        -t(3,get_number_of_layers(),number_of_en)*S(3,3,2)&
+        !        -t(4,get_number_of_layers(),number_of_en)*S(3,4,2)&
+        !        -t(5,get_number_of_layers(),number_of_en)*S(3,5,2)
+        !    t(6,get_number_of_layers(),number_of_en)=t(6,get_number_of_layers(),number_of_en)/S(3,6,2)
         !    
         !    norm_last=norm_current
         !    norm_current=0d0
-        !    do i=1,number_of_layers
+        !    do i=1,get_number_of_layers()
         !        do j=1,6
         !            if(norm_current<abs(t(j,i,number_of_en))) then
         !                norm_current=abs(t(j,i,number_of_en))
@@ -552,7 +556,7 @@ implicit none
         !    !    enddo
         !    !enddo
         !    !print*
-        !    !do layer=1,number_of_layers-1
+        !    !do layer=1,get_number_of_layers()-1
         !    !    do i=1,6
         !    !        do j=1,6
         !    !            print*,C(i,j,1,layer)
@@ -573,7 +577,7 @@ implicit none
         !    !enddo
         !    !print*
         !    !
-        !    !do layer=1,number_of_layers
+        !    !do layer=1,get_number_of_layers()
         !    !    do i=1,6
         !    !        print*,t(i,layer,number_of_en)
         !    !    enddo
@@ -584,12 +588,12 @@ implicit none
         !enddo
     endsubroutine solve_matrics_system
     subroutine generate_summary_matrix_A()
-    use main_parameters,only:number_of_layers
+    use main_parameters,only:get_number_of_layers
     implicit none
         integer(4) i,j,layer
         
-        do i=1,number_of_layers*6
-            do j=1,number_of_layers*6
+        do i=1,get_number_of_layers()*6
+            do j=1,get_number_of_layers()*6
                     A(i,j)=0d0
             enddo
         enddo
@@ -599,7 +603,7 @@ implicit none
                 A(i,j)=S(i,j,1)
             enddo
         enddo
-        do layer=1,number_of_layers-1
+        do layer=1,get_number_of_layers()-1
             do i=1,6
                 do j=1,6
                     A(3+(layer-1)*6+i,6*(layer-1)+j)=C(i,j,1,layer)
@@ -609,16 +613,17 @@ implicit none
         enddo
         do i=1,3
             do j=1,6
-                A(number_of_layers*6-3+i,number_of_layers*6-6+j)=S(i,j,2)
+                A(get_number_of_layers()*6-3+i,get_number_of_layers()*6-6+j)=S(i,j,2)
             enddo
         enddo
     endsubroutine generate_summary_matrix_A
     
     subroutine generate_matrics_isotropic(alpha,beta,number_of_en)
-    use main_parameters,only:number_of_layers,lambda,mu,h,get_anisotropic,&
+    use main_parameters,only:get_number_of_layers,&
+        lambda=>get_layer_lambda,mu=>get_layer_mu,h=>get_Layer_h,&
         get_down_border_condition_type,&
-        get_down_border_condition_type_fixed_border,get_down_border_condition_type_free_border,&
-        get_down_border_condition_type_halfspace
+        down_border_condition_type_fixed_border,down_border_condition_type_free_border,&
+        down_border_condition_type_halfspace
     use sigma_and_eigenvectors,only:get_sigma,get_eigenvector_component
     use system,only:print_error
     use math,only:ci
@@ -640,7 +645,7 @@ implicit none
         !complex(8),allocatable::YC(:,:,:,:)!i,j,position(1~left,2~right),number_of_up_layer_for_border
         !complex(8),allocatable::YF(:)
         
-        do i=1,4*number_of_layers
+        do i=1,4*get_number_of_layers()
             YF(i)=0d0
         enddo
         if(number_of_en==1) then
@@ -682,7 +687,7 @@ implicit none
         !YS(2,3,1)=YS(2,3,1)*exp(sigma2*0d0)
         YS(2,4,1)=YS(2,4,1)*exp(-sigma2*h(1))
         
-        do layer=1,number_of_layers-1
+        do layer=1,get_number_of_layers()-1
             do j=1,4
                 sigma1=get_sigma(alpha,beta,1,number_of_layer=layer)
                 sigma2=get_sigma(alpha,beta,3,number_of_layer=layer)
@@ -804,61 +809,61 @@ implicit none
             YC(4,4,2,layer)=YC(4,4,2,layer)*exp(-sigma2*h(layer+1))
         enddo
         
-        sigma1=get_sigma(alpha,beta,1,number_of_layer=number_of_layers)
-        sigma2=get_sigma(alpha,beta,3,number_of_layer=number_of_layers)
-        if(get_down_border_condition_type()==get_down_border_condition_type_fixed_border()) then
+        sigma1=get_sigma(alpha,beta,1,number_of_layer=get_number_of_layers())
+        sigma2=get_sigma(alpha,beta,3,number_of_layer=get_number_of_layers())
+        if(get_down_border_condition_type()==down_border_condition_type_fixed_border()) then
             do j=1,4
                 YS(1,j,2)=&
-                    +get_eigenvector_component(alpha,beta,number_of_sigma=j,index=1,number_of_layer=number_of_layers)
+                    +get_eigenvector_component(alpha,beta,number_of_sigma=j,index=1,number_of_layer=get_number_of_layers())
                 YS(2,j,2)=&
-                    +get_eigenvector_component(alpha,beta,number_of_sigma=j,index=3,number_of_layer=number_of_layers)
+                    +get_eigenvector_component(alpha,beta,number_of_sigma=j,index=3,number_of_layer=get_number_of_layers())
                 
                 !YS(1,j,2)=&
-                !    +get_eigenvector_component(alpha,beta,number_of_sigma=j,index=1,number_of_layer=number_of_layers)
+                !    +get_eigenvector_component(alpha,beta,number_of_sigma=j,index=1,number_of_layer=get_number_of_layers())
                 !YS(2,j,2)=&
-                !    +get_eigenvector_component(alpha,beta,number_of_sigma=j,index=5,number_of_layer=number_of_layers)
+                !    +get_eigenvector_component(alpha,beta,number_of_sigma=j,index=5,number_of_layer=get_number_of_layers())
             enddo
-        elseif(get_down_border_condition_type()==get_down_border_condition_type_free_border()) then
+        elseif(get_down_border_condition_type()==down_border_condition_type_free_border()) then
             div_mul(1)=sigma1
             div_mul(2)=-sigma1
             div_mul(3)=sigma2
             div_mul(4)=-sigma2
             do j=1,4
                 YS(1,j,2)=&
-                    -lambda(number_of_layers)*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=1,number_of_layer=number_of_layers)&
-                    +(lambda(number_of_layers)+mu(number_of_layers)+mu(number_of_layers))*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=3,number_of_layer=number_of_layers)*div_mul(j)
+                    -lambda(get_number_of_layers())*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=1,number_of_layer=get_number_of_layers())&
+                    +(lambda(get_number_of_layers())+mu(get_number_of_layers())+mu(get_number_of_layers()))*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=3,number_of_layer=get_number_of_layers())*div_mul(j)
                 YS(2,j,2)=&
-                    -ci*mu(number_of_layers)*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=1,number_of_layer=number_of_layers)*div_mul(j)&
-                    -ci*mu(number_of_layers)*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=3,number_of_layer=number_of_layers)
+                    -ci*mu(get_number_of_layers())*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=1,number_of_layer=get_number_of_layers())*div_mul(j)&
+                    -ci*mu(get_number_of_layers())*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=3,number_of_layer=get_number_of_layers())
                 
                 !YS(1,j,2)=&
-                !    -lambda(number_of_layers)*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=1,number_of_layer=number_of_layers)&
-                !    +(lambda(number_of_layers)+mu(number_of_layers)+mu(number_of_layers))*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=6,number_of_layer=number_of_layers)
+                !    -lambda(get_number_of_layers())*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=1,number_of_layer=get_number_of_layers())&
+                !    +(lambda(get_number_of_layers())+mu(get_number_of_layers())+mu(get_number_of_layers()))*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=6,number_of_layer=get_number_of_layers())
                 !YS(2,j,2)=&
-                !    -ci*mu(number_of_layers)*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=2,number_of_layer=number_of_layers)&
-                !    -ci*mu(number_of_layers)*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=5,number_of_layer=number_of_layers)
+                !    -ci*mu(get_number_of_layers())*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=2,number_of_layer=get_number_of_layers())&
+                !    -ci*mu(get_number_of_layers())*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=j,index=5,number_of_layer=get_number_of_layers())
             enddo
-        elseif(get_down_border_condition_type()==get_down_border_condition_type_halfspace()) then
+        elseif(get_down_border_condition_type()==down_border_condition_type_halfspace()) then
             YS(1,2,2)=1d0
             YS(2,4,2)=1d0
         else
             call print_error("count_K.generate_matrics_isotropic","a current get_down_border_condition_type for isotropic is not supported yet")
         endif
-        YS(1,1,2)=YS(1,1,2)*exp(-sigma1*h(number_of_layers))
+        YS(1,1,2)=YS(1,1,2)*exp(-sigma1*h(get_number_of_layers()))
         !YS(1,2,2)=YS(1,2,2)*exp(-sigma1*0d0)
-        YS(1,3,2)=YS(1,3,2)*exp(-sigma2*h(number_of_layers))
+        YS(1,3,2)=YS(1,3,2)*exp(-sigma2*h(get_number_of_layers()))
         !YS(1,4,2)=YS(1,4,2)*exp(-sigma2*0d0)
-        YS(2,1,2)=YS(2,1,2)*exp(-sigma1*h(number_of_layers))
+        YS(2,1,2)=YS(2,1,2)*exp(-sigma1*h(get_number_of_layers()))
         !YS(2,2,2)=YS(2,2,2)*exp(-sigma1*0d0)
-        YS(2,3,2)=YS(2,3,2)*exp(-sigma2*h(number_of_layers))
+        YS(2,3,2)=YS(2,3,2)*exp(-sigma2*h(get_number_of_layers()))
         !YS(2,4,2)=YS(2,4,2)*exp(-sigma2*0d0)
         
-        !complex(8),allocatable::Xt(:,:,:)!number_of_t_for_layer,number_of_layers,number_of_en
+        !complex(8),allocatable::Xt(:,:,:)!number_of_t_for_layer,get_number_of_layers(),number_of_en
         !complex(8),save::XS(1,2,2)!i,j,layer(1~up,2~down)
         !complex(8),allocatable::XC(:,:,:,:)!i,j,position(1~left,2~right),number_of_up_layer_for_border
         !complex(8),allocatable::XF(:)
         
-        do i=1,2*number_of_layers
+        do i=1,2*get_number_of_layers()
             XF(i)=0d0
         enddo
         if(number_of_en==1) then
@@ -882,7 +887,7 @@ implicit none
         !XS(1,1,1)=XS(1,1,1)*exp(sigma2*0d0)
         XS(1,2,1)=XS(1,2,1)*exp(-sigma2*h(1))
         
-        do layer=1,number_of_layers-1
+        do layer=1,get_number_of_layers()-1
             do j=1,2
                 sigma2=get_sigma(alpha,beta,3,number_of_layer=layer)
                 div_mul(1)=sigma2
@@ -941,34 +946,34 @@ implicit none
             XC(2,2,2,layer)=XC(2,2,2,layer)*exp(-sigma2*h(layer+1))
         enddo
         
-        sigma2=get_sigma(alpha,beta,3,number_of_layer=number_of_layers)
-        if(get_down_border_condition_type()==get_down_border_condition_type_fixed_border()) then
+        sigma2=get_sigma(alpha,beta,3,number_of_layer=get_number_of_layers())
+        if(get_down_border_condition_type()==down_border_condition_type_fixed_border()) then
             do j=1,2
                 XS(1,j,2)=&
-                    +get_eigenvector_component(alpha,beta,number_of_sigma=4+j,index=2,number_of_layer=number_of_layers)
+                    +get_eigenvector_component(alpha,beta,number_of_sigma=4+j,index=2,number_of_layer=get_number_of_layers())
                 
                 !XS(1,j,2)=&
-                !    +get_eigenvector_component(alpha,beta,number_of_sigma=4+j,index=3,number_of_layer=number_of_layers)
+                !    +get_eigenvector_component(alpha,beta,number_of_sigma=4+j,index=3,number_of_layer=get_number_of_layers())
             enddo
-        elseif(get_down_border_condition_type()==get_down_border_condition_type_free_border()) then
+        elseif(get_down_border_condition_type()==down_border_condition_type_free_border()) then
             div_mul(1)=sigma2
             div_mul(2)=-sigma2
             do j=1,2
                 XS(1,j,2)=&
-                    ci*mu(number_of_layers)*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=4+j,index=2,number_of_layer=number_of_layers)*div_mul(j)
+                    ci*mu(get_number_of_layers())*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=4+j,index=2,number_of_layer=get_number_of_layers())*div_mul(j)
                 !XS(1,j,2)=&
-                !    ci*mu(number_of_layers)*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=4+j,index=4,number_of_layer=number_of_layers)
+                !    ci*mu(get_number_of_layers())*alpha2*get_eigenvector_component(alpha,beta,number_of_sigma=4+j,index=4,number_of_layer=get_number_of_layers())
             enddo
-        elseif(get_down_border_condition_type()==get_down_border_condition_type_halfspace()) then
+        elseif(get_down_border_condition_type()==down_border_condition_type_halfspace()) then
             XS(1,2,2)=1d0
         else
             call print_error("count_K.generate_matrics_isotropic","a current get_down_border_condition_type for isotropic is not supported yet")
         endif
-        XS(1,1,2)=XS(1,1,2)*exp(-sigma2*h(number_of_layers))
+        XS(1,1,2)=XS(1,1,2)*exp(-sigma2*h(get_number_of_layers()))
         !XS(1,2,2)=XS(1,2,2)*exp(-sigma20d0)
     endsubroutine generate_matrics_isotropic
     subroutine solve_matrics_system_isotropic(number_of_en)
-    use main_parameters,only:number_of_layers,get_anisotropic
+    use main_parameters,only:get_number_of_layers
     use linear_system,only:star5_
     use system,only:print_error
     implicit none
@@ -978,7 +983,7 @@ implicit none
         
         if(number_of_en<1.or.number_of_en>3) call print_error("count_K.solve_matrics_system_isotropic","number_of_en<1.or.number_of_en>3")
         
-        do i=1,number_of_layers*4
+        do i=1,get_number_of_layers()*4
             BY(i,1)=YF(i)
         enddo
         
@@ -987,14 +992,14 @@ implicit none
         call star5_(AY,BY)
         
         j=1
-        do layer=1,number_of_layers
+        do layer=1,get_number_of_layers()
             do i=1,4
                 Yt(i,layer,number_of_en)=BY(j,1)
                 j=j+1
             enddo
         enddo
         
-        do i=1,number_of_layers*2
+        do i=1,get_number_of_layers()*2
             BX(i,1)=XF(i)
         enddo
         
@@ -1003,7 +1008,7 @@ implicit none
         call star5_(AX,BX)
         
         j=1
-        do layer=1,number_of_layers
+        do layer=1,get_number_of_layers()
             do i=1,2
                 Xt(i,layer,number_of_en)=BX(j,1)
                 j=j+1
@@ -1011,12 +1016,12 @@ implicit none
         enddo
     endsubroutine solve_matrics_system_isotropic
     subroutine generate_summary_matrix_AY()
-    use main_parameters,only:number_of_layers
+    use main_parameters,only:get_number_of_layers
     implicit none
         integer(4) i,j,layer
         
-        do i=1,number_of_layers*4
-            do j=1,number_of_layers*4
+        do i=1,get_number_of_layers()*4
+            do j=1,get_number_of_layers()*4
                 AY(i,j)=0d0
             enddo
         enddo
@@ -1026,7 +1031,7 @@ implicit none
                 AY(i,j)=YS(i,j,1)
             enddo
         enddo
-        do layer=1,number_of_layers-1
+        do layer=1,get_number_of_layers()-1
             do i=1,4
                 do j=1,4
                     AY(2+(layer-1)*4+i,4*(layer-1)+j)=YC(i,j,1,layer)
@@ -1036,17 +1041,17 @@ implicit none
         enddo
         do i=1,2
             do j=1,4
-                AY(number_of_layers*4-2+i,number_of_layers*4-4+j)=YS(i,j,2)
+                AY(get_number_of_layers()*4-2+i,get_number_of_layers()*4-4+j)=YS(i,j,2)
             enddo
         enddo
     endsubroutine generate_summary_matrix_AY
     subroutine generate_summary_matrix_AX()
-    use main_parameters,only:number_of_layers
+    use main_parameters,only:get_number_of_layers
     implicit none
         integer(4) i,j,layer
         
-        do i=1,number_of_layers*2
-            do j=1,number_of_layers*2
+        do i=1,get_number_of_layers()*2
+            do j=1,get_number_of_layers()*2
                 AX(i,j)=0d0
             enddo
         enddo
@@ -1056,7 +1061,7 @@ implicit none
                 AX(i,j)=XS(i,j,1)
             enddo
         enddo
-        do layer=1,number_of_layers-1
+        do layer=1,get_number_of_layers()-1
             do i=1,2
                 do j=1,2
                     AX(1+(layer-1)*2+i,2*(layer-1)+j)=XC(i,j,1,layer)
@@ -1066,7 +1071,7 @@ implicit none
         enddo
         do i=1,1
             do j=1,2
-                AX(number_of_layers*2-1+i,number_of_layers*2-2+j)=XS(i,j,2)
+                AX(get_number_of_layers()*2-1+i,get_number_of_layers()*2-2+j)=XS(i,j,2)
             enddo
         enddo
     endsubroutine generate_summary_matrix_AX
@@ -1074,7 +1079,7 @@ implicit none
     
     
     complex(8) function get_det_A(alpha,beta,number_of_en) result(f)
-    use main_parameters,only:number_of_layers,get_anisotropic
+    use main_parameters,only:get_number_of_layers,get_anisotropic_type,material_isotropic_type
     use matrix_complex8,only:det
     use system,only:print_error
     implicit none
@@ -1083,15 +1088,16 @@ implicit none
         integer(4),intent(in)::number_of_en
         
         if(number_of_en<1.or.number_of_en>3) call print_error("count_K.get_det_A","number_of_en<1.or.number_of_en>3")
-        if(get_anisotropic()==0) call print_error("count_K.get_det_A","get_anisotropic()==0")
+        if(get_anisotropic_type()==material_isotropic_type()) &
+            call print_error("count_K.get_det_A","get_anisotropic_type()==material_isotropic_type()")
         
         call generate_matrics(alpha,beta,number_of_en)
         call generate_summary_matrix_A()
         
-        f=det(A,6*number_of_layers)
+        f=det(A,6*get_number_of_layers())
     endfunction get_det_A
     complex(8) function get_det_AY(alpha,beta,number_of_en) result(f)
-    use main_parameters,only:number_of_layers,get_anisotropic
+    use main_parameters,only:get_number_of_layers,get_anisotropic_type,material_anisotropic_type
     use matrix_complex8,only:det
     use system,only:print_error
     implicit none
@@ -1100,15 +1106,16 @@ implicit none
         integer(4),intent(in)::number_of_en
         
         if(number_of_en<1.or.number_of_en>3) call print_error("count_K.get_det_AY","number_of_en<1.or.number_of_en>3")
-        if(get_anisotropic()==1) call print_error("count_K.get_det_AY","get_anisotropic()==1")
+        if(get_anisotropic_type()==material_anisotropic_type()) &
+            call print_error("count_K.get_det_AY","get_anisotropic_type()==material_anisotropic_type()")
         
         call generate_matrics(alpha,beta,number_of_en)
         call generate_summary_matrix_AY()
         
-        f=det(AY,4*number_of_layers)
+        f=det(AY,4*get_number_of_layers())
     endfunction get_det_AY
     complex(8) function get_det_AX(alpha,beta,number_of_en) result(f)
-    use main_parameters,only:number_of_layers,get_anisotropic
+    use main_parameters,only:get_number_of_layers,get_anisotropic_type,material_anisotropic_type
     use matrix_complex8,only:det
     use system,only:print_error
     implicit none
@@ -1117,46 +1124,47 @@ implicit none
         integer(4),intent(in)::number_of_en
         
         if(number_of_en<1.or.number_of_en>3) call print_error("count_K.get_det_AX","number_of_en<1.or.number_of_en>3")
-        if(get_anisotropic()==1) call print_error("count_K.get_det_AX","get_anisotropic()==1")
+        if(get_anisotropic_type()==material_anisotropic_type()) &
+            call print_error("count_K.get_det_AX","get_anisotropic_type()==material_anisotropic_type()")
         
         call generate_matrics(alpha,beta,number_of_en)
         call generate_summary_matrix_AX()
         
-        f=det(AX,2*number_of_layers)
+        f=det(AX,2*get_number_of_layers())
     endfunction get_det_AX
     
     
     
     subroutine init_count_K()
-    use main_parameters,only:number_of_layers,get_anisotropic
+    use main_parameters,only:get_number_of_layers,get_anisotropic_type,material_isotropic_type
     implicit none
-        if(get_anisotropic()==0) then
-            allocate(Yt(4,number_of_layers,3))
-            allocate(YC(4,4,2,number_of_layers-1))
-            allocate(YF(4*number_of_layers))
-            allocate(Xt(2,number_of_layers,3))
-            allocate(XC(2,2,2,number_of_layers-1))
-            allocate(XF(2*number_of_layers))
+        if(get_anisotropic_type()==material_isotropic_type()) then
+            allocate(Yt(4,get_number_of_layers(),3))
+            allocate(YC(4,4,2,get_number_of_layers()-1))
+            allocate(YF(4*get_number_of_layers()))
+            allocate(Xt(2,get_number_of_layers(),3))
+            allocate(XC(2,2,2,get_number_of_layers()-1))
+            allocate(XF(2*get_number_of_layers()))
             
             !todo delete
-            allocate(AY(number_of_layers*4,number_of_layers*4))
-            allocate(BY(number_of_layers*4,1))
-            allocate(AX(number_of_layers*2,number_of_layers*2))
-            allocate(BX(number_of_layers*2,1))
+            allocate(AY(get_number_of_layers()*4,get_number_of_layers()*4))
+            allocate(BY(get_number_of_layers()*4,1))
+            allocate(AX(get_number_of_layers()*2,get_number_of_layers()*2))
+            allocate(BX(get_number_of_layers()*2,1))
         else
-            allocate(t(6,number_of_layers,3))
-            allocate(C(6,6,2,number_of_layers-1))
-            allocate(F(number_of_layers*6))
+            allocate(t(6,get_number_of_layers(),3))
+            allocate(C(6,6,2,get_number_of_layers()-1))
+            allocate(F(get_number_of_layers()*6))
             
             !todo delete
-            allocate(A(number_of_layers*6,number_of_layers*6))
-            allocate(B(number_of_layers*6,1))
+            allocate(A(get_number_of_layers()*6,get_number_of_layers()*6))
+            allocate(B(get_number_of_layers()*6,1))
         endif
     endsubroutine init_count_K
     subroutine destructor_count_K()
-    use main_parameters,only:get_anisotropic
+    use main_parameters,only:get_anisotropic_type,material_isotropic_type
     implicit none
-        if(get_anisotropic()==0) then
+        if(get_anisotropic_type()==material_isotropic_type()) then
             deallocate(Yt)
             deallocate(YC)
             deallocate(YF)

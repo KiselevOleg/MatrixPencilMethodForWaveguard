@@ -13,7 +13,7 @@ implicit none
     contains
     
     subroutine count_poles(phi,number_of_en,res_max_size,res,res_size)
-    use main_parameters,only:get_anisotropic
+    use main_parameters,only:get_anisotropic_type,material_isotropic_type
     use system,only:print_error
     use math,only:pi
     implicit none
@@ -32,7 +32,7 @@ implicit none
         if(number_of_en<1.or.number_of_en>3) call print_error("dispersion_curves_for_K.count_poles","number_of_en<1.or.number_of_en>3")
         if(res_max_size<1) call print_error("dispersion_curves_for_K.count_poles","res_max_size<1")
         
-        if(get_anisotropic()==0) then
+        if(get_anisotropic_type()==material_isotropic_type()) then
             call count_poles_for_matrix_real_poles(in_f_with_AY,phi,number_of_en,res_max_size,res,res_size)
             call count_poles_for_matrix_real_poles(in_f_with_AX,phi,number_of_en,res_max_size,res_AX,res_AX_size)
             if(res_AX_size==res_max_size) then
@@ -84,7 +84,7 @@ implicit none
     endsubroutine count_poles_for_matrix_real_poles
     
     subroutine count_complex_poles(phi,number_of_en,res_max_size,res,res_size)
-    use main_parameters,only:get_anisotropic
+    use main_parameters,only:get_anisotropic_type,material_isotropic_type
     use count_K,only:K
     use system,only:print_error
     use math,only:pi
@@ -105,7 +105,7 @@ implicit none
         if(number_of_en<1.or.number_of_en>3) call print_error("dispersion_curves_for_K.count_complex_poles","number_of_en<1.or.number_of_en>3")
         if(res_max_size<1) call print_error("dispersion_curves_for_K.count_complex_poles","res_max_size<1")
         
-        if(get_anisotropic()==0) then
+        if(get_anisotropic_type()==material_isotropic_type()) then
             call count_poles_for_matrix_complex_poles(in_f_with_AY,phi,number_of_en,res_max_size,res,res_size)
             call count_poles_for_matrix_complex_poles(in_f_with_AX,phi,number_of_en,res_max_size,res_AX,res_AX_size)
             if(res_AX_size==res_max_size) then

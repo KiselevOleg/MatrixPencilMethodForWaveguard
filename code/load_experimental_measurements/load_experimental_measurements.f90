@@ -20,17 +20,26 @@ implicit none
     private::is_dt_const,is_dx_const,dt_max_difference_for_be_const,dx_max_difference_for_be_const
     contains
     
-    subroutine init_load_experimental_measurements
+    subroutine init_load_experimental_measurements(&
+        x_file_name_length,x_file_name,&
+        t_file_name_length,t_file_name,&
+        u_file_name_length,u_file_name)
     use smoothing_signal,only:arithmetic_mean_smoothing
     implicit none
+        integer(4),intent(in)::x_file_name_length
+        character(len=x_file_name_length),intent(in)::x_file_name
+        integer(4),intent(in)::t_file_name_length
+        character(len=x_file_name_length),intent(in)::t_file_name
+        integer(4),intent(in)::u_file_name_length
+        character(len=x_file_name_length),intent(in)::u_file_name
+        
         integer(4) file
         
         integer(4) i,j
         real(8) v
         real(8),allocatable::signal(:)
         
-        !open(newunit=file,file="input/Al/_x.data")
-        open(newunit=file,file="input/glass/x.data")
+        open(newunit=file,file=x_file_name)
         read(file,*),Nx
         allocate(x(Nx))
         do i=1,Nx
@@ -39,9 +48,7 @@ implicit none
         enddo
         close(file)
         
-        !open(newunit=file,file="input/Al/_t.data")
-        !open(newunit=file,file="input/glass/t.data")
-        open(newunit=file,file="input/glass/t_smoothing.data")
+        open(newunit=file,file=t_file_name)
         read(file,*),Nt
         allocate(t(Nt))
         do j=1,Nt
@@ -50,9 +57,7 @@ implicit none
         enddo
         close(file)
         
-        !open(newunit=file,file="input/Al/_u.data")
-        !open(newunit=file,file="input/glass/u.data")
-        open(newunit=file,file="input/glass/u_smoothing.data")
+        open(newunit=file,file=u_file_name)
         allocate(u(Nx,Nt))
         do i=1,Nx
             do j=1,Nt
