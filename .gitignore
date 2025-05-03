@@ -797,4 +797,5 @@ FodyWeavers.xsd
 *.gz
 *.aux
 log.txt
+!compiled/**
 

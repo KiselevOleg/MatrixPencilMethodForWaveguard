@@ -1,11 +1,14 @@
 clear all;
 
-A=load('dispersion_curve.data');
+%A=load('dispersion_curve.data');
 %A=load('dispersion_curve_experimental.data');
 %A=load('dispersion_curve_2dx_2dL_filter_glass_L=40_full_f_smoothing.data');
 %A=load('dispersion_curvedispersion_curve_2dx_2dL_filter_glass_L=40_large_f.data');
 %A=load('dispersion_curve_2dx_2dL_filter_glass_L=40_full_f.data');
 %A=load('dispersion_curve_2dx_2dL_filter_glass_L=40.data');
+A=load('dispersion_curves.data');
+%A=load('dispersion_curves_dx_filter=           0 dL_filter=           1 .data');
+%A=load('dispersion_curves_dx_filter=           0 dL_filter=           0 .data');
 plot(A(:,1),A(:,2),'ob');
 hold('on');
 plot(A(:,1),A(:,3),'.r');

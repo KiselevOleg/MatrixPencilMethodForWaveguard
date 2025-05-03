@@ -86,11 +86,9 @@ implicit none
         call set_layer_h(1,0.272d0)
         call set_layer_rho(1,2.47895000000000d0)
         
-        call set_layer_E_nu(1,0.66d0+c0,0.23d0)
-        
-        call set_layer_h(1,0.3d0)
-        call set_layer_rho(1,0.5d0)
-        call set_layer_Cp_Cs(1,0.5d0+c0,0.31d0+c0)
+        call set_layer_Cp_Cs(1,0.568992104327976d0+c0,0.334608586360528d0+C0)
+        !call set_layer_Cp_Cs(1,0.593153997273824d0+c0,0.334608586360528d0+C0)
+        !call set_layer_Cp_Cs(1,0.9d0+c0,0.334608586360528d0+C0)
         
         if(.not.check_correct_completing_parameters_establishment_throwable()) call end_program_pause()
         
