@@ -20,11 +20,11 @@ implicit none
         call init_count_K
         call init_integral_solution
         call init_integral_solution_isotropic
-        call init_load_experimental_measurements(&
-            len(trim(get_x_file_name())),trim(get_x_file_name()),&
-            len(trim(get_t_file_name())),trim(get_t_file_name()),&
-            len(trim(get_u_file_name())),trim(get_u_file_name())&
-        )
+        !call init_load_experimental_measurements(&
+        !    len(trim(get_x_file_name())),trim(get_x_file_name()),&
+        !    len(trim(get_t_file_name())),trim(get_t_file_name()),&
+        !    len(trim(get_u_file_name())),trim(get_u_file_name())&
+        !)
         call init_matrix_pencil_method
         call init_matrix_pencil_method_basis
     endsubroutine init
@@ -73,6 +73,10 @@ implicit none
     use math,only:c0
     use system,only:end_program_pause
     implicit none
+        integer(4) number_of_layers
+        real(8) h,rho,Cp,Cs
+        integer(4) layer,file
+        
         call set_anisotropic_type(material_isotropic_type())
         
         call set_down_border_condition_type(down_border_condition_type_free_border())
@@ -81,12 +85,21 @@ implicit none
         call set_Q(Q)
         call set_Qomega(Qomega)
         
-        call set_number_of_layers(1)
+        open(newunit=file,file="layer_parameters.txt", status="old", action="read")
+        read(file,*),number_of_layers
+        call set_number_of_layers(number_of_layers)
         
-        call set_layer_h(1,0.282d0)
-        call set_layer_rho(1,2.419d0)
-        
-        call set_layer_E_nu(1,0.678d0+c0,0.234d0)
+        do layer=1,number_of_layers
+            read(file,*),h
+            call set_layer_h(layer,h)
+            read(file,*),rho
+            call set_layer_rho(layer,rho)
+            
+            read(file,*),Cp
+            read(file,*),Cs
+            call set_layer_Cp_Cs(layer,Cp+c0,Cs+c0)
+        enddo
+        close(file)
         
         if(.not.check_correct_completing_parameters_establishment_throwable()) call end_program_pause()
         
@@ -134,29 +147,32 @@ implicit none
         integer(4) file
         character(len=1024) path
         
-        open(newunit=file, file="get_x_file_name.txt", status="old", action="read")
-        read(file,*),path
-        f=path
-        close(file)
+        !open(newunit=file, file="get_x_file_name.txt", status="old", action="read")
+        !read(file,*),path
+        !f=path
+        !close(file)
+        f=""
     endfunction get_x_file_name
     character(len=1024) function get_t_file_name() result(f)
     implicit none
         integer(4) file
         character(len=1024) path
         
-        open(newunit=file, file="get_t_file_name.txt", status="old", action="read")
-        read(file,*),path
-        f=path
-        close(file)
+        !open(newunit=file, file="get_t_file_name.txt", status="old", action="read")
+        !read(file,*),path
+        !f=path
+        !close(file)
+        f=""
     endfunction get_t_file_name
     character(len=1024) function get_u_file_name() result(f)
     implicit none
         integer(4) file
         character(len=1024) path
         
-        open(newunit=file, file="get_u_file_name.txt", status="old", action="read")
-        read(file,*),path
-        f=path
-        close(file)
+        !open(newunit=file, file="get_u_file_name.txt", status="old", action="read")
+        !read(file,*),path
+        !f=path
+        !close(file)
+        f=""
     endfunction get_u_file_name
 endmodule pre_and_post_runtime_actions

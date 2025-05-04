@@ -337,14 +337,23 @@ implicit none
         
         integer(4) i
         
+        character(len=64) result_path
         integer(4) file
         
         res_size_max=100;
-        omega_start=1d-1; domega=0.05d0; omega_end=12.499d0*1.5d0
+        !omega_start=1d-1; domega=0.05d0; omega_end=12.499d0*1.5d0*2d0
+        open(newunit=file,file="omega.txt", status="old", action="read")
+        read(file,*),omega_start
+        read(file,*),domega
+        read(file,*),omega_end
+        close(file)
         
         phi=0d0
         
-        open(newunit=file,file="graphics/distersion_curve_for_K/dispersion_curves.data")
+        open(newunit=file,file="result_path.txt", status="old", action="read")
+        read(file,*),result_path
+        close(file)
+        open(newunit=file,file=result_path)
         do omega=omega_start,omega_end,domega
             call set_omega(omega)
             call count_poles(phi,3,res_size_max,res,res_size)
