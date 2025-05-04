@@ -1,1 +1,0 @@
-.\restoring_parameters.data

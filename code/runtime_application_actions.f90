@@ -56,8 +56,8 @@ implicit none
             read(file,*),parameters_layer(parameter_number)
             read(file,*),parameters_type(parameter_number)
             read(file,*),parameters_min(parameter_number)
-            read(file,*),parameters_max(parameter_number)
             read(file,*),dparameters(parameter_number)
+            read(file,*),parameters_max(parameter_number)
         enddo
         
         close(file)
