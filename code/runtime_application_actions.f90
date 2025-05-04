@@ -66,7 +66,7 @@ implicit none
         allocate(res(res_max_size,parameters_for_detect_size))
         allocate(res_value_of_right(res_max_size))
         
-        call find_material_properties(dispersion_curves_size,dispersion_curves,.true.,&
+        call find_material_properties(dispersion_curves_size,dispersion_curves,.false.,&
             parameters_for_detect_size,parameters_layer,parameters_type,parameters_min,parameters_max,dparameters,&
             res_max_size,res,res_value_of_right,res_size)
         
