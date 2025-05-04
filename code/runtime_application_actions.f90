@@ -21,19 +21,20 @@ implicit none
         real(8),allocatable::res(:,:)
         real(8),allocatable::res_value_of_right(:)
         
+        character(len=64) result_path,input_dispersion_curvespoints_path
+        integer(4) parameter_number
+        
         integer(4) file
         integer(4) i,j
         
-        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental_extended.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/55000/with_first_points/accurate/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves2.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/Al_new_experimental_dispersion_curves/2000/dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/matrix_pencil_method_result/Al_new_new_experimental_dispersion_curves/many_points/dispersion_curve_experimental.data")
-        open(newunit=file,file="input/matrix_pencil_method_result/Al_new_new_experimental_dispersion_curves/quality_points/dispersion_curve_experimental.data")
+        open(newunit=file,file="result_path.txt", status="old", action="read")
+        read(file,*),result_path
+        close(file)
+        open(newunit=file,file="input_dispersion_curvespoints_path.txt", status="old", action="read")
+        read(file,*),input_dispersion_curvespoints_path
+        close(file)
+        
+        open(newunit=file,file=input_dispersion_curvespoints_path)
         read(file,*),dispersion_curves_size
         allocate(dispersion_curves(dispersion_curves_size,2))
         do i=1,dispersion_curves_size
@@ -42,18 +43,24 @@ implicit none
         enddo
         close(file)
         
-        parameters_for_detect_size=2
+        open(newunit=file,file="restoring_parameters.txt", status="old", action="read")
+        
+        read(file,*),parameters_for_detect_size
         allocate(parameters_layer(parameters_for_detect_size))
         allocate(parameters_type(parameters_for_detect_size))
         allocate(parameters_min(parameters_for_detect_size))
         allocate(parameters_max(parameters_for_detect_size))
         allocate(dparameters(parameters_for_detect_size))
         
-        parameters_layer(1)=1;  parameters_type(1)="E";   parameters_min(1)=0.5d0;    parameters_max(1)=1.50001d0;    dparameters(1)=0.25000d0/4
-        parameters_layer(2)=1;  parameters_type(2)="nu";  parameters_min(2)=0.15d0;    parameters_max(2)=0.39999d0;    dparameters(2)=0.09999d0/4
-        !parameters_layer(3)=1;  parameters_type(3)="h";   parameters_min(3)=0.25d0;   parameters_max(3)=0.30001d0;    dparameters(3)=0.05000d0/4
-        !parameters_layer(4)=1;  parameters_type(4)="rho"; parameters_min(4)=2.30d0;   parameters_max(4)=2.50001d0;    dparameters(4)=0.10000d0/4
-        !parameters_layer(1)=1;  parameters_type(1)="rho"; parameters_min(1)=2.30d0;   parameters_max(1)=2.50001d0;    dparameters(1)=0.10000d0/4
+        do parameter_number=1,parameters_for_detect_size
+            read(file,*),parameters_layer(parameter_number)
+            read(file,*),parameters_type(parameter_number)
+            read(file,*),parameters_min(parameter_number)
+            read(file,*),parameters_max(parameter_number)
+            read(file,*),dparameters(parameter_number)
+        enddo
+        
+        close(file)
         
         res_max_size=1000
         allocate(res(res_max_size,parameters_for_detect_size))
@@ -63,18 +70,21 @@ implicit none
             parameters_for_detect_size,parameters_layer,parameters_type,parameters_min,parameters_max,dparameters,&
             res_max_size,res,res_value_of_right,res_size)
         
-        print*,"res_size",res_size
-        do i=1,min(20,res_size)
-            print*
-            print*,"res",i
+        open(newunit=file,file=result_path)
+        write(file,*),"res_size",res_size
+        !do i=1,min(20,res_size)
+        do i=1,res_size
+            write(file,*),""
+            write(file,*),"res",i
             do j=1,parameters_for_detect_size
-                print*,"layer",parameters_layer(j)
-                print*,"type            ",parameters_type(j)
-                print*,"value",res(i,j)
+                write(file,*),"layer",parameters_layer(j)
+                write(file,*),"type            ",parameters_type(j)
+                write(file,*),"value",res(i,j)
             enddo
-            print*,"right",res_value_of_right(i)
-            print*
+            write(file,*),"right",res_value_of_right(i)
+            write(file,*),""
         enddo
+        close(file)
         
         deallocate(res_value_of_right)
         deallocate(res)

@@ -61,6 +61,7 @@ implicit none
             do i=1,space_dimension
                 x(i)=x0(i)
             enddo
+            print*,x
             
             if(.not.get_surf_value(x,surf_value_at_x)) cycle
             correct_point=.true.
