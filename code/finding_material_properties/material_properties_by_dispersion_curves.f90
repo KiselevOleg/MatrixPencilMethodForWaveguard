@@ -188,10 +188,10 @@ implicit none
         
         !call find_strict_minimum_points_on_surf(parameters_for_detect_size,surf_by_dispersion_curves,&
         !    parameters_min,dparameters,parameters_max,&
-        !    res_max_size,res,res_size,res_value_of_right)
+        !    res_max_size,res,res_size,res_value_of_right,skip_point_function)
         call find_strict_minimum_points_on_surf(parameters_for_detect_size,surf_by_K,&
             parameters_min,dparameters,parameters_max,&
-            res_max_size,res,res_size,res_value_of_right)
+            res_max_size,res,res_size,res_value_of_right,skip_point_function)
         
         if(all_disoersion_points_is_difenetly_true) then
             do i=1,res_size
@@ -416,6 +416,68 @@ implicit none
                 !f=f*(1d0+fine_for_forbit)
                 f=f+fine_for_forbit*100d0
             endfunction surf_by_dispersion_curves
+            
+            logical(1) function skip_point_function(x) result(f)
+            use main_parameters,only:get_layer_Cp,get_layer_Cs,get_layer_rho,&
+                pure_check_correct_isotropic_parameters_for_Cp_Cs
+            use math,only:c0
+            implicit none
+                real(8),intent(in)::x(parameters_for_detect_size)
+                
+                integer(4) layer
+                real(8) Cp,Cs,rho
+                
+                integer(4) i
+                
+                !integer(4),intent(in)::parameters_for_detect_size
+                !integer(4),intent(in)::parameters_layer(parameters_for_detect_size)
+                !character(len=3),intent(in)::parameters_type(parameters_for_detect_size)!types: "h","rho","Cp","Cs"
+                !real(8),intent(in)::parameters_min(parameters_for_detect_size)!start parameters value for gradient descent method
+                !real(8),intent(in)::dparameters(parameters_for_detect_size)!in [min, min+d, .., last value <= max]
+                !real(8),intent(in)::parameters_max(parameters_for_detect_size)
+                
+                layer=parameters_layer(1)
+                Cp=-1d0
+                Cs=-1d0
+                rho=-1d0
+                do i=1,parameters_for_detect_size
+                    if(.not.layer==parameters_layer(i)) then
+                        if(real(Cp)==-1d0) Cp=real(get_layer_Cp(layer))
+                        if(real(Cs)==-1d0) Cs=real(get_layer_Cs(layer))
+                        if(rho==-1d0) rho=get_layer_rho(layer)
+                        
+                        if(.not.pure_check_correct_isotropic_parameters_for_Cp_Cs(Cp+c0,Cs+c0,rho)) then
+                            f=.false.
+                            return
+                        endif
+                        
+                        Cp=-1d0
+                        Cs=-1d0
+                        rho=-1d0
+                    endif
+                    
+                    if(trim(parameters_type(i))=="Cp") Cp=x(i)
+                    if(trim(parameters_type(i))=="Cs") Cs=x(i)
+                    if(trim(parameters_type(i))=="rho") rho=x(i)
+                enddo
+                
+                if(.not.layer==parameters_layer(i)) then
+                    if(real(Cp)==-1d0) Cp=real(get_layer_Cp(layer))
+                    if(real(Cs)==-1d0) Cs=real(get_layer_Cs(layer))
+                    if(rho==-1d0) rho=get_layer_rho(layer)
+                    
+                    if(.not.pure_check_correct_isotropic_parameters_for_Cp_Cs(Cp+c0,Cs+c0,rho)) then
+                        f=.false.
+                        return
+                    endif
+                    
+                    Cp=-1d0
+                    Cs=-1d0
+                    rho=-1d0
+                endif
+                
+                f=.true.
+            endfunction skip_point_function
         endsubroutine find_material_properties
         
         integer(4) function get_parameter_type_number(parameter_name) result(f)

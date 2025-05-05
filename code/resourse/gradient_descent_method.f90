@@ -19,7 +19,10 @@ implicit none
     private::find_strict_minimum_points_on_surf_with_values,find_strict_minimum_points_on_surf_without_values
     contains
 
-    subroutine find_strict_minimum_points_on_surf_with_values(space_dimension,surf,x0_min,dx0,x0_max,res_size_max,res,res_size,surf_value_at_res)
+    subroutine find_strict_minimum_points_on_surf_with_values(&
+        space_dimension,surf,&
+        x0_min,dx0,x0_max,res_size_max,res,res_size,surf_value_at_res,&
+        skip_point_function)
     use math,only:epsilon
     use system,only:print_error
     implicit none
@@ -32,6 +35,7 @@ implicit none
         real(8),intent(out)::res(res_size_max,space_dimension)
         integer(4),intent(out)::res_size
         real(8),intent(out)::surf_value_at_res(res_size_max)
+        logical(1),external,optional::skip_point_function!logical(1) function skip_point_function(x(space_dimension))
         
         real(8) x0(space_dimension),x(space_dimension),x_(space_dimension)
         real(8) grad(space_dimension),abs_dx
@@ -134,8 +138,18 @@ implicit none
             enddo
         enddo
         
-    contains
+        contains
         logical(1) function next_grid_of_values_point() result(f)
+        implicit none
+            f=next_grid_of_values_point_without_checking()
+            
+            if(present(skip_point_function).and.f) then
+                do while(.not.skip_point_function(x0).and.f)
+                    f=next_grid_of_values_point_without_checking()
+                enddo
+            endif
+        endfunction next_grid_of_values_point
+        logical(1) function next_grid_of_values_point_without_checking() result(f)
         implicit none
             integer(4) i
             
@@ -162,7 +176,7 @@ implicit none
             enddo
             
             f=.false.
-        endfunction next_grid_of_values_point
+        endfunction next_grid_of_values_point_without_checking
         
         logical(1) function add_x_to_res() result(f)
         implicit none
@@ -231,7 +245,10 @@ implicit none
             f=.true.
         endfunction check_x_in_x0_area
     endsubroutine find_strict_minimum_points_on_surf_with_values
-    subroutine find_strict_minimum_points_on_surf_without_values(space_dimension,surf,x0_min,dx0,x0_max,res_size_max,res,res_size)
+    subroutine find_strict_minimum_points_on_surf_without_values(&
+        space_dimension,surf,&
+        x0_min,dx0,x0_max,res_size_max,res,res_size,&
+        skip_point_function)
     use math,only:epsilon
     use system,only:print_error
     implicit none
@@ -243,6 +260,7 @@ implicit none
         integer(4),intent(in)::res_size_max
         real(8),intent(out)::res(res_size_max,space_dimension)
         integer(4),intent(out)::res_size
+        logical(1),external,optional::skip_point_function!logical(1) function skip_point_function(x(space_dimension))
         
         real(8) res_surf_value_at_resize(res_size_max)
         
@@ -261,10 +279,17 @@ implicit none
         if(res_size_max<1) call print_error("gradient_descent_method.find_strict_minimum_points_on_surf_without_values",&
             "res_size_max<1")
         
-        call find_strict_minimum_points_on_surf_with_values(space_dimension,surf,x0_min,dx0,x0_max,res_size_max,res,res_size,res_surf_value_at_resize)
+        if(present(skip_point_function)) then
+            call find_strict_minimum_points_on_surf_with_values(space_dimension,surf,&
+                x0_min,dx0,x0_max,res_size_max,res,res_size,res_surf_value_at_resize,&
+                skip_point_function)
+        else
+            call find_strict_minimum_points_on_surf_with_values(space_dimension,surf,&
+                x0_min,dx0,x0_max,res_size_max,res,res_size,res_surf_value_at_resize)
+        endif
     endsubroutine find_strict_minimum_points_on_surf_without_values
     
-    subroutine find_zeros_on_notnegative_surf(space_dimension,surf,x0_min,dx0,x0_max,res_size_max,res,res_size)
+    subroutine find_zeros_on_notnegative_surf(space_dimension,surf,x0_min,dx0,x0_max,res_size_max,res,res_size,skip_point_function)
     use math,only:epsilon
     use system,only:print_error
     implicit none
@@ -276,6 +301,7 @@ implicit none
         integer(4),intent(in)::res_size_max
         real(8),intent(out)::res(res_size_max,space_dimension)
         integer(4),intent(out)::res_size
+        logical(1),external,optional::skip_point_function!logical(1) function skip_point_function(x(space_dimension))
         
         real(8) res_(res_size_max,space_dimension)
         integer(4) res_size_
@@ -296,7 +322,14 @@ implicit none
         if(res_size_max<1) call print_error("gradient_descent_method.find_zeros_on_notnegative_surf",&
             "res_size_max<1")
         
-        call find_strict_minimum_points_on_surf(space_dimension,surf,x0_min,dx0,x0_max,res_size_max,res_,res_size_,surf_value)
+        if(present(skip_point_function)) then
+            call find_strict_minimum_points_on_surf(space_dimension,surf,&
+                x0_min,dx0,x0_max,res_size_max,res_,res_size_,surf_value,&
+                skip_point_function)
+        else
+            call find_strict_minimum_points_on_surf(space_dimension,surf,&
+                x0_min,dx0,x0_max,res_size_max,res_,res_size_,surf_value)
+        endif
         
         res_size=0
         do i=1,res_size_
