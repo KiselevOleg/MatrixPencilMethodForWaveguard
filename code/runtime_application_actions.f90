@@ -50,8 +50,8 @@ implicit none
         allocate(parameters_max(parameters_for_detect_size))
         allocate(dparameters(parameters_for_detect_size))
         
-        parameters_layer(1)=1;  parameters_type(1)="Cp";  parameters_min(1)=0.3d0;    parameters_max(1)=1.0d0;  dparameters(1)=0.05000d0
-        parameters_layer(2)=1;  parameters_type(2)="Cs";  parameters_min(2)=0.1d0;    parameters_max(2)=0.7d0;  dparameters(2)=0.05000d0
+        parameters_layer(1)=1;  parameters_type(1)="Cp";  parameters_min(1)=0.1d0;    parameters_max(1)=1.0d0;  dparameters(1)=0.05000d0
+        parameters_layer(2)=1;  parameters_type(2)="Cs";  parameters_min(2)=0.1d0;    parameters_max(2)=1.0d0;  dparameters(2)=0.05000d0
         !parameters_layer(3)=1;  parameters_type(3)="h";   parameters_min(3)=0.2d0;    parameters_max(3)=0.3d0;  dparameters(3)=0.05000d0
         
         res_max_size=1000
