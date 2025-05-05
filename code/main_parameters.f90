@@ -34,6 +34,10 @@ implicit none
         count_isotropic_material_parameter_lambda_form_Cp_Cs,count_isotropic_material_parameter_mu_form_Cp_Cs,&
         count_isotropic_material_parameter_E_form_Cp_Cs,count_isotropic_material_parameter_nu_form_Cp_Cs
     
+    public::pure_check_correct_isotropic_parameters_for_lambda_mu,&
+        pure_check_correct_isotropic_parameters_for_E_nu,&
+        pure_check_correct_isotropic_parameters_for_Cp_Cs
+    
     public::check_correct_completing_parameters_establishment_noexcept,&
         check_correct_completing_parameters_establishment_throwable
     
@@ -92,6 +96,13 @@ implicit none
     
     private::free_matrixes,create_matrixes
     private::set_layer_Calphabeta_matrix,set_layer_Calphabeta_element
+    private::pure_check_h_correct,pure_check_rho_correct,pure_check_lambda_mu_correct,pure_check_E_nu_correct,pure_check_Cp_Cs_correct
+    public::pure_count_isotropic_material_parameter_E_form_lambda_mu,pure_count_isotropic_material_parameter_nu_form_lambda_mu,&
+        pure_count_isotropic_material_parameter_Cp_form_lambda_mu,pure_count_isotropic_material_parameter_Cs_form_lambda_mu,&
+        pure_count_isotropic_material_parameter_lambda_form_E_nu,pure_count_isotropic_material_parameter_mu_form_E_nu,&
+        pure_count_isotropic_material_parameter_Cp_form_E_nu,pure_count_isotropic_material_parameter_Cs_form_E_nu,&
+        pure_count_isotropic_material_parameter_lambda_form_Cp_Cs,pure_count_isotropic_material_parameter_mu_form_Cp_Cs,&
+        pure_count_isotropic_material_parameter_E_form_Cp_Cs,pure_count_isotropic_material_parameter_nu_form_Cp_Cs
     contains
     
     integer(4) function get_anisotropic_type() result(f)
@@ -730,12 +741,12 @@ implicit none
         complex(8),intent(out)::Cs
         real(8),intent(in)::rho
         
-        if(real(lambda)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameters_form_lambda_mu","real(lambda)<epsilon")
-        if(real(mu)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameters_form_lambda_mu","real(mu)<epsilon")
-        if(rho<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameters_form_lambda_mu","rho<epsilon")
+        character(len=1024) message
+        
+        message=pure_check_rho_correct(rho)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameters_form_lambda_mu",trim(message))
+        message=pure_check_lambda_mu_correct(lambda,mu)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameters_form_lambda_mu",trim(message))
         
         E=count_isotropic_material_parameter_E_form_lambda_mu(lambda,mu)
         nu=count_isotropic_material_parameter_nu_form_lambda_mu(lambda,mu)
@@ -755,12 +766,12 @@ implicit none
         complex(8),intent(out)::Cs
         real(8),intent(in)::rho
         
-        if(real(E)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameters_form_E_nu","real(E)<epsilon")
-        if(.not.(0d0<=real(nu).and.real(nu)<=0.5d0)) &
-            call print_error("main_parameters.count_isotropic_material_parameters_form_E_nu",".not.(0d0<=real(nu).and.real(nu)<=0.5d0)")
-        if(rho<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameters_form_E_nu","rho<epsilon")
+        character(len=1024) message
+        
+        message=pure_check_rho_correct(rho)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameters_form_E_nu",trim(message))
+        message=pure_check_E_nu_correct(E,nu)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameters_form_E_nu",trim(message))
         
         lambda=count_isotropic_material_parameter_lambda_form_E_nu(E,nu)
         mu=count_isotropic_material_parameter_mu_form_E_nu(E,nu)
@@ -780,14 +791,12 @@ implicit none
         complex(8),intent(in)::Cs
         real(8),intent(in)::rho
         
-        if(real(Cp)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameters_form_Cp_Cs","real(Cp)<epsilon")
-        if(real(Cs)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameters_form_Cp_Cs","real(Cs)<epsilon")
-        if(real(Cp)<real(Cs)) &
-            call print_error("main_parameters.count_isotropic_material_parameters_form_Cp_Cs","real(Cp)<real(Cs)")
-        if(rho<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameters_form_Cp_Cs","rho<epsilon")
+        character(len=1024) message
+        
+        message=pure_check_rho_correct(rho)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameters_form_Cp_Cs",trim(message))
+        message=pure_check_Cp_Cs_correct(Cp,Cs)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameters_form_Cp_Cs",trim(message))
         
         lambda=count_isotropic_material_parameter_lambda_form_Cp_Cs(Cp,Cs,rho)
         mu=count_isotropic_material_parameter_mu_form_Cp_Cs(Cp,Cs,rho)
@@ -805,12 +814,12 @@ implicit none
         complex(8),intent(in)::lambda
         complex(8),intent(in)::mu
         
-        if(real(lambda)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_E_form_lambda_mu","real(lambda)<epsilon")
-        if(real(mu)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_E_form_lambda_mu","real(mu)<epsilon")
+        character(len=1024) message
         
-        f=mu*(3d0*lambda+2d0*mu)/(lambda+mu)
+        message=pure_check_lambda_mu_correct(lambda,mu)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_E_form_lambda_mu",trim(message))
+        
+        f=pure_count_isotropic_material_parameter_E_form_lambda_mu(lambda,mu)
     endfunction count_isotropic_material_parameter_E_form_lambda_mu
     real(8) function count_isotropic_material_parameter_nu_form_lambda_mu(lambda,mu) result(f)
     use math,only:epsilon
@@ -819,12 +828,12 @@ implicit none
         complex(8),intent(in)::lambda
         complex(8),intent(in)::mu
         
-        if(real(lambda)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_nu_form_lambda_mu","real(lambda)<epsilon")
-        if(real(mu)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_nu_form_lambda_mu","real(mu)<epsilon")
+        character(len=1024) message
         
-        f=lambda*0.5d0/(lambda+mu)
+        message=pure_check_lambda_mu_correct(lambda,mu)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_nu_form_lambda_mu",trim(message))
+        
+        f=pure_count_isotropic_material_parameter_nu_form_lambda_mu(lambda,mu)
     endfunction count_isotropic_material_parameter_nu_form_lambda_mu
     complex(8) function count_isotropic_material_parameter_Cp_form_lambda_mu(lambda,mu,rho) result(f)
     use math,only:epsilon
@@ -834,14 +843,14 @@ implicit none
         complex(8),intent(in)::mu
         real(8),intent(in)::rho
         
-        if(real(lambda)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_Cp_form_lambda_mu","real(lambda)<epsilon")
-        if(real(mu)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_Cp_form_lambda_mu","real(mu)<epsilon")
-        if(rho<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_Cp_form_lambda_mu","rho<epsilon")
+        character(len=1024) message
         
-        f=sqrt((lambda+mu+mu)/rho)
+        message=pure_check_rho_correct(rho)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_Cp_form_lambda_mu",trim(message))
+        message=pure_check_lambda_mu_correct(lambda,mu)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_Cp_form_lambda_mu",trim(message))
+        
+        f=pure_count_isotropic_material_parameter_Cp_form_lambda_mu(lambda,mu,rho)
     endfunction count_isotropic_material_parameter_Cp_form_lambda_mu
     complex(8) function count_isotropic_material_parameter_Cs_form_lambda_mu(lambda,mu,rho) result(f)
     use math,only:epsilon
@@ -851,14 +860,14 @@ implicit none
         complex(8),intent(in)::mu
         real(8),intent(in)::rho
         
-        if(real(lambda)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_Cs_form_lambda_mu","real(lambda)<epsilon")
-        if(real(mu)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_Cs_form_lambda_mu","real(mu)<epsilon")
-        if(rho<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_Cs_form_lambda_mu","rho<epsilon")
+        character(len=1024) message
         
-        f=sqrt(mu/rho)
+        message=pure_check_rho_correct(rho)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_Cs_form_lambda_mu",trim(message))
+        message=pure_check_lambda_mu_correct(lambda,mu)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_Cs_form_lambda_mu",trim(message))
+        
+        f=pure_count_isotropic_material_parameter_Cs_form_lambda_mu(lambda,mu,rho)
     endfunction count_isotropic_material_parameter_Cs_form_lambda_mu
     
     complex(8) function count_isotropic_material_parameter_lambda_form_E_nu(E,nu) result(f)
@@ -868,12 +877,12 @@ implicit none
         complex(8),intent(in)::E
         real(8),intent(in)::nu
         
-        if(real(E)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_lambda_form_E_nu","real(E)<epsilon")
-        if(real(nu)<epsilon.or.real(nu)>0.5d0-epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_lambda_form_E_nu","real(nu)<epsilon.or.real(nu)>0.5d0-epsilon")
+        character(len=1024) message
         
-        f=nu*E/(1d0+nu)/(1d0-2d0*nu)
+        message=pure_check_E_nu_correct(E,nu)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_lambda_form_E_nu",trim(message))
+        
+        f=pure_count_isotropic_material_parameter_lambda_form_E_nu(E,nu)
     endfunction count_isotropic_material_parameter_lambda_form_E_nu
     complex(8) function count_isotropic_material_parameter_mu_form_E_nu(E,nu) result(f)
     use math,only:epsilon
@@ -882,12 +891,12 @@ implicit none
         complex(8),intent(in)::E
         real(8),intent(in)::nu
         
-        if(real(E)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_mu_form_E_nu","real(E)<epsilon")
-        if(real(nu)<epsilon.or.real(nu)>0.5d0-epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_mu_form_E_nu","real(nu)<epsilon.or.real(nu)>0.5d0-epsilon")
+        character(len=1024) message
         
-        f=E*0.5d0/(1d0+nu)
+        message=pure_check_E_nu_correct(E,nu)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_mu_form_E_nu",trim(message))
+        
+        f=pure_count_isotropic_material_parameter_mu_form_E_nu(E,nu)
     endfunction count_isotropic_material_parameter_mu_form_E_nu
     complex(8) function count_isotropic_material_parameter_Cp_form_E_nu(E,nu,rho) result(f)
     use math,only:epsilon
@@ -897,14 +906,14 @@ implicit none
         real(8),intent(in)::nu
         real(8),intent(in)::rho
         
-        if(real(E)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_Cp_form_E_nu","real(E)<epsilon")
-        if(real(nu)<epsilon.or.real(nu)>0.5d0-epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_Cp_form_E_nu","real(nu)<epsilon.or.real(nu)>0.5d0-epsilon")
-        if(rho<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_Cp_form_E_nu","rho<epsilon")
+        character(len=1024) message
         
-        f=sqrt(E/rho)*sqrt((1d0-nu)/(1d0+nu)/(1d0-2d0*nu))
+        message=pure_check_rho_correct(rho)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_Cp_form_E_nu",trim(message))
+        message=pure_check_E_nu_correct(E,nu)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_Cp_form_E_nu",trim(message))
+        
+        f=pure_count_isotropic_material_parameter_Cp_form_E_nu(E,nu,rho)
     endfunction count_isotropic_material_parameter_Cp_form_E_nu
     complex(8) function count_isotropic_material_parameter_Cs_form_E_nu(E,nu,rho) result(f)
     use math,only:epsilon
@@ -914,14 +923,14 @@ implicit none
         real(8),intent(in)::nu
         real(8),intent(in)::rho
         
-        if(real(E)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_Cs_form_E_nu","real(E)<epsilon")
-        if(real(nu)<epsilon.or.real(nu)>0.5d0-epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_Cs_form_E_nu","real(nu)<epsilon.or.real(nu)>0.5d0-epsilon")
-        if(rho<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_Cs_form_E_nu","rho<epsilon")
+        character(len=1024) message
         
-        f=sqrt(E/rho)*sqrt(0.5d0/(1d0+nu))
+        message=pure_check_rho_correct(rho)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_Cs_form_E_nu",trim(message))
+        message=pure_check_E_nu_correct(E,nu)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_Cs_form_E_nu",trim(message))
+        
+        f=pure_count_isotropic_material_parameter_Cs_form_E_nu(E,nu,rho)
     endfunction count_isotropic_material_parameter_Cs_form_E_nu
     
     complex(8) function count_isotropic_material_parameter_lambda_form_Cp_Cs(Cp,Cs,rho) result(f)
@@ -932,16 +941,14 @@ implicit none
         complex(8),intent(in)::Cs
         real(8),intent(in)::rho
         
-        if(real(Cp)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_lambda_form_Cp_Cs","real(Cp)<epsilon")
-        if(real(Cs)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_lambda_form_Cp_Cs","real(Cs)<epsilon")
-        if(real(Cp)<real(Cs)) &
-            call print_error("main_parameters.count_isotropic_material_parameter_lambda_form_Cp_Cs","real(Cp)<real(Cs)")
-        if(rho<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_lambda_form_Cp_Cs","rho<epsilon")
+        character(len=1024) message
         
-        f=rho*Cp*Cp-2d0*rho*Cs*Cs
+        message=pure_check_rho_correct(rho)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_lambda_form_Cp_Cs",trim(message))
+        message=pure_check_Cp_Cs_correct(Cp,Cs)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_lambda_form_Cp_Cs",trim(message))
+        
+        f=pure_count_isotropic_material_parameter_lambda_form_Cp_Cs(Cp,Cs,rho)
     endfunction count_isotropic_material_parameter_lambda_form_Cp_Cs
     complex(8) function count_isotropic_material_parameter_mu_form_Cp_Cs(Cp,Cs,rho) result(f)
     use math,only:epsilon
@@ -951,16 +958,14 @@ implicit none
         complex(8),intent(in)::Cs
         real(8),intent(in)::rho
         
-        if(real(Cp)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_mu_form_Cp_Cs","real(Cp)<epsilon")
-        if(real(Cs)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_mu_form_Cp_Cs","real(Cs)<epsilon")
-        if(real(Cp)<real(Cs)) &
-            call print_error("main_parameters.count_isotropic_material_parameter_mu_form_Cp_Cs","real(Cp)<real(Cs)")
-        if(rho<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_mu_form_Cp_Cs","rho<epsilon")
+        character(len=1024) message
         
-        f=rho*Cs*Cs
+        message=pure_check_rho_correct(rho)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_mu_form_Cp_Cs",trim(message))
+        message=pure_check_Cp_Cs_correct(Cp,Cs)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_mu_form_Cp_Cs",trim(message))
+        
+        f=pure_count_isotropic_material_parameter_mu_form_Cp_Cs(Cp,Cs,rho)
     endfunction count_isotropic_material_parameter_mu_form_Cp_Cs
     complex(8) function count_isotropic_material_parameter_E_form_Cp_Cs(Cp,Cs,rho) result(f)
     use math,only:epsilon
@@ -970,16 +975,14 @@ implicit none
         complex(8),intent(in)::Cs
         real(8),intent(in)::rho
         
-        if(real(Cp)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_E_form_Cp_Cs","real(Cp)<epsilon")
-        if(real(Cs)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_E_form_Cp_Cs","real(Cs)<epsilon")
-        if(real(Cp)<real(Cs)) &
-            call print_error("main_parameters.count_isotropic_material_parameter_E_form_Cp_Cs","real(Cp)<real(Cs)")
-        if(rho<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_E_form_Cp_Cs","rho<epsilon")
+        character(len=1024) message
         
-        f=Cs*Cs*rho*2d0*(1d0+(2d0*Cs*Cs-Cp*Cp)/(2d0*Cs*Cs-2d0*Cp*Cp))
+        message=pure_check_rho_correct(rho)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_E_form_Cp_Cs",trim(message))
+        message=pure_check_Cp_Cs_correct(Cp,Cs)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_E_form_Cp_Cs",trim(message))
+        
+        f=pure_count_isotropic_material_parameter_E_form_Cp_Cs(Cp,Cs,rho)
     endfunction count_isotropic_material_parameter_E_form_Cp_Cs
     real(8) function count_isotropic_material_parameter_nu_form_Cp_Cs(Cp,Cs,rho) result(f)
     use math,only:epsilon
@@ -989,16 +992,14 @@ implicit none
         complex(8),intent(in)::Cs
         real(8),intent(in)::rho
         
-        if(real(Cp)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_nu_form_Cp_Cs","real(Cp)<epsilon")
-        if(real(Cs)<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_nu_form_Cp_Cs","real(Cs)<epsilon")
-        if(real(Cp)<real(Cs)) &
-            call print_error("main_parameters.count_isotropic_material_parameter_nu_form_Cp_Cs","real(Cp)<real(Cs)")
-        if(rho<epsilon) &
-            call print_error("main_parameters.count_isotropic_material_parameter_nu_form_Cp_Cs","rho<epsilon")
+        character(len=1024) message
         
-        f=(2d0*Cs*Cs-Cp*Cp)/(2d0*Cs*Cs-2d0*Cp*Cp)
+        message=pure_check_rho_correct(rho)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_nu_form_Cp_Cs",trim(message))
+        message=pure_check_Cp_Cs_correct(Cp,Cs)
+        if(.not.trim(message)=="") call print_error("main_parameters.count_isotropic_material_parameter_nu_form_Cp_Cs",trim(message))
+        
+        f=pure_count_isotropic_material_parameter_nu_form_Cp_Cs(Cp,Cs,rho)
     endfunction count_isotropic_material_parameter_nu_form_Cp_Cs
     
     
@@ -1383,6 +1384,237 @@ implicit none
                 message)
         endif
     endfunction check_correct_completing_parameters_establishment_throwable
+    
+    
+    
+    pure character(len=1024) function pure_check_h_correct(h) result(f)
+    use math,only:epsilon
+    implicit none
+        real(8),intent(in)::h
+        
+        if(.not.(epsilon<h.and.h<100d0)) then
+            f=".not.(epsilon<h.and.h<100d0)"
+            return
+        endif
+        
+        f=""
+    endfunction pure_check_h_correct
+        pure character(len=1024) function pure_check_rho_correct(rho) result(f)
+    use math,only:epsilon
+    implicit none
+        real(8),intent(in)::rho
+        
+        if(.not.(epsilon<rho.and.rho<100d0)) then
+            f=".not.(epsilon<rho.and.rho<100d0)"
+            return
+        endif
+        
+        f=""
+    endfunction pure_check_rho_correct
+    pure character(len=1024) function pure_check_lambda_mu_correct(lambda,mu) result(f)
+    use math,only:epsilon
+    implicit none
+        complex(8),intent(in)::lambda
+        complex(8),intent(in)::mu
+        
+        if(.not.(epsilon<real(lambda).and.real(lambda)<100d0)) then
+            f=".not.(epsilon<real(lambda).and.real(lambda)<100d0)"
+            return
+        endif
+        if(.not.(epsilon<real(mu).and.real(mu)<100d0)) then
+            f=".not.(epsilon<real(mu).and.real(mu)<100d0)"
+            return
+        endif
+        
+        f=""
+    endfunction pure_check_lambda_mu_correct
+    pure character(len=1024) function pure_check_E_nu_correct(E,nu) result(f)
+    use math,only:epsilon
+    implicit none
+        complex(8),intent(in)::E
+        real(8),intent(in)::nu
+        
+        if(.not.(epsilon<real(E).and.real(E)<100d0)) then
+            f=".not.(epsilon<real(E).and.real(E)<100d0)"
+            return
+        endif
+        if(.not.(0d0.le.nu.and.nu.le.0.5d0)) then
+            f=".not.(0d0.le.nu.and.nu.le.0.5d0)"
+            return
+        endif
+        
+        f=""
+    endfunction pure_check_E_nu_correct
+    pure character(len=1024) function pure_check_Cp_Cs_correct(Cp,Cs) result(f)
+    use math,only:epsilon
+    implicit none
+        complex(8),intent(in)::Cp
+        complex(8),intent(in)::Cs
+        
+        if(.not.(epsilon<real(Cp).and.real(Cp)<100d0)) then
+            f=".not.(epsilon<real(Cp).and.real(Cp)<100d0)"
+            return
+        endif
+        if(.not.(epsilon<real(Cs).and.real(Cs)<100d0)) then
+            f=".not.(epsilon<real(Cs).and.real(Cs)<100d0)"
+            return
+        endif
+        if(.not.(real(Cp).ge.real(Cs)*sqrt(2d0))) then
+            f=".not.(epsilon<real(Cs).and.real(Cs)<100d0)"
+            return
+        endif
+        
+        f=""
+    endfunction pure_check_Cp_Cs_correct
+    
+    pure complex(8) function pure_count_isotropic_material_parameter_E_form_lambda_mu(lambda,mu) result(f)
+    implicit none
+        complex(8),intent(in)::lambda
+        complex(8),intent(in)::mu
+        
+        f=mu*(3d0*lambda+2d0*mu)/(lambda+mu)
+    endfunction pure_count_isotropic_material_parameter_E_form_lambda_mu
+    pure real(8) function pure_count_isotropic_material_parameter_nu_form_lambda_mu(lambda,mu) result(f)
+    implicit none
+        complex(8),intent(in)::lambda
+        complex(8),intent(in)::mu
+        
+        f=lambda*0.5d0/(lambda+mu)
+    endfunction pure_count_isotropic_material_parameter_nu_form_lambda_mu
+    pure complex(8) function pure_count_isotropic_material_parameter_Cp_form_lambda_mu(lambda,mu,rho) result(f)
+    implicit none
+        complex(8),intent(in)::lambda
+        complex(8),intent(in)::mu
+        real(8),intent(in)::rho
+        
+        f=sqrt((lambda+mu+mu)/rho)
+    endfunction pure_count_isotropic_material_parameter_Cp_form_lambda_mu
+    pure complex(8) function pure_count_isotropic_material_parameter_Cs_form_lambda_mu(lambda,mu,rho) result(f)
+    implicit none
+        complex(8),intent(in)::lambda
+        complex(8),intent(in)::mu
+        real(8),intent(in)::rho
+        
+        f=sqrt(mu/rho)
+    endfunction pure_count_isotropic_material_parameter_Cs_form_lambda_mu
+    
+    pure complex(8) function pure_count_isotropic_material_parameter_lambda_form_E_nu(E,nu) result(f)
+    implicit none
+        complex(8),intent(in)::E
+        real(8),intent(in)::nu
+        
+        f=nu*E/(1d0+nu)/(1d0-2d0*nu)
+    endfunction pure_count_isotropic_material_parameter_lambda_form_E_nu
+    pure complex(8) function pure_count_isotropic_material_parameter_mu_form_E_nu(E,nu) result(f)
+    implicit none
+        complex(8),intent(in)::E
+        real(8),intent(in)::nu
+        
+        f=E*0.5d0/(1d0+nu)
+    endfunction pure_count_isotropic_material_parameter_mu_form_E_nu
+    pure complex(8) function pure_count_isotropic_material_parameter_Cp_form_E_nu(E,nu,rho) result(f)
+    implicit none
+        complex(8),intent(in)::E
+        real(8),intent(in)::nu
+        real(8),intent(in)::rho
+        
+        f=sqrt(E/rho)*sqrt((1d0-nu)/(1d0+nu)/(1d0-2d0*nu))
+    endfunction pure_count_isotropic_material_parameter_Cp_form_E_nu
+    pure complex(8) function pure_count_isotropic_material_parameter_Cs_form_E_nu(E,nu,rho) result(f)
+    implicit none
+        complex(8),intent(in)::E
+        real(8),intent(in)::nu
+        real(8),intent(in)::rho
+        
+        f=sqrt(E/rho)*sqrt(0.5d0/(1d0+nu))
+    endfunction pure_count_isotropic_material_parameter_Cs_form_E_nu
+    
+    pure complex(8) function pure_count_isotropic_material_parameter_lambda_form_Cp_Cs(Cp,Cs,rho) result(f)
+    implicit none
+        complex(8),intent(in)::Cp
+        complex(8),intent(in)::Cs
+        real(8),intent(in)::rho
+        
+        f=rho*Cp*Cp-2d0*rho*Cs*Cs
+    endfunction pure_count_isotropic_material_parameter_lambda_form_Cp_Cs
+    pure complex(8) function pure_count_isotropic_material_parameter_mu_form_Cp_Cs(Cp,Cs,rho) result(f)
+    implicit none
+        complex(8),intent(in)::Cp
+        complex(8),intent(in)::Cs
+        real(8),intent(in)::rho
+        
+        f=rho*Cs*Cs
+    endfunction pure_count_isotropic_material_parameter_mu_form_Cp_Cs
+    pure complex(8) function pure_count_isotropic_material_parameter_E_form_Cp_Cs(Cp,Cs,rho) result(f)
+    implicit none
+        complex(8),intent(in)::Cp
+        complex(8),intent(in)::Cs
+        real(8),intent(in)::rho
+        
+        f=Cs*Cs*rho*2d0*(1d0+(2d0*Cs*Cs-Cp*Cp)/(2d0*Cs*Cs-2d0*Cp*Cp))
+    endfunction pure_count_isotropic_material_parameter_E_form_Cp_Cs
+    pure real(8) function pure_count_isotropic_material_parameter_nu_form_Cp_Cs(Cp,Cs,rho) result(f)
+    implicit none
+        complex(8),intent(in)::Cp
+        complex(8),intent(in)::Cs
+        real(8),intent(in)::rho
+        
+        f=(2d0*Cs*Cs-Cp*Cp)/(2d0*Cs*Cs-2d0*Cp*Cp)
+    endfunction pure_count_isotropic_material_parameter_nu_form_Cp_Cs
+    
+    
+    
+    pure logical(1) function pure_check_correct_isotropic_parameters_for_lambda_mu(lambda,mu,rho) result(f)
+    implicit none
+        complex(8),intent(in)::lambda
+        complex(8),intent(in)::mu
+        real(8),intent(in)::rho
+        
+        if(.not.trim(pure_check_rho_correct(rho))=="") then
+            f=.false.
+            return
+        endif
+        if(.not.trim(pure_check_lambda_mu_correct(lambda,mu))=="") then
+            f=.false.
+            return
+        endif
+        
+        f=.true.
+    endfunction pure_check_correct_isotropic_parameters_for_lambda_mu
+    pure logical(1) function pure_check_correct_isotropic_parameters_for_E_nu(E,nu,rho) result(f)
+    implicit none
+        complex(8),intent(in)::E
+        real(8),intent(in)::nu
+        real(8),intent(in)::rho
+        
+        if(.not.trim(pure_check_rho_correct(rho))=="") then
+            f=.false.
+            return
+        endif
+        if(.not.trim(pure_check_E_nu_correct(E,nu))=="") then
+            f=.false.
+            return
+        endif
+        
+        f=.true.
+    endfunction pure_check_correct_isotropic_parameters_for_E_nu
+    pure logical(1) function pure_check_correct_isotropic_parameters_for_Cp_Cs(Cp,Cs,rho) result(f)
+    implicit none
+        complex(8),intent(in)::Cp
+        complex(8),intent(in)::Cs
+        real(8),intent(in)::rho
+        
+        if(.not.trim(pure_check_rho_correct(rho))=="") then
+            f=.false.
+            return
+        endif
+        if(.not.trim(pure_check_Cp_Cs_correct(Cp,Cs))=="") then
+            f=.false.
+            return
+        endif
+        
+        f=.true.
+    endfunction pure_check_correct_isotropic_parameters_for_Cp_Cs
     
     
     
