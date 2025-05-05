@@ -2,7 +2,7 @@ module dispersion_curves_for_K
 implicit none
     public::count_poles,count_complex_poles
 
-    real(8)::tmin=1d-2,tmax=35d0,ht=1d-3,eps=1d-7
+    real(8)::tmin=1d-2,tmax=70d0,ht=1d-2,eps=1d-7
     
     real(8)::Re_poles_min_value=1d-2,Re_poles_dvalue=5d-1,Re_poles_max_value=70d0
     real(8)::Im_poles_min_value=-3d0,Im_poles_dvalue=1d-1,Im_poles_max_value=3d0

@@ -3,15 +3,17 @@ program main
     use pre_and_post_runtime_actions,only:init,destructor
     use runtime_application_actions,only:test_K,load_experimental_measurements_view,count_matrix_pencil_method_distersion_curve_graphics,&
         count_distersion_curve_for_K_graphics,count_complex_distersion_curve_for_K_graphics,count_complex_det_A_matrix_in_K_graphics,&
-        count_wavelet_transform_graphics,count_wavelet_transform_smoothing,find_material_properties_from_experimental_measurements
+        count_wavelet_transform_graphics,count_wavelet_transform_smoothing,find_material_properties_from_experimental_measurements,&
+        count_distersion_curve_for_K_graphics_with_variation
 implicit none
     call init()
     
-    call find_material_properties_from_experimental_measurements()
+    !call find_material_properties_from_experimental_measurements()
     !call count_wavelet_transform_smoothing()
     !call count_wavelet_transform_graphics()
     !call count_complex_det_A_matrix_in_K_graphics()
     !call count_complex_distersion_curve_for_K_graphics()
+    call count_distersion_curve_for_K_graphics_with_variation()
     !call count_distersion_curve_for_K_graphics()
     !call count_matrix_pencil_method_distersion_curve_graphics()
     !call load_experimental_measurements_view()

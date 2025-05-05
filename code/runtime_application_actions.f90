@@ -3,7 +3,7 @@ implicit none
     public::test_K,load_experimental_measurements_view,count_matrix_pencil_method_distersion_curve_graphics,&
         count_distersion_curve_for_K_graphics,count_complex_distersion_curve_for_K_graphics,&
         count_complex_det_A_matrix_in_K_graphics,count_wavelet_transform_smoothing,&
-        find_material_properties_from_experimental_measurements
+        find_material_properties_from_experimental_measurements,count_distersion_curve_for_K_graphics_with_variation
     
     contains
     
@@ -332,6 +332,142 @@ implicit none
         enddo
         close(file)
     endsubroutine count_complex_distersion_curve_for_K_graphics
+    subroutine count_distersion_curve_for_K_graphics_with_variation()
+    use main_parameters,only:set_omega,get_number_of_layers,get_layer_h,&
+        get_layer_rho,set_layer_rho,get_layer_h,set_layer_h,&
+        get_layer_Cp,get_layer_Cs,set_layer_Cp_Cs
+    use dispersion_curves_for_K,only:count_poles
+    use math,only:pi,epsilon,c0
+    use system,only:print_error
+    implicit none
+        real(8) omega,omega_start,domega,omega_end
+        
+        real(8) phi
+        
+        real(8) res(100)
+        integer(4) res_size_max
+        integer(4) res_size
+        
+        real(8) h,rho,Cp,Cs
+        real(8) h_init,rho_init,Cp_init,Cs_init
+        integer(4) parameter_processing
+        integer(4) parameter_number
+        integer(4),allocatable::parameter_layer_number(:)
+        character(len=3),allocatable::parameter_name(:),parameter_variation_type(:)
+        real(8),allocatable::parameter_variation_value(:)
+        
+        integer(4) i,parameter_i
+        
+        character(len=64) result_path
+        integer(4) file
+        
+        open(newunit=file,file="variating_parameters.txt", status="old", action="read")
+        read(file,*),parameter_number
+        allocate(parameter_layer_number(parameter_number))
+        allocate(parameter_name(parameter_number))
+        allocate(parameter_variation_type(parameter_number))
+        allocate(parameter_variation_value(parameter_number))
+        do parameter_i=1,parameter_number
+            read(file,*),parameter_layer_number(parameter_i)
+            read(file,*),parameter_name(parameter_i)
+            read(file,*),parameter_variation_type(parameter_i)
+            read(file,*),parameter_variation_value(parameter_i)
+            
+            if(.not.(1.le.parameter_layer_number(parameter_i).and.parameter_layer_number(parameter_i).le.get_number_of_layers())) &
+                call print_error("runtime_application_actions.count_distersion_curve_for_K_graphics_with_variation",&
+                ".not.(1.le.parameter_layer_number(parameter_i).and.parameter_layer_number(parameter_i).le.get_number_of_layers())")
+            if(.not.(trim(parameter_name(parameter_i))=="h".or.trim(parameter_name(parameter_i))=="rho".or.&
+                trim(parameter_name(parameter_i))=="Cp".or.trim(parameter_name(parameter_i))=="Cs")) &
+                call print_error("runtime_application_actions.count_distersion_curve_for_K_graphics_with_variation",&
+                ".not.(parameter_name(parameter_i))=='h'.or.'rho'.or.'Cp'.or.'Cs')")
+            if(.not.(trim(parameter_variation_type(parameter_i))=="+".or.trim(parameter_variation_type(parameter_i))=="-".or.&
+                trim(parameter_variation_type(parameter_i))=="+-".or.trim(parameter_variation_type(parameter_i))=="-+")) &
+                call print_error("runtime_application_actions.count_distersion_curve_for_K_graphics_with_variation",&
+                ".not.(parameter_variation_type(parameter_i))=='+'.or.'-'.or.'+-'.or.'-+')")
+            if(.not.(epsilon.le.parameter_variation_value(parameter_i).and.parameter_variation_value(parameter_i).le.10d0)) &
+                call print_error("runtime_application_actions.count_distersion_curve_for_K_graphics_with_variation",&
+                ".not.(epsilon.le.parameter_variation_value(parameter_i).and.parameter_variation_value(parameter_i).le.10d0)")
+        enddo
+        close(file)
+        
+        res_size_max=100;
+        !omega_start=1d-1; domega=0.05d0; omega_end=12.499d0*1.5d0*2d0
+        open(newunit=file,file="omega.txt", status="old", action="read")
+        read(file,*),omega_start
+        read(file,*),domega
+        read(file,*),omega_end
+        close(file)
+        
+        phi=0d0
+        
+        open(newunit=file,file="result_path.txt", status="old", action="read")
+        read(file,*),result_path
+        close(file)
+        open(newunit=file,file=result_path)
+        do parameter_i=0,parameter_number
+            do parameter_processing=1,2
+                if(parameter_i>0) then
+                    h_init=get_layer_h(parameter_layer_number(parameter_i))
+                    rho_init=get_layer_rho(parameter_layer_number(parameter_i))
+                    Cp_init=get_layer_Cp(parameter_layer_number(parameter_i))
+                    Cs_init=get_layer_Cs(parameter_layer_number(parameter_i))
+                    h=h_init
+                    rho=rho_init
+                    Cp=Cp_init
+                    Cs=Cs_init
+                    
+                    if(parameter_processing==1) then
+                        if(.not.(trim(parameter_variation_type(parameter_i))=="+".or.&
+                            trim(parameter_variation_type(parameter_i))=="+-".or.&
+                            trim(parameter_variation_type(parameter_i))=="-+")) exit
+                        
+                        if(trim(parameter_name(parameter_i))=="h") h=h+parameter_variation_value(parameter_i)
+                        if(trim(parameter_name(parameter_i))=="rho") rho=rho+parameter_variation_value(parameter_i)
+                        if(trim(parameter_name(parameter_i))=="Cp") Cp=Cp+parameter_variation_value(parameter_i)
+                        if(trim(parameter_name(parameter_i))=="Cs") Cs=Cs+parameter_variation_value(parameter_i)
+                    else
+                        if(.not.(trim(parameter_variation_type(parameter_i))=="-".or.&
+                            trim(parameter_variation_type(parameter_i))=="+-".or.&
+                            trim(parameter_variation_type(parameter_i))=="-+")) exit
+                        
+                        if(trim(parameter_name(parameter_i))=="h") h=h-parameter_variation_value(parameter_i)
+                        if(trim(parameter_name(parameter_i))=="rho") rho=rho-parameter_variation_value(parameter_i)
+                        if(trim(parameter_name(parameter_i))=="Cp") Cp=Cp-parameter_variation_value(parameter_i)
+                        if(trim(parameter_name(parameter_i))=="Cs") Cs=Cs-parameter_variation_value(parameter_i)
+                    endif
+                    
+                    call set_layer_h(parameter_layer_number(parameter_i),h)
+                    call set_layer_rho(parameter_layer_number(parameter_i),rho)
+                    call set_layer_Cp_Cs(parameter_layer_number(parameter_i),Cp+c0,Cs+c0)
+                else
+                    if(parameter_processing==2) exit
+                endif
+                
+                do omega=omega_start,omega_end,domega
+                    call set_omega(omega)
+                    call count_poles(phi,3,res_size_max,res,res_size)
+                    
+                    do i=1,res_size
+                        write(file,*),omega/pi*0.5d0,res(i)
+                    enddo
+                    
+                    print*,omega,res_size
+                enddo
+                
+                if(parameter_i>0) then
+                    call set_layer_h(parameter_layer_number(parameter_i),h_init)
+                    call set_layer_rho(parameter_layer_number(parameter_i),rho_init)
+                    call set_layer_Cp_Cs(parameter_layer_number(parameter_i),Cp_init+c0,Cs_init+c0)
+                endif
+            enddo
+        enddo
+        close(file)
+        
+        deallocate(parameter_layer_number)
+        deallocate(parameter_name)
+        deallocate(parameter_variation_type)
+        deallocate(parameter_variation_value)
+    endsubroutine count_distersion_curve_for_K_graphics_with_variation
     subroutine count_distersion_curve_for_K_graphics()
     use main_parameters,only:set_omega
     use dispersion_curves_for_K,only:count_poles
