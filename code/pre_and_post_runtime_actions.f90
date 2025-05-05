@@ -86,7 +86,9 @@ implicit none
         call set_layer_h(1,0.282d0)
         call set_layer_rho(1,2.419d0)
         
-        call set_layer_E_nu(1,0.678d0+c0,0.234d0)
+        call set_layer_Cp_Cs(1,0.568992104327976d0+c0,0.334608586360528d0+C0)
+        !call set_layer_Cp_Cs(1,0.593153997273824d0+c0,0.334608586360528d0+C0)
+        !call set_layer_Cp_Cs(1,0.9d0+c0,0.334608586360528d0+C0)
         
         if(.not.check_correct_completing_parameters_establishment_throwable()) call end_program_pause()
         
