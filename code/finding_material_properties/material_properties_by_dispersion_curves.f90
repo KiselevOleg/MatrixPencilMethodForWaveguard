@@ -217,250 +217,230 @@ implicit none
             enddo
         enddo
         
-        contains
-            real(8) function surf_by_K(x) result(f)
-            use main_parameters,only:set_omega,get_omega,&
-                lambda=>get_layer_lambda,mu=>get_layer_mu,E=>get_layer_E,nu=>get_layer_nu,&
-                Cp=>get_layer_Cp,Cs=>get_layer_Cs,rho=>get_Layer_rho,h=>get_layer_h,&
-                set_layer_Cp_Cs,set_layer_rho,set_layer_h
-            use count_K,only:K
-            use math,only:epsilon,c0
-            implicit none
-                real(8),intent(in)::x(parameters_for_detect_size)
-                
-                real(8) omega_current
-                
-                integer(4) current_layer
-                complex(8) Cpv,Csv
-                real(8) rhov
-                real(8) v,fine_for_forbit
-                integer(4) i,j
-                
-                f=0d0
-                
-                current_layer=-1
-                Cpv=-1d0
-                Csv=-1d0
-                rhov=-1d0
-                fine_for_forbit=0d0
-                do i=1,parameters_for_detect_size
-                    if(.not.current_layer==parameters_layer(i)) then
-                        if(.not.current_layer==-1.and..not.(Cpv==-1d0.and.Csv==-1d0.and.rhov==-1d0)) then
-                            if(Cpv==-1d0) Cpv=Cp(current_layer)
-                            if(Csv==-1d0) Csv=Cs(current_layer)
-                            if(rhov==-1d0) rhov=rho(current_layer)
-                            if(real(Csv)*sqrt(2d0)>real(Cpv)) then
-                                fine_for_forbit=fine_for_forbit+(Csv*sqrt(2d0)-Cpv)
-                                Csv=Cpv/sqrt(2d0)-epsilon
-                            endif
-                            call set_layer_rho(current_layer,rhov)
-                            call set_layer_Cp_Cs(current_layer,Cpv,Csv)
-                            Cpv=-1d0
-                            Csv=-1d0
-                            rhov=-1d0
+    contains
+        real(8) function surf_by_K(x) result(f)
+        use main_parameters,only:set_omega,get_omega,&
+            lambda=>get_layer_lambda,mu=>get_layer_mu,E=>get_layer_E,nu=>get_layer_nu,&
+            Cp=>get_layer_Cp,Cs=>get_layer_Cs,rho=>get_Layer_rho,h=>get_layer_h,&
+            set_layer_Cp_Cs,set_layer_rho,set_layer_h
+        use count_K,only:K
+        use math,only:epsilon,c0
+        implicit none
+            real(8),intent(in)::x(parameters_for_detect_size)
+            
+            real(8) omega_current
+            
+            integer(4) current_layer
+            complex(8) Cpv,Csv
+            real(8) rhov
+            real(8) v,fine_for_forbit
+            integer(4) i,j
+            
+            f=0d0
+            
+            current_layer=-1
+            Cpv=-1d0
+            Csv=-1d0
+            rhov=-1d0
+            fine_for_forbit=0d0
+            do i=1,parameters_for_detect_size
+                if(.not.current_layer==parameters_layer(i)) then
+                    if(.not.current_layer==-1.and..not.(Cpv==-1d0.and.Csv==-1d0.and.rhov==-1d0)) then
+                        if(Cpv==-1d0) Cpv=Cp(current_layer)
+                        if(Csv==-1d0) Csv=Cs(current_layer)
+                        if(rhov==-1d0) rhov=rho(current_layer)
+                        if(real(Csv)*sqrt(2d0)>real(Cpv)) then
+                            fine_for_forbit=fine_for_forbit+(Csv*sqrt(2d0)-Cpv)
+                            Csv=Cpv/sqrt(2d0)-epsilon
                         endif
-                        
-                        current_layer=parameters_layer(i)
+                        call set_layer_rho(current_layer,rhov)
+                        call set_layer_Cp_Cs(current_layer,Cpv,Csv)
+                        Cpv=-1d0
+                        Csv=-1d0
+                        rhov=-1d0
                     endif
                     
-                    if(parameters_type(i)=="h") then
-                        call set_layer_h(current_layer,x(i))
-                        
-                        cycle
-                    endif
-                    if(parameters_type(i)=="rho") then
-                        rhov=x(i)
-                        
-                        cycle
-                    endif
-                    if(parameters_type(i)=="Cp") then
-                        Cpv=x(i)
-                        
-                        cycle
-                    endif
-                    if(parameters_type(i)=="Cs") then
-                        Csv=x(i)
-                        
-                        cycle
-                    endif
-                enddo
-                if(.not.current_layer==-1.and..not.(Cpv==-1d0.and.Csv==-1d0.and.rhov==-1d0)) then
-                    if(Cpv==-1d0) Cpv=Cp(current_layer)
-                    if(Csv==-1d0) Csv=Cs(current_layer)
-                    if(rhov==-1d0) rhov=rho(current_layer)
-                    if(real(Csv)*sqrt(2d0)>real(Cpv)) then
-                        fine_for_forbit=fine_for_forbit+(Csv*sqrt(2d0)-Cpv)
-                        Csv=Cpv/sqrt(2d0)-epsilon
-                    endif
-                    call set_layer_rho(current_layer,rhov)
-                    call set_layer_Cp_Cs(current_layer,Cpv,Csv)
+                    current_layer=parameters_layer(i)
                 endif
                 
-                omega_current=-1d0
-                do i=1,dispersion_curves_size
-                    if(abs(omega_current-dispersion_curves(i,1))>epsilon) then
-                        call set_omega(dispersion_curves(i,1))
-                        omega_current=get_omega()
-                    endif
+                if(parameters_type(i)=="h") then
+                    call set_layer_h(current_layer,x(i))
                     
-                    f=f+1d0/max(1d-5,abs(K(i=3,j=3,alpha=(dispersion_curves(i,2)+c0),beta=c0,z=0d0)))
-                enddo
-                
-                
-                f=f/dispersion_curves_size
-                !f=f*(1d0+fine_for_forbit)
-                f=f+fine_for_forbit*100d0
-            endfunction surf_by_K
-            real(8) function surf_by_dispersion_curves(x) result(f)
-            use main_parameters,only:set_omega,get_omega,&
-                lambda=>get_layer_lambda,mu=>get_layer_mu,E=>get_layer_E,nu=>get_layer_nu,&
-                Cp=>get_layer_Cp,Cs=>get_layer_Cs,rho=>get_Layer_rho,h=>get_layer_h,&
-                set_layer_Cp_Cs,set_layer_rho,set_layer_h
+                    cycle
+                endif
+                if(parameters_type(i)=="rho") then
+                    rhov=x(i)
+                    
+                    cycle
+                endif
+                if(parameters_type(i)=="Cp") then
+                    Cpv=x(i)
+                    
+                    cycle
+                endif
+                if(parameters_type(i)=="Cs") then
+                    Csv=x(i)
+                    
+                    cycle
+                endif
+            enddo
+            if(.not.current_layer==-1.and..not.(Cpv==-1d0.and.Csv==-1d0.and.rhov==-1d0)) then
+                if(Cpv==-1d0) Cpv=Cp(current_layer)
+                if(Csv==-1d0) Csv=Cs(current_layer)
+                if(rhov==-1d0) rhov=rho(current_layer)
+                if(real(Csv)*sqrt(2d0)>real(Cpv)) then
+                    fine_for_forbit=fine_for_forbit+(Csv*sqrt(2d0)-Cpv)
+                    Csv=Cpv/sqrt(2d0)-epsilon
+                endif
+                call set_layer_rho(current_layer,rhov)
+                call set_layer_Cp_Cs(current_layer,Cpv,Csv)
+            endif
             
-            use dispersion_curves_for_K,only:count_poles
-            use math,only:epsilon,c0
-            implicit none
-                real(8),intent(in)::x(parameters_for_detect_size)
-                
-                real(8) omega_current
-                
-                real(8) res(25)
-                integer(4) res_size
-                
-                integer(4) current_layer
-                complex(8) Cpv,Csv
-                real(8) rhov
-                real(8) v,fine_for_forbit
-                integer(4) i,j
-                
-                f=0d0
-                
-                current_layer=-1
-                Cpv=-1d0
-                Csv=-1d0
-                rhov=-1d0
-                fine_for_forbit=0d0
-                do i=1,parameters_for_detect_size
-                    if(.not.current_layer==parameters_layer(i)) then
-                        if(.not.current_layer==-1.and..not.(Cpv==-1d0.and.Csv==-1d0.and.rhov==-1d0)) then
-                            if(Cpv==-1d0) Cpv=Cp(current_layer)
-                            if(Csv==-1d0) Csv=Cs(current_layer)
-                            if(rhov==-1d0) rhov=rho(current_layer)
-                            if(real(Csv)*sqrt(2d0)>real(Cpv)) then
-                                fine_for_forbit=fine_for_forbit+(Csv*sqrt(2d0)-Cpv)
-                                Csv=Cpv/sqrt(2d0)-epsilon
-                            endif
-                            call set_layer_rho(current_layer,rhov)
-                            call set_layer_Cp_Cs(current_layer,Cpv,Csv)
-                            Cpv=-1d0
-                            Csv=-1d0
-                            rhov=-1d0
-                        endif
-                        
-                        current_layer=parameters_layer(i)
-                    endif
-                    
-                    if(parameters_type(i)=="h") then
-                        call set_layer_h(current_layer,x(i))
-                        
-                        cycle
-                    endif
-                    if(parameters_type(i)=="rho") then
-                        rhov=x(i)
-                        
-                        cycle
-                    endif
-                    if(parameters_type(i)=="Cp") then
-                        Cpv=x(i)
-                        
-                        cycle
-                    endif
-                    if(parameters_type(i)=="Cs") then
-                        Csv=x(i)
-                        
-                        cycle
-                    endif
-                enddo
-                if(.not.current_layer==-1.and..not.(Cpv==-1d0.and.Csv==-1d0.and.rhov==-1d0)) then
-                    if(Cpv==-1d0) Cpv=Cp(current_layer)
-                    if(Csv==-1d0) Csv=Cs(current_layer)
-                    if(rhov==-1d0) rhov=rho(current_layer)
-                    if(real(Csv)*sqrt(2d0)>real(Cpv)) then
-                        fine_for_forbit=fine_for_forbit+(Csv*sqrt(2d0)-Cpv)
-                        Csv=Cpv/sqrt(2d0)-epsilon
-                    endif
-                    call set_layer_rho(current_layer,rhov)
-                    call set_layer_Cp_Cs(current_layer,Cpv,Csv)
+            omega_current=-1d0
+            do i=1,dispersion_curves_size
+                if(abs(omega_current-dispersion_curves(i,1))>epsilon) then
+                    call set_omega(dispersion_curves(i,1))
+                    omega_current=get_omega()
                 endif
                 
-                omega_current=-1d0
-                do i=1,dispersion_curves_size
-                    if(abs(omega_current-dispersion_curves(i,1))>epsilon) then
-                        call set_omega(dispersion_curves(i,1))
-                        omega_current=get_omega()
-                        
-                        call count_poles(phi=0d0,number_of_en=3,res_max_size=25,res=res,res_size=res_size)
-                    endif
-                    
-                    v=1d100
-                    do j=1,res_size
-                        !if(abs(res(j)-dispersion_curves(i,2))>3d0) cycle
-                        
-                        v=min(v,abs(real(res(j))-dispersion_curves(i,2)))
-                    enddo
-                    !f=f+v
-                    f=max(f,v)
-                enddo
-                
-                !f=f/dispersion_curves_size
-                !f=f*(1d0+fine_for_forbit)
-                f=f+fine_for_forbit*100d0
-            endfunction surf_by_dispersion_curves
+                f=f+1d0/max(1d-5,abs(K(i=3,j=3,alpha=(dispersion_curves(i,2)+c0),beta=c0,z=0d0)))
+            enddo
             
-            logical(1) function skip_point_function(x) result(f)
-            use main_parameters,only:get_layer_Cp,get_layer_Cs,get_layer_rho,&
-                pure_check_correct_isotropic_parameters_for_Cp_Cs
-            use math,only:c0
-            implicit none
-                real(8),intent(in)::x(parameters_for_detect_size)
-                
-                integer(4) layer
-                real(8) Cp,Cs,rho
-                
-                integer(4) i
-                
-                !integer(4),intent(in)::parameters_for_detect_size
-                !integer(4),intent(in)::parameters_layer(parameters_for_detect_size)
-                !character(len=3),intent(in)::parameters_type(parameters_for_detect_size)!types: "h","rho","Cp","Cs"
-                !real(8),intent(in)::parameters_min(parameters_for_detect_size)!start parameters value for gradient descent method
-                !real(8),intent(in)::dparameters(parameters_for_detect_size)!in [min, min+d, .., last value <= max]
-                !real(8),intent(in)::parameters_max(parameters_for_detect_size)
-                
-                layer=parameters_layer(1)
-                Cp=-1d0
-                Cs=-1d0
-                rho=-1d0
-                do i=1,parameters_for_detect_size
-                    if(.not.layer==parameters_layer(i)) then
-                        if(real(Cp)==-1d0) Cp=real(get_layer_Cp(layer))
-                        if(real(Cs)==-1d0) Cs=real(get_layer_Cs(layer))
-                        if(rho==-1d0) rho=get_layer_rho(layer)
-                        
-                        if(.not.pure_check_correct_isotropic_parameters_for_Cp_Cs(Cp+c0,Cs+c0,rho)) then
-                            f=.false.
-                            return
+            
+            f=f/dispersion_curves_size
+            !f=f*(1d0+fine_for_forbit)
+            f=f+fine_for_forbit*100d0
+        endfunction surf_by_K
+        real(8) function surf_by_dispersion_curves(x) result(f)
+        use main_parameters,only:set_omega,get_omega,&
+            lambda=>get_layer_lambda,mu=>get_layer_mu,E=>get_layer_E,nu=>get_layer_nu,&
+            Cp=>get_layer_Cp,Cs=>get_layer_Cs,rho=>get_Layer_rho,h=>get_layer_h,&
+            set_layer_Cp_Cs,set_layer_rho,set_layer_h
+        
+        use dispersion_curves_for_K,only:count_poles
+        use math,only:epsilon,c0
+        implicit none
+            real(8),intent(in)::x(parameters_for_detect_size)
+            
+            real(8) omega_current
+            
+            real(8) res(25)
+            integer(4) res_size
+            
+            integer(4) current_layer
+            complex(8) Cpv,Csv
+            real(8) rhov
+            real(8) v,fine_for_forbit
+            integer(4) i,j
+            
+            f=0d0
+            
+            current_layer=-1
+            Cpv=-1d0
+            Csv=-1d0
+            rhov=-1d0
+            fine_for_forbit=0d0
+            do i=1,parameters_for_detect_size
+                if(.not.current_layer==parameters_layer(i)) then
+                    if(.not.current_layer==-1.and..not.(Cpv==-1d0.and.Csv==-1d0.and.rhov==-1d0)) then
+                        if(Cpv==-1d0) Cpv=Cp(current_layer)
+                        if(Csv==-1d0) Csv=Cs(current_layer)
+                        if(rhov==-1d0) rhov=rho(current_layer)
+                        if(real(Csv)*sqrt(2d0)>real(Cpv)) then
+                            fine_for_forbit=fine_for_forbit+(Csv*sqrt(2d0)-Cpv)
+                            Csv=Cpv/sqrt(2d0)-epsilon
                         endif
-                        
-                        Cp=-1d0
-                        Cs=-1d0
-                        rho=-1d0
+                        call set_layer_rho(current_layer,rhov)
+                        call set_layer_Cp_Cs(current_layer,Cpv,Csv)
+                        Cpv=-1d0
+                        Csv=-1d0
+                        rhov=-1d0
                     endif
                     
-                    if(trim(parameters_type(i))=="Cp") Cp=x(i)
-                    if(trim(parameters_type(i))=="Cs") Cs=x(i)
-                    if(trim(parameters_type(i))=="rho") rho=x(i)
-                enddo
+                    current_layer=parameters_layer(i)
+                endif
                 
+                if(parameters_type(i)=="h") then
+                    call set_layer_h(current_layer,x(i))
+                    
+                    cycle
+                endif
+                if(parameters_type(i)=="rho") then
+                    rhov=x(i)
+                    
+                    cycle
+                endif
+                if(parameters_type(i)=="Cp") then
+                    Cpv=x(i)
+                    
+                    cycle
+                endif
+                if(parameters_type(i)=="Cs") then
+                    Csv=x(i)
+                    
+                    cycle
+                endif
+            enddo
+            if(.not.current_layer==-1.and..not.(Cpv==-1d0.and.Csv==-1d0.and.rhov==-1d0)) then
+                if(Cpv==-1d0) Cpv=Cp(current_layer)
+                if(Csv==-1d0) Csv=Cs(current_layer)
+                if(rhov==-1d0) rhov=rho(current_layer)
+                if(real(Csv)*sqrt(2d0)>real(Cpv)) then
+                    fine_for_forbit=fine_for_forbit+(Csv*sqrt(2d0)-Cpv)
+                    Csv=Cpv/sqrt(2d0)-epsilon
+                endif
+                call set_layer_rho(current_layer,rhov)
+                call set_layer_Cp_Cs(current_layer,Cpv,Csv)
+            endif
+            
+            omega_current=-1d0
+            do i=1,dispersion_curves_size
+                if(abs(omega_current-dispersion_curves(i,1))>epsilon) then
+                    call set_omega(dispersion_curves(i,1))
+                    omega_current=get_omega()
+                    
+                    call count_poles(phi=0d0,number_of_en=3,res_max_size=25,res=res,res_size=res_size)
+                endif
+                
+                v=1d100
+                do j=1,res_size
+                    !if(abs(res(j)-dispersion_curves(i,2))>3d0) cycle
+                    
+                    v=min(v,abs(real(res(j))-dispersion_curves(i,2)))
+                enddo
+                !f=f+v
+                f=max(f,v)
+            enddo
+            
+            !f=f/dispersion_curves_size
+            !f=f*(1d0+fine_for_forbit)
+            f=f+fine_for_forbit*100d0
+        endfunction surf_by_dispersion_curves
+        
+        logical(1) function skip_point_function(x) result(f)
+        use main_parameters,only:get_layer_Cp,get_layer_Cs,get_layer_rho,&
+            pure_check_correct_isotropic_parameters_for_Cp_Cs
+        use math,only:c0
+        implicit none
+            real(8),intent(in)::x(parameters_for_detect_size)
+            
+            integer(4) layer
+            real(8) Cp,Cs,rho
+            
+            integer(4) i
+            
+            !integer(4),intent(in)::parameters_for_detect_size
+            !integer(4),intent(in)::parameters_layer(parameters_for_detect_size)
+            !character(len=3),intent(in)::parameters_type(parameters_for_detect_size)!types: "h","rho","Cp","Cs"
+            !real(8),intent(in)::parameters_min(parameters_for_detect_size)!start parameters value for gradient descent method
+            !real(8),intent(in)::dparameters(parameters_for_detect_size)!in [min, min+d, .., last value <= max]
+            !real(8),intent(in)::parameters_max(parameters_for_detect_size)
+            
+            layer=parameters_layer(1)
+            Cp=-1d0
+            Cs=-1d0
+            rho=-1d0
+            do i=1,parameters_for_detect_size
                 if(.not.layer==parameters_layer(i)) then
                     if(real(Cp)==-1d0) Cp=real(get_layer_Cp(layer))
                     if(real(Cs)==-1d0) Cs=real(get_layer_Cs(layer))
@@ -476,56 +456,76 @@ implicit none
                     rho=-1d0
                 endif
                 
-                f=.true.
-            endfunction skip_point_function
-        endsubroutine find_material_properties
+                if(trim(parameters_type(i))=="Cp") Cp=x(i)
+                if(trim(parameters_type(i))=="Cs") Cs=x(i)
+                if(trim(parameters_type(i))=="rho") rho=x(i)
+            enddo
+            
+            if(.not.layer==parameters_layer(i)) then
+                if(real(Cp)==-1d0) Cp=real(get_layer_Cp(layer))
+                if(real(Cs)==-1d0) Cs=real(get_layer_Cs(layer))
+                if(rho==-1d0) rho=get_layer_rho(layer)
+                
+                if(.not.pure_check_correct_isotropic_parameters_for_Cp_Cs(Cp+c0,Cs+c0,rho)) then
+                    f=.false.
+                    return
+                endif
+                
+                Cp=-1d0
+                Cs=-1d0
+                rho=-1d0
+            endif
+            
+            f=.true.
+        endfunction skip_point_function
+    endsubroutine find_material_properties
         
-        integer(4) function get_parameter_type_number(parameter_name) result(f)
-        use system,only:print_error
-        implicit none
-            character(len=3),intent(in)::parameter_name
-            
-            if(parameter_name=="h") then
-                f=1
-                return
-            endif
-            if(parameter_name=="rho") then
-                f=2
-                return
-            endif
-            if(parameter_name=="Cp") then
-                f=3
-                return
-            endif
-            if(parameter_name=="Cs") then
-                f=4
-                return
-            endif
-            
-            call print_error("material_properties_by_dispersion_curves.get_parameter_type_number","an incorrect parameter name")
-        endfunction get_parameter_type_number
-        character(len=3) function get_parameter_type_name(parameter_number) result(f)
-        use system,only:print_error
-        implicit none
-            integer(4),intent(in)::parameter_number
-            
-            if(parameter_number==1) then
-                f="h"
-                return
-            endif
-            if(parameter_number==2) then
-                f="rho"
-                return
-            endif
-            if(parameter_number==3) then
-                f="Cp"
-                return
-            endif
-            if(parameter_number==4) then
-                f="Cs"
-                return
-            endif
-            
-            call print_error("material_properties_by_dispersion_curves.get_parameter_type_name","an incorrect parameter number")
-        endfunction get_parameter_type_name
+    integer(4) function get_parameter_type_number(parameter_name) result(f)
+    use system,only:print_error
+    implicit none
+        character(len=3),intent(in)::parameter_name
+       
+        if(parameter_name=="h") then
+            f=1
+            return
+        endif
+        if(parameter_name=="rho") then
+            f=2
+            return
+        endif
+        if(parameter_name=="Cp") then
+            f=3
+            return
+        endif
+        if(parameter_name=="Cs") then
+            f=4
+            return
+        endif
+        
+        call print_error("material_properties_by_dispersion_curves.get_parameter_type_number","an incorrect parameter name")
+    endfunction get_parameter_type_number
+    character(len=3) function get_parameter_type_name(parameter_number) result(f)
+    use system,only:print_error
+    implicit none
+        integer(4),intent(in)::parameter_number
+        
+        if(parameter_number==1) then
+            f="h"
+            return
+        endif
+        if(parameter_number==2) then
+            f="rho"
+            return
+        endif
+        if(parameter_number==3) then
+            f="Cp"
+            return
+        endif
+        if(parameter_number==4) then
+            f="Cs"
+            return
+        endif
+        
+        call print_error("material_properties_by_dispersion_curves.get_parameter_type_name","an incorrect parameter number")
+    endfunction get_parameter_type_name
 endmodule material_properties_by_dispersion_curves
