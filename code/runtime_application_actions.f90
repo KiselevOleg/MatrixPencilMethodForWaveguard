@@ -59,14 +59,17 @@ implicit none
         integer(4) file
         integer(4) i,j
         
-        !open(newunit=file,file="input/glass_experimental_dispersion_curves/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental_extended.data")
-        !open(newunit=file,file="input/glass_experimental_dispersion_curves/55000/with_first_points/accurate/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental.data")
-        !open(newunit=file,file="input/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves.data")
-        !open(newunit=file,file="input/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves2.data")
-        open(newunit=file,file="input/test_Al/dispersion_curve.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/_dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/55000/with_first_points/_dispersion_curve_experimental_extended.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/55000/with_first_points/accurate/_dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/glass_experimental_dispersion_curves/manual/_dispersion_curve_experimental_without_main_curves2.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/Al_new_experimental_dispersion_curves/2000/dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/Al_new_new_experimental_dispersion_curves/many_points/dispersion_curve_experimental.data")
+        !open(newunit=file,file="input/matrix_pencil_method_result/Al_new_new_experimental_dispersion_curves/quality_points/dispersion_curve_experimental.data")
+        open(newunit=file,file="input/matrix_pencil_method_result/temporary/dispersion_curves.data")
         read(file,*),dispersion_curves_size
         allocate(dispersion_curves(dispersion_curves_size,2))
         do i=1,dispersion_curves_size
@@ -82,17 +85,15 @@ implicit none
         allocate(parameters_max(parameters_for_detect_size))
         allocate(dparameters(parameters_for_detect_size))
         
-        parameters_layer(1)=1;  parameters_type(1)="E";   parameters_min(1)=0.5d0;    parameters_max(1)=0.90001d0;    dparameters(1)=0.25000d0/4
-        parameters_layer(2)=1;  parameters_type(2)="nu";  parameters_min(2)=0.15d0;    parameters_max(2)=0.39999d0;    dparameters(2)=0.09999d0/4
-        !parameters_layer(3)=1;  parameters_type(3)="h";   parameters_min(3)=0.25d0;   parameters_max(3)=0.30001d0;    dparameters(3)=0.05000d0/4
-        !parameters_layer(4)=1;  parameters_type(4)="rho"; parameters_min(4)=2.30d0;   parameters_max(4)=2.50001d0;    dparameters(4)=0.10000d0/4
-        !parameters_layer(1)=1;  parameters_type(1)="rho"; parameters_min(1)=2.30d0;   parameters_max(1)=2.50001d0;    dparameters(1)=0.10000d0/4
+        parameters_layer(1)=1;  parameters_type(1)="Cp";  parameters_min(1)=0.1d0;    parameters_max(1)=1.0d0;  dparameters(1)=0.05000d0
+        parameters_layer(2)=1;  parameters_type(2)="Cs";  parameters_min(2)=0.1d0;    parameters_max(2)=1.0d0;  dparameters(2)=0.05000d0
+        !parameters_layer(3)=1;  parameters_type(3)="h";   parameters_min(3)=0.2d0;    parameters_max(3)=0.3d0;  dparameters(3)=0.05000d0
         
         res_max_size=1000
         allocate(res(res_max_size,parameters_for_detect_size))
         allocate(res_value_of_right(res_max_size))
         
-        call find_material_properties(dispersion_curves_size,dispersion_curves,.true.,&
+        call find_material_properties(dispersion_curves_size,dispersion_curves,.false.,&
             parameters_for_detect_size,parameters_layer,parameters_type,parameters_min,parameters_max,dparameters,&
             res_max_size,res,res_value_of_right,res_size)
         
@@ -321,11 +322,11 @@ implicit none
     endsubroutine count_complex_det_A_matrix_in_K_graphics
     
     subroutine count_complex_distersion_curve_for_K_graphics()
-    use main_parameters,only:omega
+    use main_parameters,only:set_omega
     use dispersion_curves_for_K,only:count_complex_poles
     use math,only:pi
     implicit none
-        real(8) omega_start,domega,omega_end
+        real(8) omega,omega_start,domega,omega_end
         
         real(8) phi
         
@@ -344,6 +345,7 @@ implicit none
         
         open(newunit=file,file="graphics/complex_distersion_curve_for_K/dispersion_curves.data")
         do omega=omega_start,omega_end,domega
+            call set_omega(omega)
             call count_complex_poles(phi,3,res_size_max,res,res_size)
             
             do i=1,res_size
@@ -355,11 +357,11 @@ implicit none
         close(file)
     endsubroutine count_complex_distersion_curve_for_K_graphics
     subroutine count_distersion_curve_for_K_graphics()
-    use main_parameters,only:omega
+    use main_parameters,only:set_omega
     use dispersion_curves_for_K,only:count_poles
     use math,only:pi
     implicit none
-        real(8) omega_start,domega,omega_end
+        real(8) omega,omega_start,domega,omega_end
         
         real(8) phi
         
@@ -378,6 +380,7 @@ implicit none
         
         open(newunit=file,file="graphics/distersion_curve_for_K/dispersion_curves.data")
         do omega=omega_start,omega_end,domega
+            call set_omega(omega)
             call count_poles(phi,3,res_size_max,res,res_size)
             
             do i=1,res_size
@@ -390,7 +393,8 @@ implicit none
     endsubroutine count_distersion_curve_for_K_graphics
     
     subroutine count_matrix_pencil_method_distersion_curve_graphics()
-    use matrix_pencil_method,only:count_dispersion_numbers
+    use matrix_pencil_method,only:count_dispersion_numbers,set_dx_filter_strength,set_L_filter_strength,set_dL_filter_value,&
+        get_dx_filter_strength,get_L_filter_strength,get_dL_filter_value,get_result_with_lower_filters
     use math,only:c0,pi
     implicit none
         integer(4) L,res_size
@@ -398,27 +402,51 @@ implicit none
         
         real(8) omega,omega_start,domega,omega_end
         
-        integer(4) i
-        integer(4) file
+        integer(4) i,j,k
+        integer(4) file_result,file_filters(100,100)!dx_filter_number,L_filter_number
+        character(len=128) file_name
+        
+        call set_dx_filter_strength(0)
+        call set_L_filter_strength(1)
+        call set_dL_filter_value(3)
         
         L=90/2
         L=40*2-20
         allocate(res(L))
         
         omega_start=0.01; domega=0.01d0*10d0; omega_end=6.25d0*2
-        omega_start=0.1d0; domega=0.05d0*5*3/15*5; omega_end=6.25d0*3
+        omega_start=0.1d0; domega=0.05d0*5*3/15; omega_end=6.25d0*3
         
-        open(newunit=file,file="graphics/matrix_pencil_method/dispersion_curve.data")
+        open(newunit=file_result,file="graphics/matrix_pencil_method/dispersion_curves.data")
+        do i=0,get_dx_filter_strength()
+            do j=0,get_L_filter_strength()
+                write(file_name,*),"graphics/matrix_pencil_method/dispersion_curves_dx_filter=",i,"dL_filter=",j,".data"
+                open(newunit=file_filters(i+1,j+1),file=file_name)
+            enddo
+        enddo
         do omega=omega_start,omega_end,domega
             call count_dispersion_numbers(omega+c0,L,res,res_size)
             
             do i=1,res_size
-                write(file,*),omega*0.5d0/pi,real(res(i)),aimag(res(i))
+                write(file_result,*),omega*0.5d0/pi,real(res(i)),aimag(res(i))
+            enddo
+            do i=0,get_dx_filter_strength()
+                do j=0,get_L_filter_strength()
+                    call get_result_with_lower_filters(res=res,res_size=res_size,dx_filter_strength_=i,dL_filter_strength_=j)
+                    do k=1,res_size
+                        write(file_filters(i+1,j+1),*),omega*0.5d0/pi,real(res(k)),aimag(res(k))
+                    enddo
+                enddo
             enddo
             
             print*,omega,res_size
         enddo
-        close(file)
+        do i=0,get_dx_filter_strength()
+            do j=0,get_L_filter_strength()
+                close(file_filters(i+1,j+1))
+            enddo
+        enddo
+        close(file_result)
         
         deallocate(res)
     endsubroutine count_matrix_pencil_method_distersion_curve_graphics

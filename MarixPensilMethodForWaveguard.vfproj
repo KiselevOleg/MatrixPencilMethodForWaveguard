@@ -140,26 +140,25 @@
 		<File RelativePath=".\code\resourse\static_integration.f90"/>
 		<File RelativePath=".\code\resourse\system.f90"/></Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<Filter Name="finding_material_properties">
+		<File RelativePath=".\code\finding_material_properties\material_properties_by_dispersion_curves.f90"/></Filter>
 		<Filter Name="load_experimental_measurements">
 		<File RelativePath=".\code\load_experimental_measurements\load_experimental_measurements.f90"/></Filter>
 		<Filter Name="matrix_pencil_method">
 		<File RelativePath=".\code\matrix_pencil_method\matrix_pencil_method.f90"/>
 		<File RelativePath=".\code\matrix_pencil_method\matrix_pencil_method_basis.f90"/></Filter>
-		<Filter Name="finding_material_properties">
-		<File RelativePath=".\code\finding_material_properties\material_properties_by_dispersion_curves.f90"/></Filter>
 		<Filter Name="smoothing_signal">
 		<File RelativePath=".\code\smoothing_signal\smoothing_signal.f90"/></Filter>
-		<Filter Name="vaweguard_solution">
+		<Filter Name="waveguard_solution">
 		<File RelativePath=".\code\waveguard_solution\count_K.f90"/>
 		<File RelativePath=".\code\waveguard_solution\dispersion_curves_for_K.f90"/>
 		<File RelativePath=".\code\waveguard_solution\integral_solution.f90"/>
 		<File RelativePath=".\code\waveguard_solution\integral_solution_isotropic.f90"/>
+		<File RelativePath=".\code\waveguard_solution\main_parameters.f90"/>
 		<File RelativePath=".\code\waveguard_solution\sigma_and_eigenvectors.f90"/></Filter>
 		<File RelativePath=".\code\main.f90"/>
-		<File RelativePath=".\code\main_parameters.f90"/>
 		<File RelativePath=".\code\pre_and_post_runtime_actions.f90"/>
-		<File RelativePath=".\code\runtime_application_actions.f90"/>
-		<File RelativePath=".\static_integration.f90"/></Filter>
+		<File RelativePath=".\code\runtime_application_actions.f90"/></Filter>
 	</Files>
 	<Globals/>
 </VisualStudioProject>

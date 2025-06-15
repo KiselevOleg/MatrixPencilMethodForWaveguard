@@ -8,8 +8,7 @@ program main
 implicit none
     call init()
     
-    call generate_teoretical_signal()
-    !call find_material_properties_from_experimental_measurements()
+    call find_material_properties_from_experimental_measurements()
     !call count_wavelet_transform_smoothing()
     !call count_wavelet_transform_graphics()
     !call count_complex_det_A_matrix_in_K_graphics()
