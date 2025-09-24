@@ -80,7 +80,10 @@ implicit none
         
         !complex(8) function GK_integral_ab(functionName,accurate,a,b,upperPolesValue,depthOfAvoidingPoles)
         !f=GK_integral_ab(uz_inner_fun2,1d-5,0d0,300d0,250d0,1d-4)
-        f=GK_integral_ab(uz_inner_fun2,1d-4,0d0,150d0,40d0,1d-5)
+        !f=GK_integral_ab(uz_inner_fun2,1d-4,0d0,150d0,40d0,1d-5)
+        
+        !f=GK_integral_ab(uz_inner_fun2,1d-5,0d0,250d0,160d0,1d-3)
+        f=GK_integral_ab(uz_inner_fun2,1d-6,0d0,100d0,70d0,1d-3)
     endfunction uz_omega
     
     subroutine init_integral_solution_isotropic()

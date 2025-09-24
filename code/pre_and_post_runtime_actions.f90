@@ -2,7 +2,7 @@ module pre_and_post_runtime_actions
 implicit none
     public::init,destructor
     
-    private::establish_main_parameters
+    private::establish_main_parameters,Q,Qomega
     contains
     
     subroutine init()
@@ -84,6 +84,7 @@ implicit none
         call set_number_of_layers(1)
         
         call set_layer_h(1,0.282d0)
+        call set_layer_h(1,0.29d0)
         call set_layer_rho(1,2.419d0)
         
         call set_layer_Cp_Cs(1,0.568992104327976d0+c0,0.334608586360528d0+C0)
@@ -100,36 +101,34 @@ implicit none
         !print*,"mu",get_layer_parameter(layer=1,parameter_name_length=2,parameter_name="mu")
         !print*,"Cp",get_layer_parameter(layer=1,parameter_name_length=2,parameter_name="Cp")
         !print*,"Cs",get_layer_parameter(layer=1,parameter_name_length=2,parameter_name="Cs")
-        
-    contains
-        complex(8) function Q(ind,alpha,beta) result(f)
-        use math,only:ci
-        use system,only:print_error
-        implicit none
-            integer(4),intent(in)::ind
-            complex(8),intent(in)::alpha
-            complex(8),intent(in)::beta
-            
-            if(.not.(1.le.ind.and.ind.le.3)) &
-                call print_error("pre_and_post_runtime_actions.establish_main_parameters",&
-                ".not.(1.le.ind.and.ind.le.3)")
-            
-            if(ind==1) then
-                f=0d0
-            elseif(ind==2) then
-                f=0d0
-            else
-                f=1d0
-            endif
-        endfunction Q
-        pure complex(8) function Qomega(omega) result(f)
-        use math,only:ci,c0
-        implicit none
-            complex(8),intent(in)::omega
-            
-            f=1d0
-        endfunction Qomega
     endsubroutine establish_main_parameters
+    complex(8) function Q(ind,alpha,beta) result(f)
+    use math,only:ci
+    use system,only:print_error
+    implicit none
+        integer(4),intent(in)::ind
+        complex(8),intent(in)::alpha
+        complex(8),intent(in)::beta
+        
+        if(.not.(1.le.ind.and.ind.le.3)) &
+            call print_error("pre_and_post_runtime_actions.establish_main_parameters",&
+            ".not.(1.le.ind.and.ind.le.3)")
+        
+        if(ind==1) then
+            f=0d0
+        elseif(ind==2) then
+            f=0d0
+        else
+            f=1d0
+        endif
+    endfunction Q
+    pure complex(8) function Qomega(omega) result(f)
+    use math,only:ci,c0
+    implicit none
+        complex(8),intent(in)::omega
+        
+        f=1d0
+    endfunction Qomega
     
     pure character(len=1024) function get_x_file_name() result(f)
     implicit none

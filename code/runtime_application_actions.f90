@@ -9,37 +9,106 @@ implicit none
     
     subroutine generate_teoretical_signal()
     use integral_solution_isotropic,only:uz,uz_omega
-    use main_parameters,only:Qomega
+    use main_parameters,only:get_Qomega,set_Qomega,set_Q
     implicit none
-        real(8) x,y,z,t
+        real(8) x,y,z,tomega
         
-        real(8) t1,dt,t2
+        real(8) tomega1,dtomega,tomega2
         complex(8) u
+        
+        integer(4) spectrum_load_size
+        real(8) domega,max_omega
+        complex(8),allocatable::spectrum_load(:)
         
         integer(4) file
         
-        x=1.2125d0; y=0d0; z=0d0
-        x=1.325d0; y=0d0; z=0d0
-        x=1.325d0; y=0d0; z=0d0
-        t1=0d0; t2=131.337d0; dt=6.40043d-2
-        t1=-50d0+30d0+10d0; t2=50d0; dt=50d-2*2
-        t1=-5d0; t2=150d0; dt=50d-2
-        !t1=-5d0; t2=5d0; dt=2d-3
+        call load_data_for_Qomega()
+        call set_Q(Q)
+        call set_Qomega(Qomega)
         
-        x=5.2d0+2.5d0*0; y=0d0; z=0d0
-        !x=3.3d0; y=0d0; z=0d0
-        t1=0.01d0; t2=15d0; dt=50d-2/20
+        x=2d0-0.5; y=0d0; z=0d0
+        tomega1=0.01d0; tomega2=25d0; dtomega=50d-2/20
         
         open(newunit=file,file="graphics/generate_teoretical_signal/signal.data")
-        do t=t1,t2,dt
-            !u=uz(x,y,z,t)-uz(x+1d0,y,z,t)
-            u=uz_omega(x,y,z,t)!-uz_omega(x+1.025d0,y,z,t)
-            u=u*Qomega(t+(0d0,0d0))
-            write(file,*),t,real(u),aimag(u)
+        do tomega=tomega1,tomega2,dtomega
+            !u=uz(x,y,z,tomega)-uz(x+1d0,y,z,tomega)
+            u=uz_omega(x,y,z,tomega)!-uz_omega(x+1d0,y,z,tomega)
+            u=u*get_Qomega(tomega+(0d0,0d0))
+            write(file,*),tomega,real(u),aimag(u)
             
-            print*,t
+            print*,tomega
         enddo
         close(file)
+        
+    contains
+        complex(8) function Q(ind,alpha,beta) result(f)
+        use math,only:ci
+        use system,only:print_error
+        implicit none
+            integer(4),intent(in)::ind
+            complex(8),intent(in)::alpha
+            complex(8),intent(in)::beta
+            
+            if(.not.(1.le.ind.and.ind.le.3)) &
+                call print_error("pre_and_post_runtime_actions.establish_main_parameters",&
+                ".not.(1.le.ind.and.ind.le.3)")
+            
+            if(ind==1) then
+                f=0d0
+            elseif(ind==2) then
+                f=0d0
+            else
+                f=1d0
+            endif
+        endfunction Q
+        pure complex(8) function Qomega(omega) result(f)
+        use math,only:ci,c0,epsilon
+        implicit none
+            complex(8),intent(in)::omega
+            
+            complex(8) v1,v2,omega1,omega2
+            integer(4) i
+            
+            if(real(omega)<epsilon.or.real(omega)>max_omega-domega-epsilon) then
+                f=0d0
+                return
+            endif
+            
+            i=real(omega)/domega+1
+            omega1=domega*(i-1)
+            v1=spectrum_load(i)
+            !omega2=omega2+domega
+            v2=spectrum_load(i+1)
+            
+            f=v1+(omega-omega1)*(v2-v1)/domega
+        endfunction Qomega
+        
+        subroutine load_data_for_Qomega()
+        use math,only:pi,ci
+        implicit none
+            integer(4) file
+            real(8) realv,aimagv,absv,f_value
+            
+            integer(4) i
+            
+            open(newunit=file,file="input\generate_teoretical_signal\specrum_sin-1mks-load.data")
+            
+            read(file,*),spectrum_load_size
+            allocate(spectrum_load(spectrum_load_size))
+            
+            do i=1,spectrum_load_size
+                read(file,*),f_value,absv,realv,aimagv
+                spectrum_load(i)=realv+ci*aimagv
+                
+                if(i==2) then
+                    domega=f_value*2d0*pi
+                endif
+                if(i==spectrum_load_size) then
+                    max_omega=f_value*2d0*pi
+                endif
+            enddo
+            close(file)
+        endsubroutine load_data_for_Qomega
     endsubroutine generate_teoretical_signal
     
     subroutine find_material_properties_from_experimental_measurements()
